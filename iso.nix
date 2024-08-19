@@ -140,12 +140,7 @@ in
 
   hardware.deviceTree.enable = true;
 
-  # hardware.firmware = [
-  #   (lib.fileset.toSource {
-  #     root = ../../yoga_stuff/firmware;
-  #     fileset = ../../yoga_stuff/firmware;
-  #   })
-  # ];
+  hardware.firmware = [ pkgs.x1e80100-lenovo-yoga-slim7x-firmware ];
 
   boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.buildLinux {
     src = pkgs.fetchFromGitHub {
