@@ -10,10 +10,24 @@
       # Modify this if you are building on something other than x86_64-linux.
       buildSystem = "x86_64-linux";
 
-      nixpkgs-patched = nixpkgs.legacyPackages.${buildSystem}.applyPatches {
+      pkgs-unpatched = nixpkgs.legacyPackages.${buildSystem};
+      nixpkgs-patched = pkgs-unpatched.applyPatches {
         name = "nixpkgs-patched";
         src = nixpkgs;
-        patches = [ ./nixpkgs-devicetree.patch ];
+        patches = [
+          # Patches to update mesa to 24.2.0, from this draft PR:
+          # https://github.com/NixOS/nixpkgs/pull/332413
+          (pkgs-unpatched.fetchpatch {
+            url = "https://github.com/NixOS/nixpkgs/commit/e0d63cce60e94fb64aa13204855d6f5b15b587e0.patch";
+            hash = "sha256-QZ0MaFukfGqCbAAxk6jbh1RYT0ix6IBzvM99jknWr88=";
+          })
+          (pkgs-unpatched.fetchpatch {
+            url = "https://github.com/NixOS/nixpkgs/commit/939da674474b49572f4e08345ce24db8ce9d49c6.patch";
+            hash = "sha256-bieWCh5d3ub8H2cgfxlVoorj7wloUaRTLGSdkmIOYRU=";
+          })
+
+          ./nixpkgs-devicetree.patch
+        ];
       };
       pkgs = import nixpkgs-patched {
         localSystem.system = buildSystem;
