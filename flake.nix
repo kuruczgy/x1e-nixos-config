@@ -22,6 +22,15 @@
         overlays = [
           (final: prev: {
             x1e80100-lenovo-yoga-slim7x-firmware = final.callPackage ./packages/x1e80100-lenovo-yoga-slim7x-firmware.nix { };
+
+            linux-firmware = prev.linux-firmware.overrideAttrs (_: {
+              src = final.fetchgit
+                {
+                  url = "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git";
+                  rev = "82318c966fd1af87044299d34611751c76f70927";
+                  hash = "sha256-7nl9FCB9aIcjF2DUO4yI4pAigJlfwNYmn7Skw7fwL98=";
+                };
+            });
           })
         ];
       };

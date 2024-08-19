@@ -61,7 +61,6 @@ let
     "uas"
 
     # random tries:
-    "ath12k"
     "r8152"
     "qcom_battmgr"
     "lzo_rle"
