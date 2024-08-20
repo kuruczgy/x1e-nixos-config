@@ -65,6 +65,7 @@
           modules = [
             "${nixpkgs-patched}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
             ./iso.nix
+            ./modules/x1e80100.nix
             {
               nixpkgs.pkgs = pkgs-cross;
               hardware.deviceTree.name = deviceTreeName;
