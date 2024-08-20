@@ -32,6 +32,7 @@
             })
 
             ./nixpkgs-devicetree.patch
+            ./nixpkgs-efi-shell.patch
           ];
         };
       nixpkgs-patched = nixpkgsPatchedWithBuildSystem buildSystem;
