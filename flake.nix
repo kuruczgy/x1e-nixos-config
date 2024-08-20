@@ -58,6 +58,10 @@
         crossSystem.system = "aarch64-linux";
         allowUnsupportedSystem = true;
       };
+      pkgs-aarch64 = import (nixpkgsPatchedWithBuildSystem "aarch64-linux") {
+        inherit overlays;
+        localSystem.system = "aarch64-linux";
+      };
     in
     {
       nixosConfigurations = {
@@ -66,8 +70,20 @@
             "${nixpkgs-patched}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
             ./iso.nix
             ./modules/x1e80100.nix
+            ./modules/common.nix
             {
               nixpkgs.pkgs = pkgs-cross;
+              hardware.deviceTree.name = deviceTreeName;
+            }
+          ];
+        };
+        system = nixpkgs.lib.nixosSystem {
+          modules = [
+            ./system.nix
+            ./modules/x1e80100.nix
+            ./modules/common.nix
+            {
+              nixpkgs.pkgs = pkgs-aarch64;
               hardware.deviceTree.name = deviceTreeName;
             }
           ];

@@ -14,4 +14,7 @@
   ];
 
   hardware.graphics.enable = true;
+
+  # Include this repo in the image
+  systemd.tmpfiles.rules = [ "L /x1e-nixos-config - - - - ${./.}" ];
 }
