@@ -16,7 +16,7 @@
       deviceTreeName = "qcom/x1e80100-lenovo-yoga-slim7x.dtb";
 
       nixpkgsPatchedWithBuildSystem = buildSystem:
-        let pkgs-unpatched = nixpkgs.legacyPackages.${buildSystem}; in pkgs-unpatched.applyPatches {
+        let pkgs-unpatched = nixpkgs.legacyPackages.${buildSystem}; in (pkgs-unpatched.applyPatches {
           name = "nixpkgs-patched";
           src = nixpkgs;
           patches = [
@@ -35,7 +35,7 @@
             ./nixpkgs-devicetree.patch
             ./nixpkgs-efi-shell.patch
           ];
-        };
+        }).overrideAttrs (_: { allowSubstitutes = true; });
       nixpkgs-patched = nixpkgsPatchedWithBuildSystem buildSystem;
 
       overlays = [
