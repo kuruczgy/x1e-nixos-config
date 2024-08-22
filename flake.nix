@@ -40,6 +40,7 @@
 
       overlays = [
         (final: prev: {
+          x1e80100-linux = final.callPackage ./packages/x1e80100-linux.nix { };
           x1e80100-lenovo-yoga-slim7x-firmware = final.callPackage ./packages/x1e80100-lenovo-yoga-slim7x-firmware.nix { };
           x1e80100-lenovo-yoga-slim7x-firmware-json = final.callPackage ./packages/x1e80100-lenovo-yoga-slim7x-firmware-json.nix { };
           libqrtr = final.callPackage ./packages/libqrtr.nix { };
@@ -78,6 +79,9 @@
             {
               nixpkgs.pkgs = pkgs-cross;
               hardware.deviceTree.name = deviceTreeName;
+
+              # Required to evaluate packages from `pkgs-cross` on the device.
+              isoImage.storeContents = [ nixpkgs-patched ];
             }
           ];
         };
@@ -87,10 +91,14 @@
             ./modules/x1e80100.nix
             ./modules/common.nix
             ./modules/pd-mapper.nix
-            {
+            ({ lib, ... }: {
               nixpkgs.pkgs = pkgs-aarch64;
               hardware.deviceTree.name = deviceTreeName;
-            }
+
+              # Copy the cross-compiled kernel from the install ISO. Remove
+              # this if you want to natively compile the kernel on your device.
+              boot.kernelPackages = lib.mkForce pkgs-cross.x1e80100-linux;
+            })
           ];
         };
       };
