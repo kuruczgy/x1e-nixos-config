@@ -78,6 +78,9 @@
             {
               nixpkgs.pkgs = pkgs-cross;
               hardware.deviceTree.name = deviceTreeName;
+
+
+              boot.supportedFilesystems = [ "ntfs" ];
             }
           ];
         };

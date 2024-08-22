@@ -115,3 +115,17 @@ FS4:\> bcfg boot dump
 Now you can use the `reset` command to reboot, and after booting again you should see the `systemd-boot` menu with options for both NixOS and Windows.
 
 After booting into NixOS, you can log in with the user `user` using the password `nixos`. You can change the default password using `passwd`.
+
+## Appendix: using gparted to rearrange partitions
+
+Useful info about windows "Microsoft reserved partition": https://superuser.com/a/1521686
+
+Launch `sway`, then press `Mod+Enter` to launch a terminal, and type `sudo -E gparted` to launch gparted.
+
+I was able to successfully apply the following operations, and have Windows still boot:
+
+- Shrink Windows partition to 100GiB (I did this in windows).
+- Move Windows partition to the end of the disk, just before the recovery partition.
+- Move the "Microsoft reserved partition" just before the Windows partition.
+- Enlarge the EFI partition to 10GiB
+- Create two now partitions in the now empty space

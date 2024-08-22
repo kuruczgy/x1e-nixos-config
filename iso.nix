@@ -7,17 +7,22 @@
   # For some reason the adsp booting up messes with USB boot, so disable it.
   boot.blacklistedKernelModules = [ "qcom_q6v5_pas" ];
 
+  hardware.graphics.enable = true;
+
+  # Include this repo in the image
+  systemd.tmpfiles.rules = [ "L /x1e-nixos-config - - - - ${./.}" ];
+
   environment.systemPackages = [
     pkgs.kmscube
     pkgs.mesa-demos
     pkgs.vulkan-tools
     pkgs.evtest
-    pkgs.sway
     pkgs.strace
+
+    pkgs.sway
+    pkgs.foot
+    pkgs.gparted
   ];
 
-  hardware.graphics.enable = true;
-
-  # Include this repo in the image
-  systemd.tmpfiles.rules = [ "L /x1e-nixos-config - - - - ${./.}" ];
+  # programs.sway.enable = true;
 }
