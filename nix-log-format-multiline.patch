@@ -1,0 +1,52 @@
+diff --git i/src/libmain/loggers.cc w/src/libmain/loggers.cc
+index 8c3c4e355..e6d0a65e2 100644
+--- i/src/libmain/loggers.cc
++++ w/src/libmain/loggers.cc
+@@ -4,7 +4,7 @@
+ 
+ namespace nix {
+ 
+-LogFormat defaultLogFormat = LogFormat::raw;
++LogFormat defaultLogFormat = LogFormat::multilineWithLogs;
+ 
+ LogFormat parseLogFormat(const std::string & logFormatStr) {
+     if (logFormatStr == "raw" || getEnv("NIX_GET_COMPLETIONS"))
+diff --git i/src/libmain/shared.cc w/src/libmain/shared.cc
+index 018e34509..2e5dcc870 100644
+--- i/src/libmain/shared.cc
++++ w/src/libmain/shared.cc
+@@ -184,7 +184,7 @@ LegacyArgs::LegacyArgs(const std::string & programName,
+         .longName = "no-build-output",
+         .shortName = 'Q',
+         .description = "Do not show build output.",
+-        .handler = {[&]() {setLogFormat(LogFormat::raw); }},
++        .handler = {[&]() {setLogFormat(LogFormat::multilineWithLogs); }},
+     });
+ 
+     addFlag({
+diff --git i/src/nix/main.cc w/src/nix/main.cc
+index 9cbe303ac..d5d2044db 100644
+--- i/src/nix/main.cc
++++ w/src/nix/main.cc
+@@ -359,7 +359,7 @@ void mainWrapped(int argc, char * * argv)
+ 
+     evalSettings.pureEval = true;
+ 
+-    setLogFormat(LogFormat::bar);
++    setLogFormat(LogFormat::multilineWithLogs);
+     Finally f([] { logger->pause(); });
+     settings.verboseBuild = false;
+     // FIXME: stop messing about with log verbosity depending on if it is interactive use
+diff --git i/src/nix/prefetch.cc w/src/nix/prefetch.cc
+index b99cd5dd0..f0375b6e8 100644
+--- i/src/nix/prefetch.cc
++++ w/src/nix/prefetch.cc
+@@ -181,7 +181,7 @@ static int main_nix_prefetch_url(int argc, char * * argv)
+             throw UsageError("too many arguments");
+ 
+         if (isOutputARealTerminal(StandardOutputStream::Stderr))
+-            setLogFormat(LogFormat::bar);
++            setLogFormat(LogFormat::multilineWithLogs);
+ 
+         auto store = openStore();
+         auto state = std::make_unique<EvalState>(myArgs.searchPath, store);

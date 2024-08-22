@@ -1,0 +1,282 @@
+From 03eb3621851b7388c6600cb81a4ac57bf80c9eb5 Mon Sep 17 00:00:00 2001
+From: Jade Lovelace <software@lfcode.ca>
+Date: Sat, 10 Aug 2024 00:11:45 -0700
+Subject: [PATCH] lixVersions.lix_2_91: init
+
+This adds Lix 2.91.0 to nixpkgs and sets it as the default Lix release.
+
+Blog post:
+https://lix.systems/blog/2024-08-12-lix-2.91-release/
+
+Release notes:
+https://docs.lix.systems/manual/lix/stable/release-notes/rl-2.91.html
+
+Co-Authored-By: Atemu <git@atemu.net>
+---
+ pkgs/tools/package-management/lix/common.nix  | 66 ++++++++++++-------
+ pkgs/tools/package-management/lix/default.nix | 32 +++++++--
+ 2 files changed, 69 insertions(+), 29 deletions(-)
+
+diff --git a/pkgs/tools/package-management/lix/common.nix b/pkgs/tools/package-management/lix/common.nix
+index fe9e1d2d2def..369d7cb0f2d3 100644
+--- a/pkgs/tools/package-management/lix/common.nix
++++ b/pkgs/tools/package-management/lix/common.nix
+@@ -19,7 +19,6 @@ assert (hash == null) -> (src != null);
+ {
+   stdenv,
+   meson,
+-  bash,
+   bison,
+   boehmgc,
+   boost,
+@@ -27,29 +26,20 @@ assert (hash == null) -> (src != null);
+   busybox-sandbox-shell,
+   bzip2,
+   callPackage,
+-  coreutils,
+   curl,
+   cmake,
+-  docbook_xsl_ns,
+-  docbook5,
+   doxygen,
+   editline,
+   flex,
+   git,
+-  gnutar,
+   gtest,
+-  gzip,
+   jq,
+   lib,
+   libarchive,
+   libcpuid,
+-  libgit2,
+   libsodium,
+-  libxml2,
+-  libxslt,
+   lowdown,
+   lsof,
+-  man,
+   mercurial,
+   mdbook,
+   mdbook-linkcheck,
+@@ -57,8 +47,8 @@ assert (hash == null) -> (src != null);
+   ninja,
+   openssl,
+   toml11,
++  pegtl,
+   python3,
+-  perl,
+   pkg-config,
+   rapidcheck,
+   Security,
+@@ -85,7 +75,11 @@ assert (hash == null) -> (src != null);
+   stateDir,
+   storeDir,
+ }:
+-assert lib.assertMsg (docCargoHash != null || docCargoLock != null) "Either `lix-doc`'s cargoHash using `docCargoHash` or `lix-doc`'s `cargoLock.lockFile` using `docCargoLock` must be set!";
++assert lib.assertMsg (docCargoHash != null || docCargoLock != null)
++  "Either `lix-doc`'s cargoHash using `docCargoHash` or `lix-doc`'s `cargoLock.lockFile` using `docCargoLock` must be set!";
++let
++  isLegacyParser = lib.versionOlder version "2.91";
++in
+ stdenv.mkDerivation {
+   pname = "lix";
+ 
+@@ -102,6 +96,7 @@ stdenv.mkDerivation {
+     ++ lib.optionals enableDocumentation [
+       "man"
+       "doc"
++      "devdoc"
+     ];
+ 
+   strictDeps = true;
+@@ -109,7 +104,6 @@ stdenv.mkDerivation {
+   nativeBuildInputs =
+     [
+       pkg-config
+-      bison
+       flex
+       jq
+       meson
+@@ -124,7 +118,8 @@ stdenv.mkDerivation {
+       jq
+       lsof
+     ]
+-    ++ lib.optionals (enableDocumentation) [
++    ++ lib.optionals isLegacyParser [ bison ]
++    ++ lib.optionals enableDocumentation [
+       (lib.getBin lowdown)
+       mdbook
+       mdbook-linkcheck
+@@ -149,6 +144,7 @@ stdenv.mkDerivation {
+       toml11
+       lix-doc
+     ]
++    ++ lib.optionals (!isLegacyParser) [ pegtl ]
+     ++ lib.optionals stdenv.isDarwin [ Security ]
+     ++ lib.optionals (stdenv.isx86_64) [ libcpuid ]
+     ++ lib.optionals withLibseccomp [ libseccomp ]
+@@ -160,7 +156,7 @@ stdenv.mkDerivation {
+   ];
+ 
+   postPatch = ''
+-    patchShebangs --build tests
++    patchShebangs --build tests doc/manual
+   '';
+ 
+   preConfigure =
+@@ -184,10 +180,15 @@ stdenv.mkDerivation {
+       ''}
+     '';
+ 
+-  mesonBuildType = "release";
++  # -O3 seems to anger a gcc bug and provide no performance benefit.
++  # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=114360
++  # We use -O2 upstream https://gerrit.lix.systems/c/lix/+/554
++  mesonBuildType = "debugoptimized";
++
+   mesonFlags =
+     [
+-      # LTO optimization
++      # Enable LTO, since it improves eval performance a fair amount
++      (lib.mesonBool "b_lto" true)
+       (lib.mesonEnable "gc" true)
+       (lib.mesonBool "enable-tests" true)
+       (lib.mesonBool "enable-docs" enableDocumentation)
+@@ -202,10 +203,15 @@ stdenv.mkDerivation {
+       (lib.mesonOption "sandbox-shell" "${busybox-sandbox-shell}/bin/busybox")
+     ];
+ 
++  ninjaFlags = [ "-v" ];
++
+   postInstall =
+-    ''
++    lib.optionalString enableDocumentation ''
+       mkdir -p $doc/nix-support
+       echo "doc manual $doc/share/doc/nix/manual" >> $doc/nix-support/hydra-build-products
++
++      mkdir -p $devdoc/nix-support
++      echo "devdoc internal-api $devdoc/share/doc/nix/internal-api" >> $devdoc/nix-support/hydra-build-products
+     ''
+     + lib.optionalString stdenv.hostPlatform.isStatic ''
+       mkdir -p $out/nix-support
+@@ -220,15 +226,27 @@ stdenv.mkDerivation {
+       done
+     '';
+ 
++  # This needs to run after _multioutDocs moves the docs to $doc
++  postFixup = lib.optionalString enableDocumentation ''
++    mkdir -p $devdoc/share/doc/nix
++    mv $doc/share/doc/nix/internal-api $devdoc/share/doc/nix
++  '';
++
+   doCheck = true;
+-  mesonCheckFlags = [ "--suite=check" ];
++  mesonCheckFlags = [
++    "--suite=check"
++    "--print-errorlogs"
++  ];
+   checkInputs = [
+     gtest
+     rapidcheck
+   ];
+ 
+   doInstallCheck = true;
+-  mesonInstallCheckFlags = [ "--suite=installcheck" ];
++  mesonInstallCheckFlags = [
++    "--suite=installcheck"
++    "--print-errorlogs"
++  ];
+ 
+   preInstallCheck = lib.optionalString stdenv.hostPlatform.isDarwin ''
+     # socket path becomes too long otherwise
+@@ -264,7 +282,7 @@ stdenv.mkDerivation {
+   # point 'nix edit' and ofborg at the file that defines the attribute,
+   # not this common file.
+   pos = builtins.unsafeGetAttrPos "version" args;
+-  meta = with lib; {
++  meta = {
+     description = "Powerful package manager that makes package management reliable and reproducible";
+     longDescription = ''
+       Lix (a fork of Nix) is a powerful package manager for Linux and other Unix systems that
+@@ -274,10 +292,10 @@ stdenv.mkDerivation {
+       environments.
+     '';
+     homepage = "https://lix.systems";
+-    license = licenses.lgpl21Plus;
++    license = lib.licenses.lgpl21Plus;
+     inherit maintainers;
+-    platforms = platforms.unix;
+-    outputsToInstall = [ "out" ] ++ optional enableDocumentation "man";
++    platforms = lib.platforms.unix;
++    outputsToInstall = [ "out" ] ++ lib.optional enableDocumentation "man";
+     mainProgram = "nix";
+     broken = enableStatic;
+   };
+diff --git a/pkgs/tools/package-management/lix/default.nix b/pkgs/tools/package-management/lix/default.nix
+index 40e32f06a29e..b85ceb6ab1dd 100644
+--- a/pkgs/tools/package-management/lix/default.nix
++++ b/pkgs/tools/package-management/lix/default.nix
+@@ -4,6 +4,7 @@
+   boehmgc,
+   callPackage,
+   fetchFromGitHub,
++  fetchpatch,
+   Security,
+ 
+   storeDir ? "/nix/store",
+@@ -33,6 +34,9 @@ let
+         requiredSystemFeatures = [ ];
+       };
+ 
++  # Since Lix 2.91 does not use boost coroutines, it does not need boehmgc patches either.
++  needsBoehmgcPatches = version: lib.versionOlder version "2.91";
++
+   common =
+     args:
+     callPackage (import ./common.nix ({ inherit lib fetchFromGitHub; } // args)) {
+@@ -42,11 +46,11 @@ let
+         stateDir
+         confDir
+         ;
+-      boehmgc = boehmgc-nix;
++      boehmgc = if needsBoehmgcPatches args.version then boehmgc-nix else boehmgc-nix_2_3;
+       aws-sdk-cpp = aws-sdk-cpp-nix;
+     };
+ in
+-lib.makeExtensible (self: ({
++lib.makeExtensible (self: {
+   buildLix = common;
+ 
+   lix_2_90 = (
+@@ -57,6 +61,24 @@ lib.makeExtensible (self: ({
+     }
+   );
+ 
+-  latest = self.lix_2_90;
+-  stable = self.lix_2_90;
+-}))
++  lix_2_91 = (
++    common {
++      version = "2.91.0";
++      hash = "sha256-Rosl9iA9MybF5Bud4BTAQ9adbY81aGmPfV8dDBGl34s=";
++      docCargoHash = "sha256-KOn1fXF7k7c/0e5ZCNZwt3YZmjL1oi5A2mhwxQWKaUo=";
++
++      patches = [
++        # TODO: Remove next release
++        # Fixes cross compilation targets
++        # https://gerrit.lix.systems/c/lix/+/1762
++        (fetchpatch {
++          url = "https://git.lix.systems/lix-project/lix/commit/41a0b08e646b54b27ae49fb4c23e0c45c60369ca.patch";
++          hash = "sha256-TZauU4RIsn07xv9vZ33amrDvCLMbrtcHs1ozOTLgu98=";
++        })
++      ];
++    }
++  );
++
++  latest = self.lix_2_91;
++  stable = self.lix_2_91;
++})
+-- 
+2.44.1
+

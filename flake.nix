@@ -31,6 +31,7 @@
               hash = "sha256-bieWCh5d3ub8H2cgfxlVoorj7wloUaRTLGSdkmIOYRU=";
             })
 
+            ./nixpkgs-lix.patch
             ./nixpkgs-devicetree.patch
             ./nixpkgs-efi-shell.patch
           ];
