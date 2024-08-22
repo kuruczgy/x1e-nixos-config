@@ -10,8 +10,9 @@ With this config, the following are working for me:
 - Wi-Fi
 - GPU acceleration
 - Sway and Firefox
+- Battery indicator
 
-Many other things are rumored to be working and have drivers, but I wasn't able to get everything working yet. For example suspend to RAM is inconsistent, and the battery status isn't working for me yet.
+Many other things are rumored to be working and have drivers, but I wasn't able to get everything working yet. For example suspend to RAM is inconsistent, and the speakers aren't working for me yet.
 
 ## Build
 

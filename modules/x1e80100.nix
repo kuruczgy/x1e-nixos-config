@@ -62,13 +62,8 @@ let
 
     # random tries:
     "r8152"
-    "qcom_battmgr"
     "lzo_rle"
     "msm"
-    "qcom_q6v5_pas"
-    # "qcom_q6v5_sysmon" # kuruczgy: does not exist?
-    "qcom_q6v5_adsp"
-    "qcom_pd_mapper"
 
     # ??
     "dwc3-qcom"
@@ -112,20 +107,19 @@ in
     "i2c_qcom_geni"
   ];
 
-  boot.blacklistedKernelModules = [
-    "qcom_edac"
-    "qcom_q6v5_pas"
-  ];
+  boot.blacklistedKernelModules = [ "qcom_edac" ];
 
   boot.kernelParams = [
-    "module_blacklist=qcom_edac,qcom_q6v5_pas"
     "pd_ignore_unused"
     "clk_ignore_unused"
   ];
 
   hardware.deviceTree.enable = true;
 
-  hardware.firmware = [ pkgs.x1e80100-lenovo-yoga-slim7x-firmware ];
+  hardware.firmware = [
+    pkgs.x1e80100-lenovo-yoga-slim7x-firmware
+    pkgs.x1e80100-lenovo-yoga-slim7x-firmware-json
+  ];
 
   boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.buildLinux {
     src = pkgs.fetchFromGitHub {

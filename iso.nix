@@ -4,6 +4,9 @@
   isoImage.isoName = lib.mkForce "cd.iso";
   boot.supportedFilesystems.zfs = lib.mkForce false;
 
+  # For some reason the adsp booting up messes with USB boot, so disable it.
+  boot.blacklistedKernelModules = [ "qcom_q6v5_pas" ];
+
   environment.systemPackages = [
     pkgs.kmscube
     pkgs.mesa-demos

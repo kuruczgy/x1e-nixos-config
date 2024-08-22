@@ -40,6 +40,9 @@
       overlays = [
         (final: prev: {
           x1e80100-lenovo-yoga-slim7x-firmware = final.callPackage ./packages/x1e80100-lenovo-yoga-slim7x-firmware.nix { };
+          x1e80100-lenovo-yoga-slim7x-firmware-json = final.callPackage ./packages/x1e80100-lenovo-yoga-slim7x-firmware-json.nix { };
+          libqrtr = final.callPackage ./packages/libqrtr.nix { };
+          pd-mapper = final.callPackage ./packages/pd-mapper.nix { };
 
           linux-firmware = prev.linux-firmware.overrideAttrs (_: {
             src = final.fetchgit
@@ -82,6 +85,7 @@
             ./system.nix
             ./modules/x1e80100.nix
             ./modules/common.nix
+            ./modules/pd-mapper.nix
             {
               nixpkgs.pkgs = pkgs-aarch64;
               hardware.deviceTree.name = deviceTreeName;
