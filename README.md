@@ -89,7 +89,7 @@ Next, mount the root filesystem and the EFI partition. (By default the EFI parti
 Finally, run `nixos-install`. Note that this repository is symlinked at `/x1e-nixos-config` for convenience:
 
 ```console
-# nixos-install --root /mnt --no-root-password --flake $(readlink /x1e-nixos-config)#system
+# nixos-install --root /mnt --no-channel-copy --no-root-password --flake $(readlink /x1e-nixos-config)#system
 ```
 
 Note that this could also take over an hour and more than 50% of the battery to compile and install everything, you probably want to have the charger plugged in. The laptop will also get quite hot, be careful with touching it near the hinge.
