@@ -92,8 +92,6 @@ Finally, run `nixos-install`. Note that this repository is symlinked at `/x1e-ni
 # nixos-install --root /mnt --no-channel-copy --no-root-password --flake $(readlink /x1e-nixos-config)#system
 ```
 
-Note that this could also take over an hour and more than 50% of the battery to compile and install everything, you probably want to have the charger plugged in. The laptop will also get quite hot, be careful with touching it near the hinge.
-
 Now you should have NixOS installed, but you won't be able to boot it yet, you still have to modify the EFI boot configuration.
 
 Reboot into the ISO again, but now select the "EFI Shell" option. For some reason the shell is tiny and appears in the bottom right corner, and the keyboard input is very slow, but you only need to enter a few commands. (You can often use tab completion to reduce the amount of typing necessary.)

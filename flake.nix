@@ -16,7 +16,7 @@
       deviceTreeName = "qcom/x1e80100-lenovo-yoga-slim7x.dtb";
 
       nixpkgsPatchedWithBuildSystem = buildSystem:
-        let pkgs-unpatched = nixpkgs.legacyPackages.${buildSystem}; in pkgs-unpatched.applyPatches {
+        let pkgs-unpatched = nixpkgs.legacyPackages.${buildSystem}; in (pkgs-unpatched.applyPatches {
           name = "nixpkgs-patched";
           src = nixpkgs;
           patches = [
@@ -34,7 +34,7 @@
             ./nixpkgs-devicetree.patch
             ./nixpkgs-efi-shell.patch
           ];
-        };
+        }).overrideAttrs { allowSubstitutes = true; };
       nixpkgs-patched = nixpkgsPatchedWithBuildSystem buildSystem;
 
       overlays = [
@@ -78,6 +78,9 @@
             {
               nixpkgs.pkgs = pkgs-cross;
               hardware.deviceTree.name = deviceTreeName;
+
+              # Required to evaluate packages from `pkgs-cross` on the device.
+              isoImage.storeContents = [ nixpkgs-patched ];
             }
           ];
         };
@@ -87,10 +90,14 @@
             ./modules/x1e80100.nix
             ./modules/common.nix
             ./modules/pd-mapper.nix
-            {
+            ({ lib, ... }: {
               nixpkgs.pkgs = pkgs-aarch64;
               hardware.deviceTree.name = deviceTreeName;
-            }
+
+              # Copy the cross-compiled kernel from the install ISO. Remove
+              # this if you want to natively compile the kernel on your device.
+              boot.kernelPackages = lib.mkForce pkgs-cross.x1e80100-linux;
+            })
           ];
         };
       };
