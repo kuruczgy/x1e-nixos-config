@@ -96,9 +96,9 @@ Note that this could also take over an hour and more than 50% of the battery to 
 
 Now you should have NixOS installed, but you won't be able to boot it yet, you still have to modify the EFI boot configuration.
 
-Reboot into the ISO again, but now select the "EFI Shell" option. For some reason the shell is tiny and appears in the bottom right corner, and the keyboard input is very slow, but you only need to enter a few commands.
+Reboot into the ISO again, but now select the "EFI Shell" option. For some reason the shell is tiny and appears in the bottom right corner, and the keyboard input is very slow, but you only need to enter a few commands. (You can often use tab completion to reduce the amount of typing necessary.)
 
-Run `map -r -b` to reset the filesystem mappings and list them. Look for a `FS*` entry with a path like `PcieRoot(*)/.../NVME(...)/HD(N, ...)` where `N` is the partition number. For me it was `FS4`, so I will use it as an example. Switch to this partition, and verify that it is the right one:
+Run `map -r -b` to reset the filesystem mappings and list them. Look for a `FS*` entry with a path like `PcieRoot(*)/.../NVMe(...)/HD(0x1, ...)`. For me it was `FS4`, so I will use it as an example. Switch to this partition, and verify that it is the right one:
 
 ```console
 Shell> FS4:
