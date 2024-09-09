@@ -3,7 +3,7 @@
     # Nothing is special about this revision other than me having used it
     # during experimentation and having all the build results already cached.
     # Will update it eventually.
-    nixpkgs.url = "github:nixos/nixpkgs?rev=9b503a951d1536dd5467fe8f1956f9312327cc89";
+    nixpkgs.url = "github:nixos/nixpkgs?rev=48a3af7fc1f8447de658cb5bc056c9488427c1fa";
   };
   outputs = { self, nixpkgs }:
     let
@@ -20,17 +20,6 @@
           name = "nixpkgs-patched";
           src = nixpkgs;
           patches = [
-            # Patches to update mesa to 24.2.0, from this draft PR:
-            # https://github.com/NixOS/nixpkgs/pull/332413
-            (pkgs-unpatched.fetchpatch {
-              url = "https://github.com/NixOS/nixpkgs/commit/e0d63cce60e94fb64aa13204855d6f5b15b587e0.patch";
-              hash = "sha256-QZ0MaFukfGqCbAAxk6jbh1RYT0ix6IBzvM99jknWr88=";
-            })
-            (pkgs-unpatched.fetchpatch {
-              url = "https://github.com/NixOS/nixpkgs/commit/939da674474b49572f4e08345ce24db8ce9d49c6.patch";
-              hash = "sha256-bieWCh5d3ub8H2cgfxlVoorj7wloUaRTLGSdkmIOYRU=";
-            })
-
             ./nixpkgs-devicetree.patch
             ./nixpkgs-efi-shell.patch
           ];
