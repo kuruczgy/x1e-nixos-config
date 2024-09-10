@@ -28,8 +28,6 @@
     "panel_samsung_atna33xc20"
   ];
 
-  boot.blacklistedKernelModules = [ "qcom_edac" ];
-
   boot.kernelParams = [
     "pd_ignore_unused"
     "clk_ignore_unused"
