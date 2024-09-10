@@ -1,9 +1,6 @@
 {
   inputs = {
-    # Nothing is special about this revision other than me having used it
-    # during experimentation and having all the build results already cached.
-    # Will update it eventually.
-    nixpkgs.url = "github:nixos/nixpkgs?rev=48a3af7fc1f8447de658cb5bc056c9488427c1fa";
+    nixpkgs.url = "github:nixos/nixpkgs";
   };
   outputs = { self, nixpkgs }:
     let
@@ -33,15 +30,6 @@
           x1e80100-lenovo-yoga-slim7x-firmware-json = final.callPackage ./packages/x1e80100-lenovo-yoga-slim7x-firmware-json.nix { };
           libqrtr = final.callPackage ./packages/libqrtr.nix { };
           pd-mapper = final.callPackage ./packages/pd-mapper.nix { };
-
-          linux-firmware = prev.linux-firmware.overrideAttrs (_: {
-            src = final.fetchgit
-              {
-                url = "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git";
-                rev = "82318c966fd1af87044299d34611751c76f70927";
-                hash = "sha256-7nl9FCB9aIcjF2DUO4yI4pAigJlfwNYmn7Skw7fwL98=";
-              };
-          });
         })
       ];
 
