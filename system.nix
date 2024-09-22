@@ -54,6 +54,8 @@
     plugins = lib.mkForce [ ];
   };
 
+  hardware.bluetooth.enable = true;
+
   programs.sway.enable = true;
   programs.firefox.enable = true;
 }
