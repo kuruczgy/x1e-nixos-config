@@ -8,6 +8,7 @@ With this config, the following are working for me:
 
 - Booting from USB and NVMe
 - Wi-Fi
+- Bluetooth
 - GPU acceleration
 - Sway and Firefox
 - Battery indicator
