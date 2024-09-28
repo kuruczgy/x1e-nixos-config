@@ -16,7 +16,7 @@ index 86555f4a51a2..856c346f71a6 100644
      fi
      ''}
 +    menuentry 'EFI Shell' --class settings {
-+      chainloader /EFI/boot/shell.efi
++      chainloader /EFI/BOOT/shell.efi
 +    }
      menuentry 'Firmware Setup' --class settings {
        fwsetup
@@ -26,7 +26,7 @@ index 86555f4a51a2..856c346f71a6 100644
  
      ${refind}
 +
-+    cp -v ${pkgs.edk2-uefi-shell}/shell.efi $out/EFI/boot/
++    cp -v ${pkgs.edk2-uefi-shell}/shell.efi $out/EFI/BOOT/
    '';
  
    efiImg = pkgs.runCommand "efi-image_eltorito" {

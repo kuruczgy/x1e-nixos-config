@@ -1,68 +1,29 @@
-From 9ea78e305a3c01837885fdc4b4eb1634e4817c92 Mon Sep 17 00:00:00 2001
+From 8eaa8613a26efda1f33f6c96730a40a70831a74c Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Gy=C3=B6rgy=20Kurucz?= <me@kuruczgy.com>
-Date: Sun, 18 Aug 2024 23:51:42 +0200
-Subject: [PATCH] devicetree hack
+Date: Sat, 28 Sep 2024 13:08:35 +0200
+Subject: [PATCH] HACK: Unconditionally boot using devicetree in the ISO
 
 ---
- nixos/modules/installer/cd-dvd/iso-image.nix | 43 +++++++++++---------
- 1 file changed, 24 insertions(+), 19 deletions(-)
+ nixos/modules/installer/cd-dvd/iso-image.nix | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/nixos/modules/installer/cd-dvd/iso-image.nix b/nixos/modules/installer/cd-dvd/iso-image.nix
-index 06949bda1cb2..86555f4a51a2 100644
+index 2aa8899e5b35..a1b07477cf36 100644
 --- a/nixos/modules/installer/cd-dvd/iso-image.nix
 +++ b/nixos/modules/installer/cd-dvd/iso-image.nix
-@@ -16,25 +16,26 @@ let
-    *  * option: {name, params, class}
-    */
-   menuBuilderGrub2 =
--  defaults: options: lib.concatStrings
--    (
--      map
--      (option: ''
--        menuentry '${defaults.name} ${
--        # Name appended to menuentry defaults to params if no specific name given.
--        option.name or (optionalString (option ? params) "(${option.params})")
--        }' ${optionalString (option ? class) " --class ${option.class}"} {
--          # Fallback to UEFI console for boot, efifb sometimes has difficulties.
--          terminal_output console
--
--          linux ${defaults.image} \''${isoboot} ${defaults.params} ${
--            option.params or ""
--          }
--          initrd ${defaults.initrd}
--        }
--      '')
--      options
--    )
-+    defaults: options: lib.concatStrings
-+      (
-+        map
-+          (option: ''
-+            menuentry '${defaults.name} ${
-+            # Name appended to menuentry defaults to params if no specific name given.
-+            option.name or (optionalString (option ? params) "(${option.params})")
-+            }' ${optionalString (option ? class) " --class ${option.class}"} {
-+              # Fallback to UEFI console for boot, efifb sometimes has difficulties.
-+              terminal_output console
-+
-+              devicetree /devicetree.dtb
-+              linux ${defaults.image} \''${isoboot} ${defaults.params} ${
-+                option.params or ""
-+              }
-+              initrd ${defaults.initrd}
-+            }
-+          '')
-+          options
-+      )
-   ;
+@@ -23,6 +23,7 @@ let
+           # Fallback to UEFI console for boot, efifb sometimes has difficulties.
+           terminal_output console
  
-   /**
-@@ -821,6 +822,10 @@ in
++          devicetree /devicetree.dtb
+           linux ${defaults.image} \''${isoboot} ${defaults.params} ${
+             option.params or ""
+           }
+@@ -813,6 +814,9 @@ in
          { source = config.system.build.initialRamdisk + "/" + config.system.boot.loader.initrdFile;
            target = "/boot/" + config.system.boot.loader.initrdFile;
          }
-+        {
-+          source = "${config.hardware.deviceTree.package}/${config.hardware.deviceTree.name}";
++        { source = "${config.hardware.deviceTree.package}/${config.hardware.deviceTree.name}";
 +          target = "/devicetree.dtb";
 +        }
          { source = pkgs.writeText "version" config.system.nixos.label;
