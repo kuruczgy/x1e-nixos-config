@@ -32,11 +32,18 @@ Some things may be working and have drivers, but are not yet included here.
 
 ## Build
 
-The default setting is to cross-compile from x86_64 to aarch64, if your build system is not `x86_64-linux` you have to modify `buildSystem` in `flake.nix`.
+There are two main ways to build the ISO:
+
+1. The default setting is to cross-compile from x86_64 to aarch64. This takes several hours as all packages are compiled from scratch.
+2. Using WSL on the Lenovo Yoga Slim 7x to build using Nix. This generally takes 25 minutes as only the kernel is compiled from scratch.
+
+If your build system is not `x86_64-linux` you have to modify `buildSystem` in `flake.nix`, e.g. to `aarch64-linux` if building in WSL.
+
+If you build using WSL, you can install Nix in e.g. Ubuntu WSL by installing Nix as usual [following the guide for multi-user Nix (the package manager)](https://nixos.org/download/). (One can also install [NixOS in WSL](https://github.com/nix-community/NixOS-WSL), however, this requires an existing NixOS installation to build the `aarch64` version as the project only distributes pre-built `x86_64-linux` versions.)
 
 If you would like to attempt using this on something other than the Lenovo Yoga Slim 7x, modify `hardware.deviceTree.name` to point to the appropriate device tree.
 
-Run `nix build .#nixosConfigurations.iso.config.system.build.isoImage`. Note that since there is no binary cache for cross-compiled packages, this will compile everything from scratch, and will take several hours even on a powerful machine.
+Run `nix build .#nixosConfigurations.iso.config.system.build.isoImage` to build the ISO. You might need to add the `--extra-experimental-features 'nix-command flakes'` flag if flakes are not enabled in your Nix config (e.g. in WSL).
 
 ## Setup guide
 
