@@ -2,18 +2,33 @@
 
 Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused around this device for the foreseeable future.
 
-## What does and does not work
+## Feature Matrix
 
-With this config, the following are working for me:
+| Feature                 | Status | Notes                                                                                                        |
+| ----------------------- | -----: | ------------------------------------------------------------------------------------------------------------ |
+| Battery Charging        |     ✅ |                                                                                                              |
+| Battery Indicator       |     ✅ |                                                                                                              |
+| Bluetooth               |     ✅ |                                                                                                              |
+| Camera                  |     ❌ |                                                                                                              |
+| Display                 |     ✅ |                                                                                                              |
+| GPU Acceleration        |     ✅ |                                                                                                              |
+| Hardware Video Decoding |     ❌ |                                                                                                              |
+| Hibernate               |     ❔ |                                                                                                              |
+| Keyboard                |     ✅ |                                                                                                              |
+| Microphone              |     ❌ |                                                                                                              |
+| NVMe                    |     ✅ |                                                                                                              |
+| Power Profiles          |     ❌ |                                                                                                              |
+| Speakers                |     ❌ |                                                                                                              |
+| Suspend                 |     🟨 | Lid switch not yet working. Spurious wakeups can happen. Battery consumption still high (approx. 3.8%/hour). |
+| Touchpad                |     ✅ |                                                                                                              |
+| TPM                     |     ❌ |                                                                                                              |
+| USB-C 4                 |     ❔ |                                                                                                              |
+| USB-C Booting           |     ✅ |                                                                                                              |
+| USB-C DP Alt Mode       |     ❔ |                                                                                                              |
+| USB-C PCIe              |     ❌ |                                                                                                              |
+| Wi-Fi                   |     ✅ |                                                                                                              |
 
-- Booting from USB and NVMe
-- Wi-Fi
-- Bluetooth
-- GPU acceleration
-- Sway and Firefox
-- Battery indicator
-
-Many other things are rumored to be working and have drivers, but I wasn't able to get everything working yet. For example suspend to RAM is inconsistent, and the speakers aren't working for me yet.
+Some things may be working and have drivers, but are not yet included here.
 
 ## Build
 
