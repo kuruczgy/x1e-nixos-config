@@ -22,16 +22,14 @@
           ];
         }).overrideAttrs { allowSubstitutes = true; };
 
-      overlays = [ (import ./packages/overlay.nix) ];
-
       pkgs-cross = import nixpkgs-patched {
-        inherit overlays;
+        overlays = [ (import ./packages/overlay.nix) ];
         localSystem.system = buildSystem;
         crossSystem.system = "aarch64-linux";
         allowUnsupportedSystem = true;
       };
     in
-    {
+    (import ./default.nix) // {
       nixosConfigurations = {
         iso = nixpkgs.lib.nixosSystem {
           modules = [
@@ -50,13 +48,11 @@
         };
         system = nixpkgs.lib.nixosSystem {
           modules = [
-            ./system.nix
-            ./modules/x1e80100.nix
+            ./examples/flake-based-config/configuration.nix
+            self.nixosModules.x1e
             ./modules/common.nix
-            ./modules/pd-mapper.nix
             ({ lib, ... }: {
               nixpkgs.pkgs = nixpkgs.legacyPackages.aarch64-linux;
-              nixpkgs.overlays = overlays;
               hardware.deviceTree.name = deviceTreeName;
 
               # Copy the cross-compiled kernel from the install ISO. Remove

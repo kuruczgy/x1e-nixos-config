@@ -115,6 +115,12 @@ Finally, run `nixos-install`. Note that this repository is available as `x1e-nix
 # nixos-install --root /mnt --no-channel-copy --no-root-password --flake x1e-nixos-config#system
 ```
 
+Explanation:
+
+- `--no-channel-copy` disables copying channels. If you would like to use a non-flake config with channels (which I don't recommend), you should omit this option.
+- `--no-root-password` disables setting a root password. Omit this if you don't have any other way to get into the installed system and need a root password.
+- `--flake x1e-nixos-config#system` specifies the example flake-based configuration to be used that comes with this repository. Note that if you have already [created your own NixOS configuration](#making-your-own-nixos-configuration) for the to-be-installed system, you can use that here. (Either by specifying `--flake /path/to/your/config#your-hostname` or by placing your non-flake config at `/mnt/etc/nixos/configuration.nix` and omitting this option. Importantly, `nixos-generate-config` is **not** expected to work.) Note that if you install the flake-based example configuration, you won't easily be able to switch to a non-flake-based one.
+
 Now you should have NixOS installed, but you won't be able to boot it yet, you still have to modify the EFI boot configuration.
 
 Reboot into the ISO again, but now select the "EFI Shell" option. For some reason the shell is tiny and appears in the bottom right corner, and the keyboard input is very slow, but you only need to enter a few commands. (You can often use tab completion to reduce the amount of typing necessary.)
@@ -136,3 +142,30 @@ FS4:\> bcfg boot dump
 Now you can use the `reset` command to reboot, and after booting again you should see the `systemd-boot` menu with options for both NixOS and Windows.
 
 After booting into NixOS, you can log in with the user `user` using the password `nixos`. You can change the default password using `passwd`.
+
+## Making your own NixOS configuration
+
+### Creating a new flake-based configuration
+
+Copy the contents of [`examples/flake-based-config`](/examples/flake-based-config) from this repository. You might also want to copy `flake.lock` from the root of the repository to get the same nixpkgs version to start out with. Make sure to replace occurrences of "system" in `flake.nix` with your chosen hostname. It's also advised to set up a git repository to track the changes you make to the configuration.
+
+Once you made your modifications, you can use `sudo nixos-rebuild switch --flake .#system` to apply them. (Replace "system" with the hostname you chose previously.)
+
+To update your system, you can use `nix flake update`, which will update all flake inputs, including nixpkgs and this repository. It can happen that this repository becomes incompatible with some future version of nixpkgs. If an evaluation error happens due to such an incompatibility, feel free to file an issue, and we will try to update the pinned nixpkgs version and fix the issue.
+
+### Integration into your existing flake-based config
+
+If you already have a repository with all your NixOS configurations, you can use the `x1e` module exported from this repository, which only sets necessary hardware specific options.
+
+Reference it in your flake inputs like this:
+
+```nix
+x1e-nixos-config.url = "github:kuruczgy/x1e-nixos-config";
+x1e-nixos-config.inputs.nixpkgs.follows = "nixpkgs";
+```
+
+and then use the `x1e-nixos-config.nixosModules.x1e` module.
+
+### Usage without flakes
+
+You should be able to import [`default.nix`](/default.nix) and reference the module as its `nixosModules.x1e` attribute.
