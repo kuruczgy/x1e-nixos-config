@@ -109,10 +109,10 @@ Next, mount the root filesystem and the EFI partition. (By default the EFI parti
 # mount /dev/disk/by-label/SYSTEM_DRV /mnt/boot
 ```
 
-Finally, run `nixos-install`. Note that this repository is symlinked at `/x1e-nixos-config` for convenience:
+Finally, run `nixos-install`. Note that this repository is available as `x1e-nixos-config` in the flake registry:
 
 ```console
-# nixos-install --root /mnt --no-channel-copy --no-root-password --flake $(readlink /x1e-nixos-config)#system
+# nixos-install --root /mnt --no-channel-copy --no-root-password --flake x1e-nixos-config#system
 ```
 
 Now you should have NixOS installed, but you won't be able to boot it yet, you still have to modify the EFI boot configuration.

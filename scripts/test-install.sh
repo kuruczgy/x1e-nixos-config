@@ -15,4 +15,4 @@ if ! mountpoint /mnt; then
     mkdir -p /mnt/boot
     mount /dev/disk/by-label/TESTING-EFI /mnt/boot
 fi
-nixos-install --root /mnt --no-channel-copy --no-root-password --flake $(readlink /x1e-nixos-config)#system
+nixos-install --root /mnt --no-channel-copy --no-root-password --flake x1e-nixos-config#system
