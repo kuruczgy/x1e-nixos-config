@@ -4,10 +4,10 @@ linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
     owner = "jhovold";
     repo = "linux";
-    rev = "wip/x1e80100-6.11";
-    hash = "sha256-yQR1N3WDuKV1X3ph4wYXSFk5kVMbUDwvG4s8AjmpmnU=";
+    rev = "wip/x1e80100-6.12-rc1";
+    hash = "sha256-PzE3Ittt787Lxl84Btz83AcE/LCN3IONhZKGZG34Qm8=";
   };
-  version = "6.11.0";
+  version = "6.12.0-rc1";
   defconfig = "johan_defconfig";
 
   structuredExtraConfig = with lib.kernel; {
@@ -16,13 +16,6 @@ linuxPackagesFor (buildLinux {
   };
 
   kernelPatches = [
-    {
-      name = "arm64: dts: qcom: x1e80100: Add node uart14";
-      patch = fetchpatch {
-        url = "https://github.com/hogliux/linux-yoga-7x/commit/a6e6986640bfc1b6a62855848d7e009159e14320.patch";
-        hash = "sha256-mCgErAPIp81zxqmrI/h4ZZWVpEOvdlqa/TVdPdCdWMo=";
-      };
-    }
     {
       name = "Add Bluetooth support for the Lenovo Yoga Slim 7x";
       patch = fetchpatch {
