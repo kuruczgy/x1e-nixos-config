@@ -12,7 +12,7 @@
       # kernel source tree for available device trees.
       deviceTreeName = "qcom/x1e80100-lenovo-yoga-slim7x.dtb";
 
-      nixpkgsPatchedWithBuildSystem = buildSystem:
+      nixpkgs-patched =
         let pkgs-unpatched = nixpkgs.legacyPackages.${buildSystem}; in (pkgs-unpatched.applyPatches {
           name = "nixpkgs-patched";
           src = nixpkgs;
@@ -21,7 +21,6 @@
             ./nixpkgs-efi-shell.patch
           ];
         }).overrideAttrs { allowSubstitutes = true; };
-      nixpkgs-patched = nixpkgsPatchedWithBuildSystem buildSystem;
 
       overlays = [
         (final: prev: {
@@ -38,10 +37,6 @@
         localSystem.system = buildSystem;
         crossSystem.system = "aarch64-linux";
         allowUnsupportedSystem = true;
-      };
-      pkgs-aarch64 = import (nixpkgsPatchedWithBuildSystem "aarch64-linux") {
-        inherit overlays;
-        localSystem.system = "aarch64-linux";
       };
     in
     {
@@ -68,7 +63,8 @@
             ./modules/common.nix
             ./modules/pd-mapper.nix
             ({ lib, ... }: {
-              nixpkgs.pkgs = pkgs-aarch64;
+              nixpkgs.pkgs = nixpkgs.legacyPackages.aarch64-linux;
+              nixpkgs.overlays = overlays;
               hardware.deviceTree.name = deviceTreeName;
 
               # Copy the cross-compiled kernel from the install ISO. Remove
