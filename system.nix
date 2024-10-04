@@ -29,8 +29,6 @@
     };
   };
 
-  boot.tmp.useTmpfs = true;
-
   # Enable some SysRq keys (80 = sync + process kill)
   # See: https://docs.kernel.org/admin-guide/sysrq.html
   boot.kernel.sysctl."kernel.sysrq" = 80;
