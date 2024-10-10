@@ -30,7 +30,13 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 
 Some things may be working and have drivers, but are not yet included here.
 
-## Build
+## Getting the installer ISO
+
+Binary releases of the install ISO are available, or alternately you can compile it yourself (described below).
+
+Note that the device tree in the releases is hardcoded for the Lenovo Yoga Slim 7x, so if you want to attempt installing on any other machine you have to build the installer yourself.
+
+### Build
 
 There are two main ways to build the ISO:
 
@@ -49,7 +55,7 @@ Run `nix build .#nixosConfigurations.iso.config.system.build.isoImage` to build 
 
 ### Preparation
 
-First, you might want to start building the ISO already (see above), as it does take multiple hours to build if you are cross-compiling.
+If you are building the install ISO yourself you might want to start already (see above), as it does take multiple hours to build if you are cross-compiling.
 
 If you already have installed Windows or are not interested in doing so, you can [skip to the section about booting the ISO](#booting-the-install-iso).
 
