@@ -17,6 +17,13 @@ linuxPackagesFor (buildLinux {
 
   kernelPatches = [
     {
+      name = "drm/panic: Select ZLIB_DEFLATE for DRM_PANIC_SCREEN_QR_CODE";
+      patch = fetchurl {
+        url = "https://lore.kernel.org/linux-kernel/20241003230734.653717-1-ojeda@kernel.org/raw";
+        hash = "sha256-qZTP9o0Pel9M1Y9f/31SZbOJxeM0j28P94EUXa83m+Q=";
+      };
+    }
+    {
       name = "Add Bluetooth support for the Lenovo Yoga Slim 7x";
       patch = fetchpatch {
         url = "https://github.com/hogliux/linux-yoga-7x/commit/9829ac9dd0e827cc62242d8ae8b534e31ffd00bd.patch";
