@@ -3,6 +3,10 @@ final: prev: {
   x1e80100-lenovo-yoga-slim7x-firmware =
     final.callPackage ./x1e80100-lenovo-yoga-slim7x-firmware.nix
       { };
+  x1e80100-lenovo-yoga-slim7x-alsa-ucm =
+    final.callPackage ./x1e80100-lenovo-yoga-slim7x-alsa-ucm.nix
+      { inherit prev; };
   libqrtr = final.callPackage ./libqrtr.nix { };
   slbounce = final.callPackage ./slbounce.nix { };
+  audioreach-topology = final.callPackage ./audioreach-topology.nix { };
 }
