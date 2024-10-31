@@ -48,6 +48,7 @@
   hardware.firmware = [
     pkgs.x1e80100-lenovo-yoga-slim7x-firmware
     pkgs.x1e80100-lenovo-yoga-slim7x-firmware-json
+    pkgs.audioreach-topology
   ];
 
   boot.kernelPackages = pkgs.x1e80100-linux;

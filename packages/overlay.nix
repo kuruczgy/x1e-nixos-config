@@ -8,4 +8,6 @@ final: prev: {
       { };
   libqrtr = final.callPackage ./libqrtr.nix { };
   pd-mapper = final.callPackage ./pd-mapper.nix { };
+  audioreach-topology = final.callPackage ./audioreach-topology.nix { };
+  alsa-ucm-conf = import ./alsa-ucm-conf.nix { inherit final prev; };
 }
