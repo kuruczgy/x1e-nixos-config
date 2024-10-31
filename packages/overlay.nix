@@ -4,4 +4,6 @@ final: prev: {
   x1e80100-lenovo-yoga-slim7x-firmware-json = final.callPackage ./x1e80100-lenovo-yoga-slim7x-firmware-json.nix { };
   libqrtr = final.callPackage ./libqrtr.nix { };
   pd-mapper = final.callPackage ./pd-mapper.nix { };
+  audioreach-topology = final.callPackage ./audioreach-topology.nix { };
+  alsa-ucm-conf = import ./alsa-ucm-conf.nix { inherit final prev; };
 }
