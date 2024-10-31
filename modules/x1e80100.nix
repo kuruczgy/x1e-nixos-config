@@ -1,9 +1,22 @@
-{ pkgs, lib, ... }:
-
 {
+  pkgs,
+  lib,
+  ...
+}:
+{
+  imports = [
+    ./audio.nix
+  ];
+
   boot.initrd.includeDefaultModules = false;
   boot.initrd.systemd.tpm2.enable = false; # This also pulls in some modules our kernel is not build with.
   boot.initrd.availableKernelModules = [
+    # Needed by the NixOS iso for booting in general
+    "squashfs"
+    "iso9660"
+    "uas"
+    "overlay"
+
     # Definitely needed for USB:
     "usb_storage"
     "phy_qcom_qmp_combo"
@@ -43,6 +56,7 @@
 
   hardware.firmware = [
     pkgs.x1e80100-lenovo-yoga-slim7x-firmware
+    pkgs.audioreach-topology
   ];
 
   boot.kernelPackages = pkgs.x1e80100-linux;
