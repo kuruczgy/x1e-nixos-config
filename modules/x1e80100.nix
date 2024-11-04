@@ -1,6 +1,8 @@
-{ pkgs, lib, ... }:
-
 {
+  pkgs,
+  lib,
+  ...
+}: {
   boot.initrd.availableKernelModules = lib.mkForce [
     # Needed by the NixOS iso for booting in general
     "squashfs"
@@ -47,4 +49,11 @@
   ];
 
   boot.kernelPackages = pkgs.x1e80100-linux;
+
+  system.replaceDependencies.replacements = [
+    {
+      oldDependency = pkgs.alsa-ucm-conf;
+      newDependency = pkgs.x1e80100-lenovo-yoga-slim7x-alsa-ucm;
+    }
+  ];
 }
