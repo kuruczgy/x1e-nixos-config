@@ -18,6 +18,7 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 | Microphone              |     ❌ |                                                                                                              |
 | NVMe                    |     ✅ |                                                                                                              |
 | Power Profiles          |     ❌ |                                                                                                              |
+| RTC                     |     ✅ |                                                                                                              |
 | Speakers                |     ❌ |                                                                                                              |
 | Suspend                 |     🟨 | Lid switch not yet working. Spurious wakeups can happen. Battery consumption still high (approx. 3.8%/hour). |
 | Thermal throttling      |     ❌ |                                                                                                              |

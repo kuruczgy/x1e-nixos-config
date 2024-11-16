@@ -51,5 +51,26 @@ linuxPackagesFor (buildLinux {
         hash = "sha256-tnpo07ZPi/3cdiY9h90rf2UgTjr9ZfR1PYRVVQJ2pUQ=";
       };
     }
+
+    # RTC support
+    {
+      name = "rtc: pm8xxx: implement qcom,no-alarm flag for non-HLOS owned alarm";
+      patch = fetchurl {
+        url = "https://lore.kernel.org/linux-kernel/20241015004945.3676-2-jonathan@marek.ca/raw";
+        hash = "sha256-+HoD4ggo4c6fNbUjQ0uCI8UDE4urd6XzHlodKm/5n5Y=";
+      };
+    }
+    {
+      name = "arm64: dts: qcom: x1e80100-pmics: enable RTC";
+      patch = fetchurl {
+        url = "https://lore.kernel.org/linux-kernel/20241015004945.3676-4-jonathan@marek.ca/raw";
+        hash = "sha256-SxdyzwNzp5hnLmruic3tUCfATm7X4xIXgLwGF/Fj9uk=";
+      };
+    }
+    {
+      name = "arm64: dts: qcom: x1e80100-lenovo-yoga-slim7x: add rtc offset to set rtc time";
+      # Adapted from: https://lore.kernel.org/linux-kernel/20241015004945.3676-6-jonathan@marek.ca/
+      patch = ./lenovo-yoga-slim7x-rtc.patch;
+    }
   ];
 })
