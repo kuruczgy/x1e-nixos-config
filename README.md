@@ -20,7 +20,9 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 | Power Profiles          |     ❌ |                                                                                                              |
 | Speakers                |     ❌ |                                                                                                              |
 | Suspend                 |     🟨 | Lid switch not yet working. Spurious wakeups can happen. Battery consumption still high (approx. 3.8%/hour). |
+| Thermal throttling      |     ❌ |                                                                                                              |
 | Touchpad                |     ✅ |                                                                                                              |
+| Touchscreen             |     ✅ |                                                                                                              |
 | TPM                     |     ❌ |                                                                                                              |
 | USB-C 4                 |     ❔ |                                                                                                              |
 | USB-C Booting           |     ✅ |                                                                                                              |
