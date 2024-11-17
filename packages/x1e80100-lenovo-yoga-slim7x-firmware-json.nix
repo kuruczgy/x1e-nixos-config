@@ -1,4 +1,4 @@
-{ runCommand }:
+{ pkgs, runCommand }:
 
 runCommand "x1e80100-lenovo-yoga-slim7x-firmware-json"
 {
@@ -7,6 +7,6 @@ runCommand "x1e80100-lenovo-yoga-slim7x-firmware-json"
   passthru.compressFirmware = false;
 } ''
   mkdir -p $out/lib/firmware/qcom/x1e80100/LENOVO/83ED
-  cp ${../firmware}/*.jsn \
+  cp ${pkgs.linux-firmware}/lib/firmware/qcom/x1e80100/*.jsn \
     $out/lib/firmware/qcom/x1e80100/LENOVO/83ED/
 ''
