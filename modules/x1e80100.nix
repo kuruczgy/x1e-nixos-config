@@ -26,6 +26,11 @@
     "phy_qcom_qmp_pcie"
     "pcie_qcom"
     "panel_samsung_atna33xc20"
+
+    # Needed with the DP altmode patches
+    "ps883x"
+    "pmic_glink_altmode"
+    "qrtr"
   ];
 
   boot.kernelParams = [
