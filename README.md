@@ -27,7 +27,7 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 | TPM                     |     ❌ |                                                                                                              |
 | USB-C 4                 |     ❔ |                                                                                                              |
 | USB-C Booting           |     ✅ |                                                                                                              |
-| USB-C DP Alt Mode       |     ❔ |                                                                                                              |
+| USB-C DP Alt Mode       |     🟨 | Mostly working. Right side port broken for some reason.                                                      |
 | USB-C PCIe              |     ❌ |                                                                                                              |
 | Wi-Fi                   |     ✅ |                                                                                                              |
 
