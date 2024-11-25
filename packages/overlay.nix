@@ -8,4 +8,5 @@ final: prev: {
       { };
   libqrtr = final.callPackage ./libqrtr.nix { };
   pd-mapper = final.callPackage ./pd-mapper.nix { };
+  slbounce = final.callPackage ./slbounce.nix { };
 }

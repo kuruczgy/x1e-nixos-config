@@ -7,7 +7,7 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 | Feature                 | Status | Notes                                                                                                        |
 | ----------------------- | -----: | ------------------------------------------------------------------------------------------------------------ |
 | Battery Charging        |     ✅ |                                                                                                              |
-| Battery Indicator       |     ✅ |                                                                                                              |
+| Battery Indicator       |     ✅ | Not working in EL2. (More info [below](#running-virtual-machines-with-kvm).)                                 |
 | Bluetooth               |     ✅ |                                                                                                              |
 | Camera                  |     ❌ |                                                                                                              |
 | Display                 |     ✅ |                                                                                                              |
@@ -179,6 +179,16 @@ and then use the `x1e-nixos-config.nixosModules.x1e` module.
 ### Usage without flakes
 
 You should be able to import [`default.nix`](/default.nix) and reference the module as its `nixosModules.x1e` attribute.
+
+## Running virtual machines with KVM
+
+By default the firmware runs Linux in the EL1 privilege level, but EL2 is needed for KVM. Coaxing the firmware into running Linux in EL2 is rather involved, see the [slbounce](https://github.com/TravMurav/slbounce) README for more information about the process.
+
+`slbounce` uses `tcblaunch.exe` (this is a signed binary, and there are currently no known alternatives), which you will need to manually copy from your Windows installation from `C:\Windows\System32\tcblaunch.exe` into the root of the ESP. The SHA256 hash of my `tcblaunch.exe` is `5dfcd0253b6ee99499ab33cac221e8a9cea47f3fdf6d4e11de9a9f3c4770d03d`, I am not sure whether other versions also exist out there. If yours is different, please report its hash and whether it worked for you.
+
+To enable the `el2` specialization, which you can then select in the systemd-boot menu, set `x1e.el2.enable = true;` in your config.
+
+This is deliberately a separate non-default boot option, since some hardware support does not work under EL2.
 
 ## Contributing
 

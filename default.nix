@@ -5,6 +5,7 @@
       imports = [
         ./modules/x1e80100.nix
         ./modules/pd-mapper.nix
+        ./modules/el2.nix
       ];
       config = {
         nixpkgs.overlays = [
