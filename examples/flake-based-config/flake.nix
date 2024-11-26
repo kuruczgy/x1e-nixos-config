@@ -12,16 +12,20 @@
     nixosConfigurations.system = nixpkgs.lib.nixosSystem {
       modules = [
         x1e-nixos-config.nixosModules.x1e
-        ({ ... }: {
+        {
           networking.hostName = "system";
           hardware.deviceTree.name = "qcom/x1e80100-lenovo-yoga-slim7x.dtb";
 
-          nixpkgs.pkgs = nixpkgs.legacyPackages.aarch64-linux;
+          nixpkgs.hostPlatform.system = "aarch64-linux";
+
+          # Uncomment this to allow unfree packages.
+          # nixpkgs.config.allowUnfree = true;
+
           nix = {
             channel.enable = false;
             settings.experimental-features = [ "nix-command" "flakes" ];
           };
-        })
+        }
         ./configuration.nix
       ];
     };
