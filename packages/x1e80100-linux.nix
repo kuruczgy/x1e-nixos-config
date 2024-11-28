@@ -26,7 +26,9 @@ linuxPackagesFor (buildLinux {
     {
       name = "Add Bluetooth support for the Lenovo Yoga Slim 7x";
       patch = fetchpatch {
-        url = "https://github.com/hogliux/linux-yoga-7x/commit/9829ac9dd0e827cc62242d8ae8b534e31ffd00bd.patch";
+        # Bit contrived, to match the output path of the original FOD.
+        name = "9829ac9dd0e827cc62242d8ae8b534e31ffd00bd.patch";
+        url = "file://${./lenovo-yoga-slim7x-bluetooth.patch}";
         hash = "sha256-2ZfDkbhriRb+52WNc6wlUKZPp55zKCJgxmkf/3m+m2M=";
       };
     }
