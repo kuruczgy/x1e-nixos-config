@@ -7,7 +7,7 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 | Feature                 | Status | Notes                                                                                                        |
 | ----------------------- | -----: | ------------------------------------------------------------------------------------------------------------ |
 | Battery Charging        |     ✅ |                                                                                                              |
-| Battery Indicator       |     ✅ |                                                                                                              |
+| Battery Indicator       |     ✅ | Not working in EL2.                                                                                          |
 | Bluetooth               |     ✅ |                                                                                                              |
 | Camera                  |     ❌ |                                                                                                              |
 | Display                 |     ✅ |                                                                                                              |
