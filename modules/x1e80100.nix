@@ -1,6 +1,12 @@
-{ pkgs, lib, ... }:
-
 {
+  pkgs,
+  lib,
+  ...
+}: {
+  imports = [
+    ./audio.nix
+  ];
+
   boot.initrd.availableKernelModules = lib.mkForce [
     # Needed by the NixOS iso for booting in general
     "squashfs"
