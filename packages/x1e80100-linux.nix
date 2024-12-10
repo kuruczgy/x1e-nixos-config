@@ -4,10 +4,10 @@ linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
     owner = "jhovold";
     repo = "linux";
-    rev = "wip/x1e80100-6.12";
-    hash = "sha256-CUt4J7IFS14qD8GiZOuSeJmFdbWOmmyV/iJNcTUVN5g=";
+    rev = "wip/x1e80100-6.13-rc2";
+    hash = "sha256-sCapdt5lYw/zXIPIrJ5hECL9Xqviizerp9dmnx4BJpc=";
   };
-  version = "6.12.0";
+  version = "6.13.0-rc2";
   defconfig = "johan_defconfig";
 
   structuredExtraConfig = with lib.kernel; {
@@ -16,13 +16,6 @@ linuxPackagesFor (buildLinux {
   };
 
   kernelPatches = [
-    {
-      name = "drm/panic: Select ZLIB_DEFLATE for DRM_PANIC_SCREEN_QR_CODE";
-      patch = fetchurl {
-        url = "https://lore.kernel.org/linux-kernel/20241003230734.653717-1-ojeda@kernel.org/raw";
-        hash = "sha256-qZTP9o0Pel9M1Y9f/31SZbOJxeM0j28P94EUXa83m+Q=";
-      };
-    }
     {
       name = "Add Bluetooth support for the Lenovo Yoga Slim 7x";
       patch = fetchpatch {
