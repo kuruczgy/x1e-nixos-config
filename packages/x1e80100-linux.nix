@@ -17,6 +17,15 @@ linuxPackagesFor (buildLinux {
 
   kernelPatches = [
     {
+      name = ''Revert "arm64: dts: qcom: x1e80100: Add debug uart to Lenovo Yoga Slim 7x"'';
+      patch = fetchpatch {
+        url = "https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/patch/?id=4c3d9c134892c4158867075c840b81a5ed28af1f";
+        revert = true;
+        hash = "sha256-6lt0nq0qiV6a+Rnu39aMiesoInxdzHOPd4LmGNUIhOU=";
+      };
+    }
+
+    {
       name = "Add Bluetooth support for the Lenovo Yoga Slim 7x";
       patch = fetchpatch {
         # Bit contrived, to match the output path of the original FOD.
