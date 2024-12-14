@@ -1,8 +1,10 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
-  outputs = { self, nixpkgs }:
+  outputs = { self, nixpkgs, treefmt-nix }:
     let
       # Modify this if you are building on something other than x86_64-linux.
       buildSystem = "x86_64-linux";
@@ -62,5 +64,25 @@
           ];
         };
       };
-    };
+    }
+    // (
+      let
+        eachSystem = nixpkgs.lib.genAttrs [
+          "x86_64-linux"
+          "aarch64-linux"
+        ];
+        treefmtEval = eachSystem (
+          system:
+          (treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} {
+            programs.nixfmt.enable = true;
+          })
+        );
+      in
+      {
+        formatter = eachSystem (system: treefmtEval.${system}.config.build.wrapper);
+        checks = eachSystem (system: {
+          treefmt = treefmtEval.${system}.config.build.check self;
+        });
+      }
+    );
 }

@@ -178,3 +178,11 @@ and then use the `x1e-nixos-config.nixosModules.x1e` module.
 ### Usage without flakes
 
 You should be able to import [`default.nix`](/default.nix) and reference the module as its `nixosModules.x1e` attribute.
+
+## Contributing
+
+### Code formatting
+
+All Nix code in the repository is formatted using [nixfmt](https://github.com/NixOS/nixfmt).
+
+Use the `nix fmt` command to format all files before committing your changes.
