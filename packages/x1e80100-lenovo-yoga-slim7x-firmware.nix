@@ -1,4 +1,8 @@
-{ fetchFromGitHub, fetchurl, runCommand }:
+{
+  fetchFromGitHub,
+  fetchurl,
+  runCommand,
+}:
 
 let
   # I verified manually that the following files match the SHA256 hashes of ones from my Windows install:

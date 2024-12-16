@@ -1,4 +1,12 @@
-{ lib, fetchFromGitHub, buildLinux, linuxPackagesFor, fetchpatch, fetchurl, ... }:
+{
+  lib,
+  fetchFromGitHub,
+  buildLinux,
+  linuxPackagesFor,
+  fetchpatch,
+  fetchurl,
+  ...
+}:
 
 linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {

@@ -10,8 +10,14 @@
 
   # Add this repo to the flake registry.
   nix.registry.x1e-nixos-config = {
-    from = { type = "indirect"; id = "x1e-nixos-config"; };
-    to = { type = "path"; path = ./.; };
+    from = {
+      type = "indirect";
+      id = "x1e-nixos-config";
+    };
+    to = {
+      type = "path";
+      path = ./.;
+    };
   };
 
   # Include this repo in the image

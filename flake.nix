@@ -4,7 +4,12 @@
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
-  outputs = { self, nixpkgs, treefmt-nix }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      treefmt-nix,
+    }:
     let
       # Modify this if you are building on something other than x86_64-linux.
       buildSystem = "x86_64-linux";
@@ -15,14 +20,18 @@
       deviceTreeName = "qcom/x1e80100-lenovo-yoga-slim7x.dtb";
 
       nixpkgs-patched =
-        let pkgs-unpatched = nixpkgs.legacyPackages.${buildSystem}; in (pkgs-unpatched.applyPatches {
+        let
+          pkgs-unpatched = nixpkgs.legacyPackages.${buildSystem};
+        in
+        (pkgs-unpatched.applyPatches {
           name = "nixpkgs-patched";
           src = nixpkgs;
           patches = [
             ./nixpkgs-devicetree.patch
             ./nixpkgs-efi-shell.patch
           ];
-        }).overrideAttrs { allowSubstitutes = true; };
+        }).overrideAttrs
+          { allowSubstitutes = true; };
 
       pkgs-cross = import nixpkgs-patched {
         overlays = [ (import ./packages/overlay.nix) ];
@@ -31,7 +40,8 @@
         allowUnsupportedSystem = true;
       };
     in
-    (import ./default.nix) // {
+    (import ./default.nix)
+    // {
       nixosConfigurations = {
         iso = nixpkgs.lib.nixosSystem {
           modules = [
@@ -53,14 +63,17 @@
             ./examples/flake-based-config/configuration.nix
             self.nixosModules.x1e
             ./modules/common.nix
-            ({ lib, ... }: {
-              nixpkgs.pkgs = nixpkgs.legacyPackages.aarch64-linux;
-              hardware.deviceTree.name = deviceTreeName;
+            (
+              { lib, ... }:
+              {
+                nixpkgs.pkgs = nixpkgs.legacyPackages.aarch64-linux;
+                hardware.deviceTree.name = deviceTreeName;
 
-              # Copy the cross-compiled kernel from the install ISO. Remove
-              # this if you want to natively compile the kernel on your device.
-              boot.kernelPackages = lib.mkForce pkgs-cross.x1e80100-linux;
-            })
+                # Copy the cross-compiled kernel from the install ISO. Remove
+                # this if you want to natively compile the kernel on your device.
+                boot.kernelPackages = lib.mkForce pkgs-cross.x1e80100-linux;
+              }
+            )
           ];
         };
       };
@@ -75,6 +88,7 @@
           system:
           (treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} {
             programs.nixfmt.enable = true;
+            settings.on-unmatched = "info";
           })
         );
       in

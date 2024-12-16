@@ -37,7 +37,10 @@
     isNormalUser = true;
     # Default password, should be changed using `passwd` after first login.
     password = "nixos";
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+    ];
   };
 
   security.sudo.wheelNeedsPassword = false;
