@@ -84,5 +84,14 @@ linuxPackagesFor (buildLinux {
       # https://git.launchpad.net/~ubuntu-concept/ubuntu/+source/linux/+git/oracular/commit/?h=qcom-x1e&id=350f8e8802bef1a2aac3dc17c3db138022296a94
       patch = ./lenovo-yoga-slim7x-dp-altmode.patch;
     }
+
+    # Lid switch
+    {
+      name = "arm64: dts: qcom: x1e80100-lenovo-yoga-slim7x: Add lid switch";
+      patch = fetchpatch {
+        url = "https://lore.kernel.org/linux-kernel/20241219-patch-lenovo-yoga-v3-1-9c4a79068141@mailbox.org/raw";
+        hash = "sha256-Tw2mlbTR6MPvVocaLR3CtWRDqlLql4+0oEnf0DfJp5U=";
+      };
+    }
   ];
 })
