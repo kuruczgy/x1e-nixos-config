@@ -1,13 +1,9 @@
 { pkgs, lib, ... }:
 
 {
-  boot.initrd.availableKernelModules = lib.mkForce [
-    # Needed by the NixOS iso for booting in general
-    "squashfs"
-    "iso9660"
-    "uas"
-    "overlay"
-
+  boot.initrd.includeDefaultModules = false;
+  boot.initrd.systemd.tpm2.enable = false; # This also pulls in some modules our kernel is not build with.
+  boot.initrd.availableKernelModules = [
     # Definitely needed for USB:
     "usb_storage"
     "phy_qcom_qmp_combo"
