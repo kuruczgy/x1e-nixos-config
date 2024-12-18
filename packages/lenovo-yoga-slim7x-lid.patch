@@ -1,0 +1,58 @@
+commit 7a2b6a7e6bb220238af5daa3069e3b619c164f70
+Author: Anthony Ruhier <aruhier@mailbox.org>
+Date:   Wed Dec 18 03:10:41 2024 +0100
+
+    arm64: dts: qcom: x1e80100-x1e80100-lenovo-yoga-slim7x: Add lid switch
+    
+    Add the lid switch for the Lenovo Yoga Slim 7x.
+    
+    Signed-off-by: Anthony Ruhier <aruhier@mailbox.org>
+
+diff --git a/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts b/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts
+index 4964e9dc8631..6f90e7ae95d0 100644
+--- a/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts
++++ b/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts
+@@ -6,6 +6,7 @@
+ /dts-v1/;
+ 
+ #include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/gpio-keys.h>
+ #include <dt-bindings/regulator/qcom,rpmh-regulator.h>
+ 
+ #include "x1e80100.dtsi"
+@@ -20,6 +21,21 @@ aliases {
+ 		serial1 = &uart14;
+ 	};
+ 
++	gpio-keys {
++		compatible = "gpio-keys";
++
++		pinctrl-0 = <&hall_int_n_default>;
++		pinctrl-names = "default";
++
++		switch-lid {
++			gpios = <&tlmm 71 GPIO_ACTIVE_LOW>;
++			linux,input-type = <EV_SW>;
++			linux,code = <SW_LID>;
++			wakeup-source;
++			wakeup-event-action = <EV_ACT_DEASSERTED>;
++		};
++	};
++
+ 	chosen {
+ 		stdout-path = "serial0:115200n8";
+ 	};
+@@ -1324,6 +1340,13 @@ edp_reg_en: edp-reg-en-state {
+ 		bias-disable;
+ 	};
+ 
++	hall_int_n_default: hall-int-n-state {
++		pins = "gpio71";
++		function = "gpio";
++
++		bias-disable;
++	};
++
+ 	kybd_default: kybd-default-state {
+ 		pins = "gpio67";
+ 		function = "gpio";

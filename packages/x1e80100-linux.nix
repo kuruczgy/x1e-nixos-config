@@ -84,5 +84,12 @@ linuxPackagesFor (buildLinux {
       # https://git.launchpad.net/~ubuntu-concept/ubuntu/+source/linux/+git/oracular/commit/?h=qcom-x1e&id=350f8e8802bef1a2aac3dc17c3db138022296a94
       patch = ./lenovo-yoga-slim7x-dp-altmode.patch;
     }
+
+    # Lid switch
+    {
+      name = "arm64: dts: qcom: x1e80100-lenovo-yoga-slim7x: Add lid switch";
+      # Originally from here: https://launchpadlibrarian.net/764403072/yoga-slim7x-lid.patch
+      patch = ./lenovo-yoga-slim7x-lid.patch;
+    }
   ];
 })
