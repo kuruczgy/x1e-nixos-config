@@ -19,6 +19,8 @@ linuxPackagesFor (buildLinux {
   defconfig = "johan_defconfig";
 
   structuredExtraConfig = with lib.kernel; {
+    VIRTUALIZATION = yes;
+    KVM = yes;
     MAGIC_SYSRQ = yes;
     EC_LENOVO_YOGA_SLIM7X = module;
   };
@@ -83,6 +85,13 @@ linuxPackagesFor (buildLinux {
       # https://git.launchpad.net/~ubuntu-concept/ubuntu/+source/linux/+git/oracular/commit/?h=qcom-x1e&id=87f07f4fe54477cd3219a0553192ab0bcba97945
       # https://git.launchpad.net/~ubuntu-concept/ubuntu/+source/linux/+git/oracular/commit/?h=qcom-x1e&id=350f8e8802bef1a2aac3dc17c3db138022296a94
       patch = ./lenovo-yoga-slim7x-dp-altmode.patch;
+    }
+
+    # Lid switch
+    {
+      name = "arm64: dts: qcom: x1e80100-lenovo-yoga-slim7x: Add lid switch";
+      # Originally from here: https://launchpadlibrarian.net/764403072/yoga-slim7x-lid.patch
+      patch = ./lenovo-yoga-slim7x-lid.patch;
     }
   ];
 })
