@@ -159,6 +159,10 @@ Now you can use the `reset` command to reboot, and after booting again you shoul
 
 After booting into NixOS, you can log in with the user `user` using the password `nixos`. You can change the default password using `passwd`.
 
+To connect to Wi-Fi, use `nmtui`. (Do **not** try manually starting the `wpa_supplicant` service, that's only for the installer.)
+
+No login manager is installed, by default only a command line interface is available. (You can run `exec sway` manually if you want to quickly get a graphical interface.)
+
 ## Making your own NixOS configuration
 
 ### Creating a new flake-based configuration
