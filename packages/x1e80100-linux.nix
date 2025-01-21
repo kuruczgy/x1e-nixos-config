@@ -12,10 +12,10 @@ linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
     owner = "jhovold";
     repo = "linux";
-    rev = "wip/x1e80100-6.13-rc6";
-    hash = "sha256-xny3obRX9bPKCT5PbzuprEoH6nBgNDV0gVcVeucV+0M=";
+    rev = "wip/x1e80100-6.13";
+    hash = "sha256-IwZ/pOwiHV2d2OiTzI/eSLuEwNJhV/1Ud7QvBkMRyDs=";
   };
-  version = "6.13.0-rc6";
+  version = "6.13.0";
   defconfig = "johan_defconfig";
 
   structuredExtraConfig = with lib.kernel; {
@@ -58,20 +58,6 @@ linuxPackagesFor (buildLinux {
     }
 
     # RTC support
-    {
-      name = "rtc: pm8xxx: implement qcom,no-alarm flag for non-HLOS owned alarm";
-      patch = fetchurl {
-        url = "https://lore.kernel.org/linux-kernel/20241015004945.3676-2-jonathan@marek.ca/raw";
-        hash = "sha256-+HoD4ggo4c6fNbUjQ0uCI8UDE4urd6XzHlodKm/5n5Y=";
-      };
-    }
-    {
-      name = "arm64: dts: qcom: x1e80100-pmics: enable RTC";
-      patch = fetchurl {
-        url = "https://lore.kernel.org/linux-kernel/20241015004945.3676-4-jonathan@marek.ca/raw";
-        hash = "sha256-SxdyzwNzp5hnLmruic3tUCfATm7X4xIXgLwGF/Fj9uk=";
-      };
-    }
     {
       name = "arm64: dts: qcom: x1e80100-lenovo-yoga-slim7x: add rtc offset to set rtc time";
       # Adapted from: https://lore.kernel.org/linux-kernel/20241015004945.3676-6-jonathan@marek.ca/
