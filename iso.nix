@@ -1,7 +1,7 @@
 { pkgs, lib, ... }:
 
 {
-  isoImage.isoName = lib.mkForce "cd.iso";
+  image.baseName = lib.mkForce "cd";
   boot.supportedFilesystems.zfs = lib.mkForce false;
   boot.supportedFilesystems.cifs = lib.mkForce false;
 
