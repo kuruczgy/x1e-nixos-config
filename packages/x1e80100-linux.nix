@@ -84,5 +84,12 @@ linuxPackagesFor (buildLinux {
         hash = "sha256-Tw2mlbTR6MPvVocaLR3CtWRDqlLql4+0oEnf0DfJp5U=";
       };
     }
+
+    # audio codec settings to remove crackle. don't resize buffers kids!
+    {
+      name = "ASoC: qdsp6: q6apm-dai: set prefered period size";
+      # https://git.codelinaro.org/srinivas.kandagatla/linux/-/commit/e58b76946422207fdd52efe3810ce62e002e1fb6
+      patch = ./q6apm-dai-period-size.patch;
+    }
   ];
 })
