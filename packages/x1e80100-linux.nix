@@ -12,10 +12,10 @@ linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
     owner = "jhovold";
     repo = "linux";
-    rev = "wip/x1e80100-6.13";
-    hash = "sha256-IwZ/pOwiHV2d2OiTzI/eSLuEwNJhV/1Ud7QvBkMRyDs=";
+    rev = "wip/x1e80100-6.14-rc2";
+    hash = "sha256-3LaUsqRElMley3OAK1v0/MV8m7QTep/Q678Kd7/c47g=";
   };
-  version = "6.13.0";
+  version = "6.14.0-rc2";
   defconfig = "johan_defconfig";
 
   structuredExtraConfig = with lib.kernel; {
@@ -74,15 +74,6 @@ linuxPackagesFor (buildLinux {
       # https://git.launchpad.net/~ubuntu-concept/ubuntu/+source/linux/+git/oracular/commit/?h=qcom-x1e&id=87f07f4fe54477cd3219a0553192ab0bcba97945
       # https://git.launchpad.net/~ubuntu-concept/ubuntu/+source/linux/+git/oracular/commit/?h=qcom-x1e&id=350f8e8802bef1a2aac3dc17c3db138022296a94
       patch = ./lenovo-yoga-slim7x-dp-altmode.patch;
-    }
-
-    # Lid switch
-    {
-      name = "arm64: dts: qcom: x1e80100-lenovo-yoga-slim7x: Add lid switch";
-      patch = fetchpatch {
-        url = "https://lore.kernel.org/linux-kernel/20241219-patch-lenovo-yoga-v3-1-9c4a79068141@mailbox.org/raw";
-        hash = "sha256-Tw2mlbTR6MPvVocaLR3CtWRDqlLql4+0oEnf0DfJp5U=";
-      };
     }
   ];
 })
