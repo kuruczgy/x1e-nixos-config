@@ -29,13 +29,6 @@
           patches = [
             ./nixpkgs-devicetree.patch
             ./nixpkgs-efi-shell.patch
-
-            # Fix for cross-compilation
-            # https://github.com/NixOS/nixpkgs/pull/375953
-            (pkgs-unpatched.fetchpatch {
-              url = "https://github.com/NixOS/nixpkgs/commit/4fd304c580d3704b4f3a9955b354148b4f1d73b1.patch";
-              hash = "sha256-0wXc8sSp2yQquqk5CKiejzFxPmjViCb15sjCamx+ol4=";
-            })
           ];
         }).overrideAttrs
           { allowSubstitutes = true; };
