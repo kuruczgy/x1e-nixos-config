@@ -91,7 +91,7 @@ Reboot the laptop, and enter the UEFI menu by pressing F2 (no need for the Fn ke
 
 Go to "Security > Secure Boot", and disable it. Then go to "Exit" and select "Exit Saving Changes". (At this point you might want to boot into Windows again just to check if it still works.)
 
-Next, build the install ISO [as described above](#build). When this is done, you should copy the ISO to a USB drive. (E.g. with something like `dd if=result/iso/cd.iso of=/dev/sdX bs=4M status=progress conv=fdatasync`.)
+Next, build the install ISO [as described above](#build). When this is done, you should copy the ISO to a USB drive. (E.g. with something like `dd if=result/iso/nixos-x1e80100-lenovo-yoga-slim7x.iso of=/dev/sdX bs=4M status=progress conv=fdatasync`.)
 
 Connect the USB drive to the laptop (if yours is USB-A you can use the adapter that comes in the box), enter the boot menu using F12, and boot from the USB drive.
 

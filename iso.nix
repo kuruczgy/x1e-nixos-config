@@ -1,7 +1,16 @@
-{ pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
-  image.baseName = lib.mkForce "cd";
+  image.baseName =
+    let
+      deviceTreeBaseName = builtins.elemAt (lib.splitString "." (builtins.baseNameOf config.hardware.deviceTree.name)) 0;
+    in
+    lib.mkForce "nixos-${deviceTreeBaseName}";
   boot.supportedFilesystems.zfs = lib.mkForce false;
   boot.supportedFilesystems.cifs = lib.mkForce false;
 
