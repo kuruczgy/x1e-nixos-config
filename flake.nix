@@ -1,14 +1,11 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs";
-    treefmt-nix.url = "github:numtide/treefmt-nix";
-    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs =
     {
       self,
       nixpkgs,
-      treefmt-nix,
     }:
     let
       # Modify this if you are building on something other than x86_64-linux.
@@ -86,7 +83,18 @@
         ];
         treefmtEval = eachSystem (
           system:
-          (treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} {
+          let
+            pkgs = nixpkgs.legacyPackages.${system};
+            treefmt-nix = import (
+              pkgs.fetchFromGitHub {
+                owner = "numtide";
+                repo = "treefmt-nix";
+                rev = "0ce9d149d99bc383d1f2d85f31f6ebd146e46085";
+                hash = "sha256-s4DalCDepD22jtKL5Nw6f4LP5UwoMcPzPZgHWjAfqbQ=";
+              }
+            );
+          in
+          (treefmt-nix.evalModule pkgs {
             programs.nixfmt.enable = true;
             settings.on-unmatched = "info";
           })
