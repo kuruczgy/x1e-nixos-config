@@ -12,10 +12,10 @@ linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
     owner = "jhovold";
     repo = "linux";
-    rev = "wip/x1e80100-6.14-rc2";
-    hash = "sha256-3LaUsqRElMley3OAK1v0/MV8m7QTep/Q678Kd7/c47g=";
+    rev = "wip/x1e80100-6.14-rc4";
+    hash = "sha256-sETiipF60b1MooV269/uW1OezKmbxYuRGNDsZOYhBrM=";
   };
-  version = "6.14.0-rc2";
+  version = "6.14.0-rc4";
   defconfig = "johan_defconfig";
 
   structuredExtraConfig = with lib.kernel; {
@@ -73,6 +73,7 @@ linuxPackagesFor (buildLinux {
       # From these two commits:
       # https://git.launchpad.net/~ubuntu-concept/ubuntu/+source/linux/+git/oracular/commit/?h=qcom-x1e&id=87f07f4fe54477cd3219a0553192ab0bcba97945
       # https://git.launchpad.net/~ubuntu-concept/ubuntu/+source/linux/+git/oracular/commit/?h=qcom-x1e&id=350f8e8802bef1a2aac3dc17c3db138022296a94
+      # (plus some additional fixes)
       patch = ./lenovo-yoga-slim7x-dp-altmode.patch;
     }
   ];
