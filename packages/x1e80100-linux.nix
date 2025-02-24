@@ -12,10 +12,10 @@ linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
     owner = "jhovold";
     repo = "linux";
-    rev = "wip/x1e80100-6.14-rc2";
-    hash = "sha256-3LaUsqRElMley3OAK1v0/MV8m7QTep/Q678Kd7/c47g=";
+    rev = "wip/x1e80100-6.14-rc4";
+    hash = "sha256-sETiipF60b1MooV269/uW1OezKmbxYuRGNDsZOYhBrM=";
   };
-  version = "6.14.0-rc2";
+  version = "6.14.0-rc4";
   defconfig = "johan_defconfig";
 
   structuredExtraConfig = with lib.kernel; {
