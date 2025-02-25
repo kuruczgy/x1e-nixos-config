@@ -53,8 +53,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "TravMurav";
     repo = "slbounce";
-    rev = "97b24ec89faa11827e7def220b0aa53dd5d5f447";
-    hash = "sha256-ImZHsMwLSlo2smLV7aAkmN0JbxcQbkrO/WWcK5fMfpU=";
+    rev = "688ba767fbabb8feb785f4dfdfde90b6e345b0c8";
+    hash = "sha256-qrnY5Mr3arlRDWWyuZnP8ONtnsZTAeSWAu78TfMDzRM=";
   };
   nativeBuildInputs = [ dtc ];
   patches = [
