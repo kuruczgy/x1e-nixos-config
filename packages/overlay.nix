@@ -8,4 +8,5 @@ final: prev: {
       { inherit prev; };
   slbounce = final.callPackage ./slbounce.nix { };
   audioreach-topology = final.callPackage ./audioreach-topology.nix { };
+  audioreach-kernel = final.callPackage ./audioreach-kernel.nix { };
 }
