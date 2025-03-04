@@ -11,6 +11,7 @@ in
   pname = "audioreach-linux-driver";
   version = "1.0+git";
   inherit src;
+  hardeningDisable = ["pic"];
   nativeBuildInputs = kernel.moduleBuildDependencies;
   makeFlags = kernel.makeFlags ++ [
     "KERNEL_SRC=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
