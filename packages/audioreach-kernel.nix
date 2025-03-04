@@ -21,6 +21,5 @@ in
     install -d $out/include/linux
     cp -rf ${src}/include/uapi/linux/* $out/include/linux
   '';
-  buildFlags = [ "modules" ];
   installTargets = [ "modules_install" ];
 }
