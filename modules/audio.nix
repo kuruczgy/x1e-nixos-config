@@ -26,5 +26,7 @@
       hardware.firmware = [
         pkgs.audioreach-topology
       ];
+
+      boot.extraModulePackages = [ pkgs.audioreach-kernel ];
     };
 }
