@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index b49c57a..28bd20c 100644
+index b49c57a..ad5771f 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -1,16 +1,16 @@
@@ -18,7 +18,7 @@ index b49c57a..28bd20c 100644
 -all:
 -	$(MAKE) -C $(KERNEL_SRC) M=$(shell pwd) modules
 +modules:
-+	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) modules
++	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) V=1 modules
  
  modules_install:
 -	$(MAKE) INSTALL_MOD_STRIP=1 -C $(KERNEL_SRC) M=$(shell pwd) modules_install
