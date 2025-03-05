@@ -1,0 +1,21 @@
+diff --git a/Makefile b/Makefile
+index b49c57a..5146992 100644
+--- a/Makefile
++++ b/Makefile
+@@ -6,11 +6,13 @@ obj-m += dsp/msm_audio_mem.o
+ 
+ EXTRA_CFLAGS += -I$(AUDIO_ROOT)/include
+ 
+-all:
+-	$(MAKE) -C $(KERNEL_SRC) M=$(shell pwd) modules
++default: modules
++
++modules:
++	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) modules
+ 
+ modules_install:
+-	$(MAKE) INSTALL_MOD_STRIP=1 -C $(KERNEL_SRC) M=$(shell pwd) modules_install
++	$(MAKE) INSTALL_MOD_STRIP=1 -C $(KERNEL_SRC) M=$(PWD) modules_install
+ 
+ clean:
+ 	find ./ -iname "*.o" -delete
