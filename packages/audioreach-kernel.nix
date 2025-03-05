@@ -23,6 +23,7 @@ stdenv.mkDerivation rec {
     "KERNEL_SRC=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
     # INSTALL_MOD_PATH: used by the kbuild system
     "INSTALL_MOD_PATH=$(out)"
+    "V=1"
   ];
   postInstall = ''
     install -d $out/include/linux
