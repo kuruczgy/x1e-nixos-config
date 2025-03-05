@@ -17,7 +17,7 @@ in
     # KERNEL_SRC: used by audioreach-kernel
     "KERNEL_SRC=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
     # INSTALL_MOD_PATH: used by the kbuild system
-    "INSTALL_MOD_PATH=$\{out}"
+    "INSTALL_MOD_PATH=$(out)"
   ];
   postInstall = ''
     install -d $out/include/linux
