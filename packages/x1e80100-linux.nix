@@ -76,5 +76,12 @@ linuxPackagesFor (buildLinux {
       # (plus some additional fixes)
       patch = ./lenovo-yoga-slim7x-dp-altmode.patch;
     }
+
+    # audio codec settings to remove crackle. don't resize buffers kids!
+    {
+      name = "ASoC: qdsp6: q6apm-dai: set prefered period size";
+      # https://git.codelinaro.org/srinivas.kandagatla/linux/-/commit/e58b76946422207fdd52efe3810ce62e002e1fb6
+      patch = ./q6apm-dai-period-size.patch;
+    }
   ];
 })
