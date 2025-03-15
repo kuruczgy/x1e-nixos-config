@@ -31,6 +31,14 @@ linuxPackagesFor (buildLinux {
 
   kernelPatches = [
     {
+      name = "test1";
+      patch = fetchpatch {
+        url = "https://git.codelinaro.org/bryan.odonoghue/kernel/-/commit/c826a5eeb03b8267bc82a5a01789b4f964316928.patch";
+        hash = "sha256-PQXGTbbDS0KZdhnE8wjafxlw7tdGMEzQ1E+ypddW8Tc=";
+      };
+    }
+
+    {
       name = "Add Bluetooth support for the Lenovo Yoga Slim 7x";
       patch = fetchpatch {
         # Bit contrived, to match the output path of the original FOD.
