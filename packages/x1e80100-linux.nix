@@ -1,6 +1,6 @@
 {
   lib,
-  fetchFromGitHub,
+  fetchFromGitLab,
   buildLinux,
   linuxPackagesFor,
   fetchpatch,
@@ -9,11 +9,12 @@
 }:
 
 linuxPackagesFor (buildLinux {
-  src = fetchFromGitHub {
-    owner = "jhovold";
-    repo = "linux";
-    rev = "wip/x1e80100-6.14-rc6";
-    hash = "sha256-iLosPkNM/fWzw3k0HWZu7VkXtDErzv03HleM57Sy+VE=";
+  src = fetchFromGitLab {
+    domain = "git.codelinaro.org";
+    owner = "bryan.odonoghue";
+    repo = "kernel";
+    rev = "8380897ada1847b5e008c9118c329cad1ef3a5ae";
+    hash = "sha256-kt38DaksLfi2bxC1YcrUvhEjz3P62rWD164CEAiyVOQ=";
   };
   version = "6.14.0-rc6";
   defconfig = "johan_defconfig";
