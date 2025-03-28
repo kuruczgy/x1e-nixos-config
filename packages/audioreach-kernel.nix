@@ -28,6 +28,6 @@ stdenv.mkDerivation rec {
     install -d $out/include/linux
     cp -rf ${src}/include/uapi/linux/* $out/include/linux
   '';
-  buildFlags = [ "modules" ];
+  buildFlags = [ "all" ];
   installTargets = [ "modules_install" ];
 }
