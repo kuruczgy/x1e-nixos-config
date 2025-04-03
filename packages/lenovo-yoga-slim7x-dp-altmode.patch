@@ -2,7 +2,7 @@ diff --git a/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts b/arch/arm
 index 40e59558aef4..b5fed73bcf8a 100644
 --- a/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts
 +++ b/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts
-@@ -48,7 +48,15 @@ port@1 {
+@@ -72,7 +72,15 @@ port@1 {
  					reg = <1>;
  
  					pmic_glink_ss0_ss_in: endpoint {
@@ -19,7 +19,7 @@ index 40e59558aef4..b5fed73bcf8a 100644
  					};
  				};
  			};
-@@ -77,7 +85,15 @@ port@1 {
+@@ -101,7 +109,15 @@ port@1 {
  					reg = <1>;
  
  					pmic_glink_ss1_ss_in: endpoint {
@@ -36,7 +36,7 @@ index 40e59558aef4..b5fed73bcf8a 100644
  					};
  				};
  			};
-@@ -106,7 +122,15 @@ port@1 {
+@@ -130,7 +146,15 @@ port@1 {
  					reg = <1>;
  
  					pmic_glink_ss2_ss_in: endpoint {
@@ -53,7 +53,7 @@ index 40e59558aef4..b5fed73bcf8a 100644
  					};
  				};
  			};
-@@ -182,6 +206,134 @@ vreg_edp_3p3: regulator-edp-3p3 {
+@@ -206,6 +230,134 @@ vreg_edp_3p3: regulator-edp-3p3 {
  		regulator-boot-on;
  	};
  
@@ -188,7 +188,7 @@ index 40e59558aef4..b5fed73bcf8a 100644
  	vreg_nvme: regulator-nvme {
  		compatible = "regulator-fixed";
  
-@@ -208,6 +360,141 @@ vph_pwr: regulator-vph-pwr {
+@@ -232,6 +384,141 @@ vph_pwr: regulator-vph-pwr {
  		regulator-always-on;
  		regulator-boot-on;
  	};
@@ -330,7 +330,7 @@ index 40e59558aef4..b5fed73bcf8a 100644
  };
  
  &apps_rsc {
-@@ -538,6 +825,172 @@ keyboard@3a {
+@@ -563,6 +850,181 @@ keyboard@3a {
  	};
  };
  
@@ -354,6 +354,9 @@ index 40e59558aef4..b5fed73bcf8a 100644
 +		vddio-supply = <&vreg_rtmr2_1p8>;
 +
 +		reset-gpios = <&tlmm 185 GPIO_ACTIVE_LOW>;
++
++		pinctrl-0 = <&rtmr2_default>;
++		pinctrl-names = "default";
 +
 +		orientation-switch;
 +		retimer-switch;
@@ -410,6 +413,9 @@ index 40e59558aef4..b5fed73bcf8a 100644
 +
 +		reset-gpios = <&pm8550_gpios 10 GPIO_ACTIVE_LOW>;
 +
++		pinctrl-0 = <&rtmr0_default>;
++		pinctrl-names = "default";
++
 +		retimer-switch;
 +		orientation-switch;
 +
@@ -465,6 +471,9 @@ index 40e59558aef4..b5fed73bcf8a 100644
 +
 +		reset-gpios = <&tlmm 176 GPIO_ACTIVE_LOW>;
 +
++		pinctrl-0 = <&rtmr1_default>;
++		pinctrl-names = "default";
++
 +		retimer-switch;
 +		orientation-switch;
 +
@@ -503,7 +512,7 @@ index 40e59558aef4..b5fed73bcf8a 100644
  &i2c8 {
  	clock-frequency = <400000>;
  
-@@ -585,6 +1038,33 @@ &mdss {
+@@ -610,6 +1072,33 @@ &mdss {
  	status = "okay";
  };
  
@@ -537,14 +546,25 @@ index 40e59558aef4..b5fed73bcf8a 100644
  &mdss_dp3 {
  	compatible = "qcom,x1e80100-dp";
  	/delete-property/ #sound-dai-cells;
-@@ -674,6 +1154,33 @@ &pcie6a_phy {
+@@ -699,6 +1188,48 @@ &pcie6a_phy {
  	status = "okay";
  };
  
 +&pm8550_gpios {
++	rtmr0_default: rtmr0-reset-n-active-state {
++		pins = "gpio10";
++		function = "normal";
++		power-source = <1>; /* 1.8V */
++		bias-disable;
++		input-disable;
++		output-enable;
++	};
++
 +	rtmr0_3p3_reg_en: rtmr0-3p3-reg-en-state {
 +		pins = "gpio11";
-+		function = "func1";
++		function = "normal";
++		power-source = <1>; /* 1.8V */
++		bias-disable;
 +		input-disable;
 +		output-enable;
 +	};
@@ -553,7 +573,9 @@ index 40e59558aef4..b5fed73bcf8a 100644
 +&pm8550ve_8_gpios {
 +	rtmr0_1p15_reg_en: rtmr0-1p15-reg-en-state {
 +		pins = "gpio8";
-+		function = "func1";
++		function = "normal";
++		power-source = <1>; /* 1.8V */
++		bias-disable;
 +		input-disable;
 +		output-enable;
 +	};
@@ -562,7 +584,9 @@ index 40e59558aef4..b5fed73bcf8a 100644
 +&pm8550ve_9_gpios {
 +	rtmr0_1p8_reg_en: rtmr0-1p8-reg-en-state {
 +		pins = "gpio8";
-+		function = "func1";
++		function = "normal";
++		power-source = <1>; /* 1.8V */
++		bias-disable;
 +		input-disable;
 +		output-enable;
 +	};
@@ -571,10 +595,24 @@ index 40e59558aef4..b5fed73bcf8a 100644
  &pmc8380_3_gpios {
  	edp_bl_en: edp-bl-en-state {
  		pins = "gpio4";
-@@ -862,6 +1369,48 @@ wake-n-pins {
+@@ -917,6 +1448,62 @@ wake-n-pins {
  		};
  	};
  
++	rtmr1_default: rtmr1-reset-n-active-state {
++		pins = "gpio176";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-disable;
++	};
++
++	rtmr2_default: rtmr2-reset-n-active-state {
++		pins = "gpio185";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-disable;
++	};
++
 +	rtmr1_1p15_reg_en: rtmr1-1p15-reg-en-state {
 +		pins = "gpio188";
 +		function = "gpio";
@@ -620,7 +658,7 @@ index 40e59558aef4..b5fed73bcf8a 100644
  	tpad_default: tpad-default-state {
  		pins = "gpio3";
  		function = "gpio";
-@@ -916,7 +1465,7 @@ &usb_1_ss0_dwc3_hs {
+@@ -974,7 +1561,7 @@ &usb_1_ss0_dwc3_hs {
  };
  
  &usb_1_ss0_qmpphy_out {
@@ -629,7 +667,7 @@ index 40e59558aef4..b5fed73bcf8a 100644
  };
  
  &usb_1_ss1_hsphy {
-@@ -950,7 +1499,7 @@ &usb_1_ss1_dwc3_hs {
+@@ -1006,7 +1593,7 @@ &usb_1_ss1_dwc3_hs {
  };
  
  &usb_1_ss1_qmpphy_out {
@@ -638,7 +676,7 @@ index 40e59558aef4..b5fed73bcf8a 100644
  };
  
  &usb_1_ss2_hsphy {
-@@ -982,5 +1531,5 @@ &usb_1_ss2_dwc3_hs {
+@@ -1038,5 +1625,5 @@ &usb_1_ss2_dwc3_hs {
  };
  
  &usb_1_ss2_qmpphy_out {
