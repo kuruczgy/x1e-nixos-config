@@ -7,6 +7,7 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 - [Ubuntu Concept](https://discourse.ubuntu.com/t/ubuntu-24-10-concept-snapdragon-x-elite/48800): Supports many X Elite based laptops
 - [Cadmium](https://github.com/Maccraft123/Cadmium): Also for the Yoga Slim 7x
 - [Ubuntu for the Snapdragon Dev Kit](https://github.com/jglathe/linux_ms_dev_kit/wiki/Bringing-up-the-SnapDragon-Dev-Kit-for-Windows-with-Linux-%E2%80%90-*with*-working-display)
+- [linux-surface-pro-11](https://github.com/dwhinham/linux-surface-pro-11): Arch Linux ARM for the Surface Pro 11
 
 ## Feature Matrix
 
