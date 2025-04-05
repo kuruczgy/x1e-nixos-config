@@ -1,35 +1,23 @@
-From ae4895a2103ae2dee8acbba9ba1b8a40c2facaf2 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Gy=C3=B6rgy=20Kurucz?= <me@kuruczgy.com>
-Date: Tue, 20 Aug 2024 13:37:35 +0200
-Subject: [PATCH] Add EFI Shell entry to the iso image boot loader
-
----
- nixos/modules/installer/cd-dvd/iso-image.nix | 5 +++++
- 1 file changed, 5 insertions(+)
-
 diff --git a/nixos/modules/installer/cd-dvd/iso-image.nix b/nixos/modules/installer/cd-dvd/iso-image.nix
-index 86555f4a51a2..856c346f71a6 100644
+index 31c8516eb187..3345b090025c 100644
 --- a/nixos/modules/installer/cd-dvd/iso-image.nix
 +++ b/nixos/modules/installer/cd-dvd/iso-image.nix
-@@ -420,6 +420,9 @@ let
-       }
-     fi
-     ''}
-+    menuentry 'EFI Shell' --class settings {
-+      chainloader /EFI/BOOT/shell.efi
-+    }
-     menuentry 'Firmware Setup' --class settings {
-       fwsetup
-       clear
-@@ -435,6 +438,8 @@ let
-     grub-script-check $out/EFI/boot/grub.cfg
+@@ -465,6 +465,9 @@ let
+             }
+           fi
+         ''}
++        menuentry 'EFI Shell' --class settings {
++          chainloader /EFI/BOOT/shell.efi
++        }
+         menuentry 'Firmware Setup' --class settings {
+           fwsetup
+           clear
+@@ -480,6 +483,8 @@ let
+         grub-script-check $out/EFI/BOOT/grub.cfg
  
-     ${refind}
+         ${refind}
 +
-+    cp -v ${pkgs.edk2-uefi-shell}/shell.efi $out/EFI/BOOT/
-   '';
++        cp -v ${pkgs.edk2-uefi-shell}/shell.efi $out/EFI/BOOT/
+       '';
  
-   efiImg = pkgs.runCommand "efi-image_eltorito" {
--- 
-2.44.1
-
+   efiImg =

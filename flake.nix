@@ -24,7 +24,12 @@
           name = "nixpkgs-patched";
           src = nixpkgs;
           patches = [
-            ./nixpkgs-devicetree.patch
+            (pkgs-unpatched.fetchpatch {
+              # nixos/iso-image: add devicetree support
+              # https://github.com/NixOS/nixpkgs/pull/396334
+              url = "https://github.com/NixOS/nixpkgs/commit/55a8b7b27b5e55f07937cc8c874917ab24093029.patch";
+              hash = "sha256-zI4zgY4sx6fWtWTEGyqSQFor3dn1GJ1eU0mdtmH2fJs=";
+            })
             ./nixpkgs-efi-shell.patch
           ];
         }).overrideAttrs
