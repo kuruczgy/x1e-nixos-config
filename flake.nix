@@ -109,6 +109,21 @@
         checks = eachSystem (system: {
           treefmt = treefmtEval.${system}.config.build.check self;
         });
+
+        packages = eachSystem (
+          system:
+          let
+            pkgs = nixpkgs.legacyPackages.${system};
+          in
+          {
+            kernel-patches = pkgs.linkFarm "kernel-patches" (
+              pkgs.lib.imap0 (i: patch: {
+                name = "${builtins.toString i}_${pkgs.lib.strings.sanitizeDerivationName patch.name}";
+                path = patch.patch;
+              }) pkgs-cross.x1e80100-linux.kernel.kernelPatches
+            );
+          }
+        );
       }
     );
 }
