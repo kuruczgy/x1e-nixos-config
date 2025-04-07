@@ -27,6 +27,18 @@
     "ps883x"
     "pmic_glink_altmode"
     "qrtr"
+
+    # Needed for Surface Pro 11
+    # TODO: do we want these to be opt-in?
+    "surface_hid"
+    "surface_aggregator"
+    "surface_aggregator_registry"
+    "surface_aggregator_hub"
+    "nvmem_qcom_spmi_sdam"
+    "xhci_plat_hcd"
+    "usbhid"
+    "hid_generic"
+    "hid_microsoft"
   ];
 
   boot.kernelParams = [
@@ -37,13 +49,28 @@
     # x1e80100: Add debug uart to Lenovo Yoga Slim 7x"), I guess systemd picks
     # UART as the only console, and it does not output logs on the screen.
     "console=tty1"
+
+    # For Surface Pro 11
+    # TODO: why?
+    "mem_sleep_default=deep"
   ];
 
   hardware.deviceTree.enable = true;
 
   hardware.firmware = [
     pkgs.x1e80100-lenovo-yoga-slim7x-firmware
+    pkgs.x1e80100-microsoft-denali-firmware # TODO: do we want this to be opt-in?
   ];
 
   boot.kernelPackages = pkgs.x1e80100-linux;
+
+  # doesn't work, prints kexec help message on boot
+  # TODO: why?
+  boot.crashDump.enable = lib.mkForce false;
+
+  # From nixos-hardware/microsoft/surface
+  # TODO: these are very surface specific, we should make them opt-in
+  services.tlp.enable = false;
+  services.iptsd.enable = true;
+  hardware.sensor.iio.enable = true;
 }
