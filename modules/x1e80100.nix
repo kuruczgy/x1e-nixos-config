@@ -64,6 +64,18 @@ in
         (lib.mkIf cfg.lenovo-yoga-slim7x.enable [
           "panel_samsung_atna33xc20"
         ])
+
+        (lib.mkIf cfg.microsoft-denali.enable [
+          "surface_hid"
+          "surface_aggregator"
+          "surface_aggregator_registry"
+          "surface_aggregator_hub"
+          "nvmem_qcom_spmi_sdam"
+          "xhci_plat_hcd"
+          "usbhid"
+          "hid_generic"
+          "hid_microsoft"
+        ])
       ];
 
       boot.kernelParams = lib.mkMerge [
@@ -78,17 +90,33 @@ in
           # UART as the only console, and it does not output logs on the screen.
           "console=tty1"
         ])
+
+        (lib.mkIf cfg.microsoft-denali.enable [
+          "mem_sleep_default=deep"
+        ])
       ];
 
       hardware.deviceTree.enable = true;
 
       hardware.firmware = lib.mkMerge [
         (lib.mkIf cfg.lenovo-yoga-slim7x.enable [ pkgs.x1e80100-lenovo-yoga-slim7x-firmware ])
+        (lib.mkIf cfg.microsoft-denali.enable [ pkgs.x1e80100-microsoft-denali-firmware ])
       ];
 
       # For now the kernel is same for all of the supported devices, hopefully
       # we can keep it this way so compile times stay manageable.
       boot.kernelPackages = pkgs.x1e80100-linux;
     }
+
+    (lib.mkIf cfg.microsoft-denali.enable {
+      # doesn't work, prints kexec help message on boot
+      # TODO: why?
+      boot.crashDump.enable = lib.mkForce false;
+
+      # From nixos-hardware/microsoft/surface
+      services.tlp.enable = false;
+      services.iptsd.enable = true;
+      hardware.sensor.iio.enable = true;
+    })
   ];
 }

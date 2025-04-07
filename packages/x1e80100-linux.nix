@@ -23,6 +23,23 @@ linuxPackagesFor (buildLinux {
     KVM = yes;
     MAGIC_SYSRQ = yes;
     EC_LENOVO_YOGA_SLIM7X = module;
+
+    # Surface Pro 11
+    BATTERY_SURFACE = module;
+    CHARGER_SURFACE = module;
+    SENSORS_SURFACE_FAN = module;
+    SENSORS_SURFACE_TEMP = module;
+    SURFACE_PLATFORMS = yes;
+    SURFACE_AGGREGATOR = module;
+    SURFACE_AGGREGATOR_CDEV = module;
+    SURFACE_AGGREGATOR_HUB = module;
+    SURFACE_AGGREGATOR_REGISTRY = module;
+    SURFACE_AGGREGATOR_TABLET_SWITCH = module;
+    SURFACE_PLATFORM_PROFILE = module;
+    SURFACE_HID = module;
+    SURFACE_KBD = module;
+    SPI_HID = module;
+    FTRACE = lib.mkForce no; # Causes a compile error with the spi-hid driver.
   };
 
   # TODO: Look into the errors and remove this.
@@ -75,6 +92,80 @@ linuxPackagesFor (buildLinux {
       # https://git.launchpad.net/~ubuntu-concept/ubuntu/+source/linux/+git/oracular/commit/?h=qcom-x1e&id=350f8e8802bef1a2aac3dc17c3db138022296a94
       # (plus some additional fixes)
       patch = ./lenovo-yoga-slim7x-dp-altmode.patch;
+    }
+
+    # Surface Pro 11
+    {
+      name = "drm/msm/dp: work around bogus maximum link rate";
+      patch = fetchpatch {
+        url = "https://github.com/dwhinham/kernel-surface-pro-11/commit/8352e67f1286403463aa4f8cf5e379e4baf6c167.patch";
+        hash = "sha256-O3LKcLKkavAXpStRxKcWBV1W50wBR63FGhR7golAlpc=";
+      };
+    }
+    {
+      name = "arm64: dts: qcom: add support for Surface Pro 11";
+      patch = fetchpatch {
+        url = "https://github.com/dwhinham/kernel-surface-pro-11/commit/00e9029a1584e353b7ceb791d8302980b5f22e27.patch";
+        hash = "sha256-ErTjrsnraddPTYemTSSqqfFOxI21jZ9HXkqxmjWXO7I=";
+      };
+    }
+    {
+      name = "firmware: qcom: scm: allow QSEECOM on Surface Pro 11";
+      patch = fetchpatch {
+        url = "https://github.com/dwhinham/kernel-surface-pro-11/commit/42451d6b8a25d010f0df448b10dc1546d7e49f6d.patch";
+        hash = "sha256-ipTK7XU+hdgQ0wupVGWRpYgr/JaxOypSf+OWf+cY73g=";
+      };
+    }
+    {
+      name = "platform/surface: aggregator_registry: Add Surface Pro 11";
+      patch = fetchpatch {
+        url = "https://github.com/dwhinham/kernel-surface-pro-11/commit/5e16b1e6a51880fe9eacdc46d9eda0d9d98f4911.patch";
+        hash = "sha256-hnTmzldWy9BFIrIdP6ys0QeLJfOShoP4ZlqWvNHcHaI=";
+      };
+    }
+    {
+      name = "Import spi-hid driver from surface duo 2 kernel";
+      patch = fetchpatch {
+        # TODO: audit
+        url = "https://github.com/dwhinham/kernel-surface-pro-11/commit/f05d2f44c0da8240dc4c615db5e634b43315d11b.patch";
+        hash = "sha256-wsQSo/FRae+KtVRXTQU8PBKHhM+UZkDBpKFFr8lb5nI=";
+      };
+    }
+    {
+      name = "HACK: disable rfkill of ath12k_pci";
+      patch = fetchpatch {
+        # TODO: can we somehow not apply this to the yoga?
+        url = "https://github.com/dwhinham/kernel-surface-pro-11/commit/cc5883b14d7630bb1819a8612d3121a9bff5743f.patch";
+        hash = "sha256-n/bv03m2xWehCMKaEBD6d+wKgTnxZWj0EtpQer1DgEA=";
+      };
+    }
+    {
+      name = "arm64: dts: qcom: x1e80100-denali: Enable audio support";
+      patch = fetchpatch {
+        url = "https://github.com/dwhinham/kernel-surface-pro-11/commit/ccac5d7a75c9e72a604b97a4ad40894ded044a1f.patch";
+        hash = "sha256-Wmv+nA+t2mfLD8Scr3S1ejjQ313GSFvNvEdtFr7A7xw=";
+      };
+    }
+    {
+      name = "arm64: dts: qcom: x1e80100-denali: Enable external DisplayPort support";
+      patch = fetchpatch {
+        url = "https://github.com/dwhinham/kernel-surface-pro-11/commit/2e257e76cf1490ec53f6f808df845b1695d00e14.patch";
+        hash = "sha256-kmX/jj6v+l4HFdZsgsHgCN9TBGR2AxXiBucoxKu7q7I=";
+      };
+    }
+    {
+      name = "arm64: dts: qcom: x1e80100-denali: Enable USB-C retimers";
+      patch = fetchpatch {
+        url = "https://github.com/dwhinham/kernel-surface-pro-11/commit/6092761431032931f5d6b9b134af958ca9ed148b.patch";
+        hash = "sha256-A/c8WrivFQe5UiWGq+XliDhyhhngYX+PChBKveXz4mE=";
+      };
+    }
+    {
+      name = "drm/edp-panel: Add panel used by Surface Pro 11 (OLED)";
+      patch = fetchpatch {
+        url = "https://github.com/dwhinham/kernel-surface-pro-11/commit/771cb25d23a9fff46e71705e6ad95aa98f4a445b.patch";
+        hash = "sha256-IO/NA14DdhS/LnvQObSiVrR2w2kvAvBlGESN74jTlnM=";
+      };
     }
   ];
 })
