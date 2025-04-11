@@ -10,8 +10,6 @@
         nixpkgs.overlays = [
           (import ./packages/overlay.nix)
         ];
-
-        hardware.deviceTree.name = lib.mkDefault "qcom/x1e80100-lenovo-yoga-slim7x.dtb";
       };
     };
 }
