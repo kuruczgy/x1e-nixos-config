@@ -10,10 +10,10 @@
 
 linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
-    owner = "jhovold";
+    owner = "kuruczgy";
     repo = "linux";
-    rev = "wip/x1e80100-6.14";
-    hash = "sha256-s1DKyjz9qm+M4YcCEQbfglqWFasUNfxrrIh8Y6zWVqg=";
+    rev = "cam";
+    hash = "sha256-KLjvIJt+9GBKkigx3zBQLKDtizyMNif47TtoOwwngdw=";
   };
   version = "6.14.0";
   defconfig = "johan_defconfig";
