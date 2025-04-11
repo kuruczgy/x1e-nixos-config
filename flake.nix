@@ -36,6 +36,18 @@
           (final: prev: {
             # Workaround for https://github.com/NixOS/nixpkgs/issues/396701
             git = prev.git.override { withManual = final.stdenv.hostPlatform == final.stdenv.buildPlatform; };
+
+            grub2 = prev.grub2.overrideAttrs (old: {
+              patches = (old.patches or [ ]) ++ [
+                # Limit grub to 4GB RAM, needed to boot T14s 64GB variant
+                (final.fetchpatch {
+                  url = "https://lore.kernel.org/grub-devel/20250407183002.601690-1-tobias.heider@canonical.com/raw";
+                  # See: https://github.com/NixOS/nixpkgs/issues/400905
+                  decode = "(grep '^[a-zA-Z0-9+/=]\\+$' | base64 -d)";
+                  hash = "sha256-BMGek9GNiRpSNpP1o06pprPoIVW+ZNZwVYjW4egp4Ig=";
+                })
+              ];
+            });
           })
         ];
         localSystem.system = buildSystem;

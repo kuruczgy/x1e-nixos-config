@@ -11,33 +11,39 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 
 ## Feature Matrix
 
-| Feature                 | Status | Notes                                                                            |
-| ----------------------- | -----: | -------------------------------------------------------------------------------- |
-| Battery Charging        |     ✅ |                                                                                  |
-| Battery Indicator       |     ✅ |                                                                                  |
-| Bluetooth               |     ✅ |                                                                                  |
-| Camera                  |     ❌ |                                                                                  |
-| Display                 |     ✅ |                                                                                  |
-| GPU Acceleration        |     ✅ |                                                                                  |
-| Hardware Video Decoding |     ❌ |                                                                                  |
-| Hibernate               |     ❔ |                                                                                  |
-| Keyboard                |     ✅ |                                                                                  |
-| Lid switch              |     ✅ |                                                                                  |
-| Microphone              |     ❌ |                                                                                  |
-| NVMe                    |     ✅ |                                                                                  |
-| Power Profiles          |     ❌ |                                                                                  |
-| RTC                     |     ✅ |                                                                                  |
-| Speakers                |     ❌ |                                                                                  |
-| Suspend                 |     🟨 | Spurious wakeups can happen. Battery consumption still high (approx. 3.8%/hour). |
-| Thermal throttling      |     ❌ |                                                                                  |
-| Touchpad                |     ✅ |                                                                                  |
-| Touchscreen             |     ✅ |                                                                                  |
-| TPM                     |     ❌ |                                                                                  |
-| USB-C 4                 |     ❔ |                                                                                  |
-| USB-C Booting           |     ✅ |                                                                                  |
-| USB-C DP Alt Mode       |     ✅ |                                                                                  |
-| USB-C PCIe              |     ❌ |                                                                                  |
-| Wi-Fi                   |     ✅ |                                                                                  |
+|                         | Lenovo Yoga Slim 7x  |                         Lenovo ThinkPad T14s Gen 6                         | Notes                                                                            |
+| ----------------------- | :------------------: | :------------------------------------------------------------------------: | -------------------------------------------------------------------------------- |
+| Identifier              | `lenovo-yoga-slim7x` |                           `lenovo-thinkpad-t14s`                           |                                                                                  |
+| Battery Charging        |          ✅          |                                     ✅                                     |                                                                                  |
+| Battery Indicator       |          ✅          |                                     ✅                                     | )                                                                                |
+| Bluetooth               |          ✅          |                                     ✅                                     |                                                                                  |
+| Camera                  |          ❌          |                                     ❌                                     |                                                                                  |
+| Display                 |          ✅          |                                     ✅                                     |                                                                                  |
+| Fingerprint Reader      |         N/A          |                                     ❔                                     |                                                                                  |
+| GPU Acceleration        |          ✅          |                                     ✅                                     |                                                                                  |
+| Hardware Video Decoding |          ❌          |                                     ❌                                     |                                                                                  |
+| HDMI Port               |         N/A          |                                     ❌                                     |                                                                                  |
+| Hibernate               |          ❔          |                                     ❔                                     |                                                                                  |
+| Keyboard                |          ✅          |                                     ✅                                     |                                                                                  |
+| Lid switch              |          ✅          |                                     ✅                                     |                                                                                  |
+| Microphone              |          ❌          |                                     ❌                                     |                                                                                  |
+| NVMe                    |          ✅          |                                     ✅                                     |                                                                                  |
+| Power Profiles          |          ❌          |                                     ❌                                     |                                                                                  |
+| RTC                     |          ✅          |                                     ✅                                     |                                                                                  |
+| Speakers                |          ❌          |                                     ❌                                     |                                                                                  |
+| Suspend                 |          🟨          |                                     🟨                                     | Spurious wakeups can happen. Battery consumption still high (approx. 3.8%/hour). |
+| Thermal throttling      |          ❌          |                                     ❌                                     |                                                                                  |
+| Touchpad                |          ✅          |                                     ✅                                     |                                                                                  |
+| Touchscreen             |          ✅          |                                     ❔                                     |                                                                                  |
+| TPM                     |          ❌          |                                     ❌                                     |                                                                                  |
+| USB-A                   |         N/A          |                                     ✅                                     |                                                                                  |
+| USB-A Booting           |         N/A          |                                     ✅                                     |                                                                                  |
+| USB-C 4                 |          ❔          |                                     ❔                                     |                                                                                  |
+| USB-C Booting           |          ✅          |                                     ❌                                     |                                                                                  |
+| USB-C DP Alt Mode       |          ✅          |                                     ❌                                     |                                                                                  |
+| USB-C PCIe              |          ❌          |                                     ❌                                     |                                                                                  |
+| Wi-Fi                   |          ✅          |                                     ✅                                     |                                                                                  |
+| _Notes_                 |                      | Only 31GB of RAM works reliably. OLED version needs different device tree. |                                                                                  |
 
 Some things may be working and have drivers, but are not yet included here.
 
@@ -58,7 +64,7 @@ If your build system is not `x86_64-linux` you have to modify `buildSystem` in `
 
 If you build using WSL, you can install Nix in e.g. Ubuntu WSL by installing Nix as usual [following the guide for multi-user Nix (the package manager)](https://nixos.org/download/). (One can also install [NixOS in WSL](https://github.com/nix-community/NixOS-WSL), however, this requires an existing NixOS installation to build the `aarch64` version as the project only distributes pre-built `x86_64-linux` versions.)
 
-If you would like to attempt using this on something other than the Lenovo Yoga Slim 7x, enable the appropriate `hardware.<device>.enable` option.
+If you would like to attempt using this on something other than the Lenovo Yoga Slim 7x, enable the appropriate `hardware.<device>.enable` option. (See the "Identifier" row of the table above for the available devices.)
 
 Run `nix build .#nixosConfigurations.iso.config.system.build.isoImage` to build the ISO. You might need to add the `--extra-experimental-features 'nix-command flakes'` flag if flakes are not enabled in your Nix config (e.g. in WSL).
 
