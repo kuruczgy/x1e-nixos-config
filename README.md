@@ -11,34 +11,34 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 
 ## Feature Matrix
 
-|                         |  Lenovo Yoga Slim 7x | Notes                                                                            |
-| ----------------------- | -------------------: | -------------------------------------------------------------------------------- |
-| Identifier              | `lenovo-yoga-slim7x` |                                                                                  |
-| Battery Charging        |                   ✅ |                                                                                  |
-| Battery Indicator       |                   ✅ | Not working in EL2. (More info [below](#running-virtual-machines-with-kvm).)     |
-| Bluetooth               |                   ✅ |                                                                                  |
-| Camera                  |                   ❌ |                                                                                  |
-| Display                 |                   ✅ |                                                                                  |
-| GPU Acceleration        |                   ✅ |                                                                                  |
-| Hardware Video Decoding |                   ❌ |                                                                                  |
-| Hibernate               |                   ❔ |                                                                                  |
-| Keyboard                |                   ✅ |                                                                                  |
-| Lid switch              |                   ✅ |                                                                                  |
-| Microphone              |                   ❌ |                                                                                  |
-| NVMe                    |                   ✅ |                                                                                  |
-| Power Profiles          |                   ❌ |                                                                                  |
-| RTC                     |                   ✅ |                                                                                  |
-| Speakers                |                   ❌ |                                                                                  |
-| Suspend                 |                   🟨 | Spurious wakeups can happen. Battery consumption still high (approx. 3.8%/hour). |
-| Thermal throttling      |                   ❌ |                                                                                  |
-| Touchpad                |                   ✅ |                                                                                  |
-| Touchscreen             |                   ✅ |                                                                                  |
-| TPM                     |                   ❌ |                                                                                  |
-| USB-C 4                 |                   ❔ |                                                                                  |
-| USB-C Booting           |                   ✅ |                                                                                  |
-| USB-C DP Alt Mode       |                   🟨 | Mostly working. Right side port broken for some reason.                          |
-| USB-C PCIe              |                   ❌ |                                                                                  |
-| Wi-Fi                   |                   ✅ |                                                                                  |
+|                         |  Lenovo Yoga Slim 7x | Surface Pro 11     | Notes                                                                            |
+| ----------------------- | -------------------: | ------------------ | -------------------------------------------------------------------------------- |
+| Identifier              | `lenovo-yoga-slim7x` | `microsoft-denali` |                                                                                  |
+| Battery Charging        |                   ✅ | ❔                 |                                                                                  |
+| Battery Indicator       |                   ✅ | ❔                 | Not working in EL2. (More info [below](#running-virtual-machines-with-kvm).)     |
+| Bluetooth               |                   ✅ | ❔                 |                                                                                  |
+| Camera                  |                   ❌ | ❔                 |                                                                                  |
+| Display                 |                   ✅ | ❔                 |                                                                                  |
+| GPU Acceleration        |                   ✅ | ❔                 |                                                                                  |
+| Hardware Video Decoding |                   ❌ | ❔                 |                                                                                  |
+| Hibernate               |                   ❔ | ❔                 |                                                                                  |
+| Keyboard                |                   ✅ | ❔                 |                                                                                  |
+| Lid switch              |                   ✅ | ❔                 |                                                                                  |
+| Microphone              |                   ❌ | ❔                 |                                                                                  |
+| NVMe                    |                   ✅ | ❔                 |                                                                                  |
+| Power Profiles          |                   ❌ | ❔                 |                                                                                  |
+| RTC                     |                   ✅ | ❔                 |                                                                                  |
+| Speakers                |                   ❌ | ❔                 |                                                                                  |
+| Suspend                 |                   🟨 | ❔                 | Spurious wakeups can happen. Battery consumption still high (approx. 3.8%/hour). |
+| Thermal throttling      |                   ❌ | ❔                 |                                                                                  |
+| Touchpad                |                   ✅ | ❔                 |                                                                                  |
+| Touchscreen             |                   ✅ | ❔                 |                                                                                  |
+| TPM                     |                   ❌ | ❔                 |                                                                                  |
+| USB-C 4                 |                   ❔ | ❔                 |                                                                                  |
+| USB-C Booting           |                   ✅ | ❔                 |                                                                                  |
+| USB-C DP Alt Mode       |                   🟨 | ❔                 | Mostly working. Right side port broken for some reason.                          |
+| USB-C PCIe              |                   ❌ | ❔                 |                                                                                  |
+| Wi-Fi                   |                   ✅ | ❔                 |                                                                                  |
 
 Some things may be working and have drivers, but are not yet included here.
 
