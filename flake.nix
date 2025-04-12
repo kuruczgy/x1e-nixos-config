@@ -102,6 +102,10 @@
           (treefmt-nix.evalModule pkgs {
             programs.nixfmt.enable = true;
             settings.on-unmatched = "info";
+            programs.mdformat = {
+              enable = true;
+              package = pkgs.mdformat.withPlugins (p: [ p.mdformat-gfm ]);
+            };
           })
         );
       in
