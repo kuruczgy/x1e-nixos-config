@@ -11,33 +11,33 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 
 ## Feature Matrix
 
-| Feature                 | Status | Notes                                                                                                        |
-| ----------------------- | -----: | ------------------------------------------------------------------------------------------------------------ |
-| Battery Charging        |     ✅ |                                                                                                              |
-| Battery Indicator       |     ✅ | Not working in EL2. (More info [below](#running-virtual-machines-with-kvm).)                                 |
-| Bluetooth               |     ✅ |                                                                                                              |
-| Camera                  |     ❌ |                                                                                                              |
-| Display                 |     ✅ |                                                                                                              |
-| GPU Acceleration        |     ✅ |                                                                                                              |
-| Hardware Video Decoding |     ❌ |                                                                                                              |
-| Hibernate               |     ❔ |                                                                                                              |
-| Keyboard                |     ✅ |                                                                                                              |
-| Lid switch              |     ✅ |                                                                                                              |
-| Microphone              |     ❌ |                                                                                                              |
-| NVMe                    |     ✅ |                                                                                                              |
-| Power Profiles          |     ❌ |                                                                                                              |
-| RTC                     |     ✅ |                                                                                                              |
-| Speakers                |     ❌ |                                                                                                              |
-| Suspend                 |     🟨 | Spurious wakeups can happen. Battery consumption still high (approx. 3.8%/hour).                             |
-| Thermal throttling      |     ❌ |                                                                                                              |
-| Touchpad                |     ✅ |                                                                                                              |
-| Touchscreen             |     ✅ |                                                                                                              |
-| TPM                     |     ❌ |                                                                                                              |
-| USB-C 4                 |     ❔ |                                                                                                              |
-| USB-C Booting           |     ✅ |                                                                                                              |
-| USB-C DP Alt Mode       |     🟨 | Mostly working. Right side port broken for some reason.                                                      |
-| USB-C PCIe              |     ❌ |                                                                                                              |
-| Wi-Fi                   |     ✅ |                                                                                                              |
+| Feature                 | Status | Notes                                                                            |
+| ----------------------- | -----: | -------------------------------------------------------------------------------- |
+| Battery Charging        |     ✅ |                                                                                  |
+| Battery Indicator       |     ✅ | Not working in EL2. (More info [below](#running-virtual-machines-with-kvm).)     |
+| Bluetooth               |     ✅ |                                                                                  |
+| Camera                  |     ❌ |                                                                                  |
+| Display                 |     ✅ |                                                                                  |
+| GPU Acceleration        |     ✅ |                                                                                  |
+| Hardware Video Decoding |     ❌ |                                                                                  |
+| Hibernate               |     ❔ |                                                                                  |
+| Keyboard                |     ✅ |                                                                                  |
+| Lid switch              |     ✅ |                                                                                  |
+| Microphone              |     ❌ |                                                                                  |
+| NVMe                    |     ✅ |                                                                                  |
+| Power Profiles          |     ❌ |                                                                                  |
+| RTC                     |     ✅ |                                                                                  |
+| Speakers                |     ❌ |                                                                                  |
+| Suspend                 |     🟨 | Spurious wakeups can happen. Battery consumption still high (approx. 3.8%/hour). |
+| Thermal throttling      |     ❌ |                                                                                  |
+| Touchpad                |     ✅ |                                                                                  |
+| Touchscreen             |     ✅ |                                                                                  |
+| TPM                     |     ❌ |                                                                                  |
+| USB-C 4                 |     ❔ |                                                                                  |
+| USB-C Booting           |     ✅ |                                                                                  |
+| USB-C DP Alt Mode       |     🟨 | Mostly working. Right side port broken for some reason.                          |
+| USB-C PCIe              |     ❌ |                                                                                  |
+| Wi-Fi                   |     ✅ |                                                                                  |
 
 Some things may be working and have drivers, but are not yet included here.
 
@@ -52,7 +52,7 @@ Note that the device tree in the releases is hardcoded for the Lenovo Yoga Slim 
 There are two main ways to build the ISO:
 
 1. The default setting is to cross-compile from x86_64 to aarch64. This takes several hours as all packages are compiled from scratch.
-2. Using WSL on the device to build using Nix. This generally takes 25 minutes as only the kernel is compiled from scratch.
+1. Using WSL on the device to build using Nix. This generally takes 25 minutes as only the kernel is compiled from scratch.
 
 If your build system is not `x86_64-linux` you have to modify `buildSystem` in `flake.nix`, e.g. to `aarch64-linux` if building in WSL.
 
