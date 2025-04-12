@@ -11,11 +11,6 @@
       # Modify this if you are building on something other than x86_64-linux.
       buildSystem = "x86_64-linux";
 
-      # Modify this of you want to attempt using a different device.
-      # See the `arch/arm64/boot/dts/qcom` directory in the Linux
-      # kernel source tree for available device trees.
-      deviceTreeName = "qcom/x1e80100-lenovo-yoga-slim7x.dtb";
-
       nixpkgs-patched =
         let
           pkgs-unpatched = nixpkgs.legacyPackages.${buildSystem};
@@ -53,7 +48,7 @@
             ./modules/common.nix
             {
               nixpkgs.pkgs = pkgs-cross;
-              hardware.deviceTree.name = deviceTreeName;
+              hardware.lenovo-yoga-slim7x.enable = true;
 
               # Required to evaluate packages from `pkgs-cross` on the device.
               isoImage.storeContents = [ nixpkgs-patched ];
@@ -69,7 +64,7 @@
               { lib, ... }:
               {
                 nixpkgs.pkgs = nixpkgs.legacyPackages.aarch64-linux;
-                hardware.deviceTree.name = deviceTreeName;
+                hardware.lenovo-yoga-slim7x.enable = true;
 
                 # Copy the cross-compiled kernel from the install ISO. Remove
                 # this if you want to natively compile the kernel on your device.
@@ -102,6 +97,10 @@
           (treefmt-nix.evalModule pkgs {
             programs.nixfmt.enable = true;
             settings.on-unmatched = "info";
+            programs.mdformat = {
+              enable = true;
+              package = pkgs.mdformat.withPlugins (p: [ p.mdformat-gfm ]);
+            };
           })
         );
       in
@@ -110,6 +109,21 @@
         checks = eachSystem (system: {
           treefmt = treefmtEval.${system}.config.build.check self;
         });
+
+        packages = eachSystem (
+          system:
+          let
+            pkgs = nixpkgs.legacyPackages.${system};
+          in
+          {
+            kernel-patches = pkgs.linkFarm "kernel-patches" (
+              pkgs.lib.imap0 (i: patch: {
+                name = "${builtins.toString i}_${pkgs.lib.strings.sanitizeDerivationName patch.name}";
+                path = patch.patch;
+              }) pkgs-cross.x1e80100-linux.kernel.kernelPatches
+            );
+          }
+        );
       }
     );
 }
