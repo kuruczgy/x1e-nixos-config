@@ -11,11 +11,6 @@
       # Modify this if you are building on something other than x86_64-linux.
       buildSystem = "x86_64-linux";
 
-      # Modify this of you want to attempt using a different device.
-      # See the `arch/arm64/boot/dts/qcom` directory in the Linux
-      # kernel source tree for available device trees.
-      deviceTreeName = "qcom/x1e80100-lenovo-yoga-slim7x.dtb";
-
       nixpkgs-patched =
         let
           pkgs-unpatched = nixpkgs.legacyPackages.${buildSystem};
@@ -24,7 +19,12 @@
           name = "nixpkgs-patched";
           src = nixpkgs;
           patches = [
-            ./nixpkgs-devicetree.patch
+            (pkgs-unpatched.fetchpatch {
+              # nixos/iso-image: add devicetree support
+              # https://github.com/NixOS/nixpkgs/pull/396334
+              url = "https://github.com/NixOS/nixpkgs/commit/55a8b7b27b5e55f07937cc8c874917ab24093029.patch";
+              hash = "sha256-zI4zgY4sx6fWtWTEGyqSQFor3dn1GJ1eU0mdtmH2fJs=";
+            })
             ./nixpkgs-efi-shell.patch
           ];
         }).overrideAttrs
@@ -48,7 +48,7 @@
             ./modules/common.nix
             {
               nixpkgs.pkgs = pkgs-cross;
-              hardware.deviceTree.name = deviceTreeName;
+              x1e.device.lenovo-yoga-slim7x.enable = true;
 
               # Required to evaluate packages from `pkgs-cross` on the device.
               isoImage.storeContents = [ nixpkgs-patched ];
@@ -64,7 +64,7 @@
               { lib, ... }:
               {
                 nixpkgs.pkgs = nixpkgs.legacyPackages.aarch64-linux;
-                hardware.deviceTree.name = deviceTreeName;
+                x1e.device.lenovo-yoga-slim7x.enable = true;
 
                 # Copy the cross-compiled kernel from the install ISO. Remove
                 # this if you want to natively compile the kernel on your device.
