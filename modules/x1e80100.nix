@@ -65,7 +65,7 @@ in
           "panel_samsung_atna33xc20"
         ])
 
-        (lib.mkIf cfg.lenovo-yoga-slim7x.enable [
+        (lib.mkIf cfg.lenovo-thinkpad-t14s.enable [
           # Needed for t14s LCD display
           "pwm_bl"
           "leds_qcom_lpg"
