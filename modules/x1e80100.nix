@@ -59,6 +59,10 @@ in
           "ps883x"
           "pmic_glink_altmode"
           "qrtr"
+
+          # Needed for t14s LCD display
+          "pwm_bl"
+          "leds_qcom_lpg"
         ]
 
         (lib.mkIf cfg.lenovo-yoga-slim7x.enable [
