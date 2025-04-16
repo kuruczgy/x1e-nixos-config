@@ -20,7 +20,7 @@
           x1e-nixos-config.nixosModules.x1e
           {
             networking.hostName = "system";
-            hardware.deviceTree.name = "qcom/x1e80100-lenovo-yoga-slim7x.dtb";
+            hardware.lenovo-yoga-slim7x.enable = true;
 
             nixpkgs.hostPlatform.system = "aarch64-linux";
 
