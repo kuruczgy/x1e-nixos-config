@@ -36,7 +36,13 @@
           { allowSubstitutes = true; };
 
       pkgs-cross = import nixpkgs-patched {
-        overlays = [ (import ./packages/overlay.nix) ];
+        overlays = [
+          (import ./packages/overlay.nix)
+          (final: prev: {
+            # Workaround for https://github.com/NixOS/nixpkgs/issues/396701
+            git = prev.git.override { withManual = false; };
+          })
+        ];
         localSystem.system = buildSystem;
         crossSystem.system = "aarch64-linux";
         allowUnsupportedSystem = true;
