@@ -31,7 +31,7 @@
           { allowSubstitutes = true; };
 
       pkgs-cross = import nixpkgs-patched {
-        overlays = [ (import ./packages/overlay.nix) ];
+        overlays = [ (import ./packages/overlay.nix) (import ./packages/overlay-grub.nix) ];
         localSystem.system = buildSystem;
         crossSystem.system = "aarch64-linux";
         allowUnsupportedSystem = true;
