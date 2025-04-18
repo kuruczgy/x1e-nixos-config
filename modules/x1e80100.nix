@@ -69,6 +69,12 @@ in
           # Needed for t14s LCD display
           "pwm_bl"
           "leds_qcom_lpg"
+
+          # Needed for USB
+          "phy_nxp_ptn3222"
+          "phy_qcom_qmp_usb"
+          "phy_qcom_eusb2_repeater"
+          "phy_qcom_snps_eusb2"
         ])
       ];
 
