@@ -31,7 +31,24 @@
           { allowSubstitutes = true; };
 
       pkgs-cross = import nixpkgs-patched {
-        overlays = [ (import ./packages/overlay.nix) (import ./packages/overlay-grub.nix) ];
+        overlays = [
+          (import ./packages/overlay.nix) 
+          (
+            final: prev: {
+              grub2 = prev.grub2.overrideAttrs (old: {
+                patches =
+                  (old.patches or [])
+                  ++ [
+                    # Limit grub to 4GB RAM, needed to boot Snapdragon X Elite with > 32GB RAM.
+                    (final.fetchpatch {
+                      url = "https://git.launchpad.net/~ubuntu-concept/ubuntu/+source/grub2/plain/debian/patches/0128-4GB-memory-limit-to-fix-T14s-with-64GB-of-ram-dying.patch?h=ubuntu/oracular-x1e";
+                      hash = "sha256-Z/lJvIAflWn8Bo3Shcr3BN3VSqkh73tri/8cqcr7LsA=";
+                    })
+                  ];
+              });
+            }
+          )
+        ];
         localSystem.system = buildSystem;
         crossSystem.system = "aarch64-linux";
         allowUnsupportedSystem = true;
