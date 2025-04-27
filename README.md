@@ -14,7 +14,7 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 | Feature                 | Status | Notes                                                                            |
 | ----------------------- | -----: | -------------------------------------------------------------------------------- |
 | Battery Charging        |     ✅ |                                                                                  |
-| Battery Indicator       |     ✅ | Not working in EL2. (More info [below](#running-virtual-machines-with-kvm).)     |
+| Battery Indicator       |     ✅ |                                                                                  |
 | Bluetooth               |     ✅ |                                                                                  |
 | Camera                  |     ❌ |                                                                                  |
 | Display                 |     ✅ |                                                                                  |
@@ -35,7 +35,7 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 | TPM                     |     ❌ |                                                                                  |
 | USB-C 4                 |     ❔ |                                                                                  |
 | USB-C Booting           |     ✅ |                                                                                  |
-| USB-C DP Alt Mode       |     🟨 | Mostly working. Right side port broken for some reason.                          |
+| USB-C DP Alt Mode       |     ✅ |                                                                                  |
 | USB-C PCIe              |     ❌ |                                                                                  |
 | Wi-Fi                   |     ✅ |                                                                                  |
 
@@ -199,7 +199,7 @@ By default the firmware runs Linux in the EL1 privilege level, but EL2 is needed
 
 To enable the `el2` specialization, which you can then select in the systemd-boot menu, set `x1e.el2.enable = true;` in your config.
 
-This is deliberately a separate non-default boot option, since some hardware support does not work under EL2.
+This is deliberately a separate non-default boot option, since some hardware support might not work under EL2.
 
 ## Contributing
 

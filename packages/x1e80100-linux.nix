@@ -60,21 +60,38 @@ linuxPackagesFor (buildLinux {
       };
     }
 
-    # RTC support
+    # Per-segment link training for LTTPRs
     {
-      name = "arm64: dts: qcom: x1e80100-lenovo-yoga-slim7x: add rtc offset to set rtc time";
-      # Adapted from: https://lore.kernel.org/linux-kernel/20241015004945.3676-6-jonathan@marek.ca/
-      patch = ./lenovo-yoga-slim7x-rtc.patch;
+      name = "[PATCH v2 1/2] drm/msm/dp: Fix support of LTTPR handling";
+      patch = fetchpatch {
+        url = "https://lore.kernel.org/lkml/20250311234109.136510-2-alex.vinarskis@gmail.com/raw";
+        hash = "sha256-SibdHYLxYTss7+uPaYrDgzxmL5ZZ4flqUGh5JvrWmJk=";
+      };
+    }
+    {
+      name = "[PATCH v2 2/2] drm/msm/dp: Introduce link training per-segment for LTTPRs";
+      patch = fetchpatch {
+        url = "https://lore.kernel.org/lkml/20250311234109.136510-3-alex.vinarskis@gmail.com/raw";
+        hash = "sha256-hDtXX+gtU26LvDKfgEK9hhWJ5/+YlKlNKTWDy9twUpA=";
+      };
     }
 
     # DP altmode
     {
-      name = "arm64: dts: qcom: x1e80100-slim7x: Enable external DP support";
-      # From these two commits:
-      # https://git.launchpad.net/~ubuntu-concept/ubuntu/+source/linux/+git/oracular/commit/?h=qcom-x1e&id=87f07f4fe54477cd3219a0553192ab0bcba97945
-      # https://git.launchpad.net/~ubuntu-concept/ubuntu/+source/linux/+git/oracular/commit/?h=qcom-x1e&id=350f8e8802bef1a2aac3dc17c3db138022296a94
-      # (plus some additional fixes)
-      patch = ./lenovo-yoga-slim7x-dp-altmode.patch;
+      name = "arm64: dts: qcom: x1e80100-lenovo-yoga-slim7x: add retimers, dp altmode support";
+      patch = fetchpatch {
+        url = "https://lore.kernel.org/lkml/20250417-slim7x-retimer-v2-1-dbe2dd511137@oldschoolsolutions.biz/raw";
+        hash = "sha256-rtxQ6f/mqXED3JjBRc0SYeALNfClPlpbpFFz66zfsZc=";
+      };
+    }
+
+    # Patch for getting some limited aDSP functionality in EL2 (e.g. battery status)
+    {
+      name = "WIP: remoteproc: q6v5-pas: Attach to lite ADSP firmware";
+      patch = fetchpatch {
+        url = "https://git.codelinaro.org/stephan.gerhold/linux/-/commit/7c2a82017d32a4a0007443680fd0847e7c92d5bb.patch";
+        hash = "sha256-LNAjF4eNkGiKhlVlXg8FJ8TtXmuR3u+ct0cas7nzM4E=";
+      };
     }
   ];
 })
