@@ -12,10 +12,10 @@ linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
     owner = "jhovold";
     repo = "linux";
-    rev = "wip/x1e80100-6.15-rc3";
-    hash = "sha256-oTwZAFGRLOLLosFLr5DowAQZ+H2W7ypwpUUrH8O4Q6o=";
+    rev = "wip/x1e80100-6.15-rc4";
+    hash = "sha256-FdHl48z7snPyQBmrhcWtTNboowIS6xueAaqUZ1bR8k8=";
   };
-  version = "6.15.0-rc3";
+  version = "6.15.0-rc4";
   defconfig = "johan_defconfig";
 
   structuredExtraConfig = with lib.kernel; {
@@ -57,22 +57,6 @@ linuxPackagesFor (buildLinux {
       patch = fetchurl {
         url = "https://lore.kernel.org/linux-arm-msm/20240927185345.3680-3-maccraft123mc@gmail.com/raw";
         hash = "sha256-tnpo07ZPi/3cdiY9h90rf2UgTjr9ZfR1PYRVVQJ2pUQ=";
-      };
-    }
-
-    # Per-segment link training for LTTPRs
-    {
-      name = "[PATCH v2 1/2] drm/msm/dp: Fix support of LTTPR handling";
-      patch = fetchpatch {
-        url = "https://lore.kernel.org/lkml/20250311234109.136510-2-alex.vinarskis@gmail.com/raw";
-        hash = "sha256-SibdHYLxYTss7+uPaYrDgzxmL5ZZ4flqUGh5JvrWmJk=";
-      };
-    }
-    {
-      name = "[PATCH v2 2/2] drm/msm/dp: Introduce link training per-segment for LTTPRs";
-      patch = fetchpatch {
-        url = "https://lore.kernel.org/lkml/20250311234109.136510-3-alex.vinarskis@gmail.com/raw";
-        hash = "sha256-hDtXX+gtU26LvDKfgEK9hhWJ5/+YlKlNKTWDy9twUpA=";
       };
     }
 
