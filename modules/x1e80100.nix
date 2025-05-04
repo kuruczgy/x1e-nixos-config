@@ -61,6 +61,35 @@ in
           "qrtr"
         ]
 
+        (lib.mkIf cfg.lenovo-thinkpad-x13s.enable [
+          # PWM, backlight
+          "leds_qcom_lpg"
+          "pwm_bl"
+
+          # USB-C
+          "gpio_sbu_mux"
+
+          # Display
+          "gpucc_sc8280xp"
+          "dispcc_sc8280xp"
+
+          # USB boot
+          "phy_qcom_qmp_usb"
+          "phy_qcom_snps_femto_v2"
+          "dwc3"
+          "dwc3_qcom"
+          "extcon_core"
+          ## Need to load remoteproc modules in the initramfs, if they are loaded later
+          ## then it can cause a power cycle that breaks USB
+          "qcom_common"
+          "qcom_q6v5_pas"
+          "qrtr-smd"
+
+          # Device mapper modules
+          "dm_mod"
+          "dm_crypt"
+        ])
+
         (lib.mkIf cfg.lenovo-yoga-slim7x.enable [
           "panel_samsung_atna33xc20"
         ])
@@ -81,6 +110,10 @@ in
           "pd_ignore_unused"
           "clk_ignore_unused"
         ]
+
+        (lib.mkIf cfg.lenovo-thinkpad-x13s.enable [
+          "arm64.nopauth"
+        ])
 
         (lib.mkIf cfg.lenovo-yoga-slim7x.enable [
           # Needed since 4c3d9c134892c4158867075c840b81a5ed28af1f ("arm64: dts: qcom:
@@ -105,6 +138,36 @@ in
       boot.kernelPackages = pkgs.x1e80100-linux;
 
       boot.initrd.extraFirmwarePaths = lib.mkMerge [
+        (lib.mkIf cfg.lenovo-thinkpad-x13s.enable [
+          # Bluetooth
+          "qca/hpbtfw21.tlv"
+          "qca/hpnv21.b8c"
+
+          # GPU
+          "qcom/a660_gmu.bin"
+          "qcom/a660_sqe.fw"
+
+          # HW Video Decoding
+          "qcom/sc8280xp/LENOVO/21BX/qcvss8280.mbn"
+
+          # remoteproc
+          "qcom/sc8280xp/LENOVO/21BX/adspr.jsn"
+          "qcom/sc8280xp/LENOVO/21BX/adspua.jsn"
+          "qcom/sc8280xp/LENOVO/21BX/audioreach-tplg.bin"
+          "qcom/sc8280xp/LENOVO/21BX/battmgr.jsn"
+          "qcom/sc8280xp/LENOVO/21BX/cdspr.jsn"
+          "qcom/sc8280xp/LENOVO/21BX/qcadsp8280.mbn"
+          "qcom/sc8280xp/LENOVO/21BX/qccdsp8280.mbn"
+          "qcom/sc8280xp/LENOVO/21BX/qcdxkmsuc8280.mbn"
+          "qcom/sc8280xp/LENOVO/21BX/qcslpi8280.mbn"
+
+          # Wi-Fi
+          "ath11k/WCN6855/hw2.1/amss.bin"
+          "ath11k/WCN6855/hw2.1/board-2.bin"
+          "ath11k/WCN6855/hw2.1/m3.bin"
+          "ath11k/WCN6855/hw2.1/regdb.bin"
+        ])
+
         (lib.mkIf cfg.lenovo-thinkpad-t14s.enable [
           # Basically all of the x1e80100 modules. Avoids fw_load errors in initrd.
           "qcom/x1e80100/gen70500_zap.mbn"
