@@ -10,12 +10,12 @@
 
 linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
-    owner = "jhovold";
+    owner = "kuruczgy";
     repo = "linux";
-    rev = "wip/x1e80100-6.15-rc6";
-    hash = "sha256-T/6rQGK0jQAdz5TNi0+LZIZL2yH4Sxi5jTinKzY9t/o=";
+    rev = "c975fb4c867f718ed75cb3615fccdf6872fe4786";
+    hash = "sha256-razCOKcBWqughKQhaNlMIsx4T0Xn+xCg5VPIMgNuFBA=";
   };
-  version = "6.15.0-rc6";
+  version = "6.15.0-rc1";
   defconfig = "johan_defconfig";
 
   structuredExtraConfig = with lib.kernel; {
@@ -76,6 +76,11 @@ linuxPackagesFor (buildLinux {
         url = "https://git.codelinaro.org/stephan.gerhold/linux/-/commit/7c2a82017d32a4a0007443680fd0847e7c92d5bb.patch";
         hash = "sha256-LNAjF4eNkGiKhlVlXg8FJ8TtXmuR3u+ct0cas7nzM4E=";
       };
+    }
+
+    {
+      name = "cam regs";
+      patch = ./cam_regs.patch;
     }
   ];
 })
