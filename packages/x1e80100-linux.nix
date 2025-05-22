@@ -12,8 +12,29 @@ linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
     owner = "jhovold";
     repo = "linux";
-    rev = "wip/x1e80100-6.15-rc7";
-    hash = "sha256-KuSUZo+tdMOVSf6uuO9iaR+rhmSb4ZrBKGaFmOrs5DE=";
+    rev = "refs/heads/wip/x1e80100-6.15-rc7";
+    forceFetchGit = true;
+    preFetch = "export ${lib.toShellVar "NIX_PREFETCH_GIT_CHECKOUT_HOOK" ''
+      pushd "$dir"
+      git config user.name "nix"
+      git config user.email "nix"
+
+      # https://lore.kernel.org/linux-media/20250410233039.77093-1-bod@kernel.org/
+      git fetch 'https://gitlab.freedesktop.org/linux-media/users/bodonoghue.git' --depth 37 tags/platform-qcom-media-for-6.16
+      git cherry-pick 0af2f6be1b4281385b618cb86ad946eded089ac8..803ad6d0a0e646c9f196c79d58f8aab90d1c84c3 --empty=drop
+
+      # linaro/connect-demo-kernel-x14s-sensor-debug
+      git fetch 'https://git.codelinaro.org/bryan.odonoghue/kernel.git' --depth 169 c975fb4c867f718ed75cb3615fccdf6872fe4786
+      git cherry-pick 80477d535ae6e9a058bd513c3d2cac5a367c4487..c975fb4c867f718ed75cb3615fccdf6872fe4786
+
+      # Collect some stats
+      du -sh .git
+
+      popd
+    ''}";
+
+    # Should be reproducible if you do the above range cherry-picks manually.
+    hash = "sha256-T1vsoE5Ku3HVjRZGCCWAhFQDtjHRpbQqTw9nKNzu9PY=";
   };
   version = "6.15.0-rc7";
   defconfig = "johan_defconfig";
@@ -76,6 +97,21 @@ linuxPackagesFor (buildLinux {
         url = "https://git.codelinaro.org/stephan.gerhold/linux/-/commit/7c2a82017d32a4a0007443680fd0847e7c92d5bb.patch";
         hash = "sha256-LNAjF4eNkGiKhlVlXg8FJ8TtXmuR3u+ct0cas7nzM4E=";
       };
+    }
+
+    # Camera fixups
+    {
+      name = "arm64: dts: qcom: x1e80100-slim7x: align regulators with AeoB specification";
+      # Source: Aleksandrs posted it on Matrix
+      patch = ./lenovo-yoga-slim7x-camera-regulators-fix.patch;
+    }
+    {
+      # Based on:
+      # https://github.com/alexVinarskis/linux-x1e80100-zenbook-a14/pull/1
+      # Apparently this option should be interpreted by userspace, so rotating
+      # in the kernel should not be needed.
+      name = "rotation = <180>;";
+      patch = ./lenovo-yoga-slim7x-camera-rotation.patch;
     }
   ];
 })

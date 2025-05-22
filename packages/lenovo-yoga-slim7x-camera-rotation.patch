@@ -1,0 +1,12 @@
+diff --git a/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts b/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts
+index 759c2c78448db..ef4acd27627b6 100644
+--- a/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts
++++ b/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts
+@@ -635,6 +635,7 @@ camera@36 {
+ 		assigned-clock-rates = <19200000>;
+ 
+ 		orientation = <0>; /* front facing */
++		rotation = <180>;
+ 
+ 		avdd-supply = <&vreg_l7m_2p8>;
+ 		dvdd-supply = <&vreg_l2m_1p2>;
