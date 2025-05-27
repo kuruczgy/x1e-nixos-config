@@ -15,4 +15,9 @@ if ! mountpoint /mnt; then
     mkdir -p /mnt/boot
     mount /dev/disk/by-label/TESTING-EFI /mnt/boot
 fi
-nixos-install --root /mnt --no-channel-copy --no-root-password --flake x1e-nixos-config#system
+
+flake="/tmp/x1e-nixos-config"
+cp -r "$(readlink /x1e-nixos-config)" "$flake"
+sed -i s/SYSTEM_DRV/TESTING-EFI/ "$flake"/examples/flake-based-config/configuration.nix
+
+nixos-install --root /mnt --no-channel-copy --no-root-password --flake "${flake}#system"
