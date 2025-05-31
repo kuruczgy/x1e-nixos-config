@@ -5,6 +5,7 @@
   linuxPackagesFor,
   fetchpatch,
   fetchurl,
+  b4,
   ...
 }:
 
@@ -14,6 +15,7 @@ linuxPackagesFor (buildLinux {
     repo = "linux";
     rev = "refs/heads/wip/x1e80100-6.15";
     forceFetchGit = true;
+    nativeBuildInputs = [ b4 ];
     preFetch = "export ${lib.toShellVar "NIX_PREFETCH_GIT_CHECKOUT_HOOK" ''
       pushd "$dir"
       git config user.name "nix"
@@ -27,14 +29,17 @@ linuxPackagesFor (buildLinux {
       git fetch 'https://git.codelinaro.org/bryan.odonoghue/kernel.git' --depth 169 c975fb4c867f718ed75cb3615fccdf6872fe4786
       git cherry-pick 80477d535ae6e9a058bd513c3d2cac5a367c4487..c975fb4c867f718ed75cb3615fccdf6872fe4786
 
+      # power: supply: Add several features support in qcom-battmgr driver
+      b4 shazam 'https://lore.kernel.org/lkml/20250530-qcom_battmgr_update-v2-0-9e377193a656@oss.qualcomm.com'
+
       # Collect some stats
       du -sh .git
 
       popd
     ''}";
 
-    # Should be reproducible if you do the above range cherry-picks manually.
-    hash = "sha256-/ZVaX2de19nsCMy2ahEcFwm5UzZVnzOPS7W7YPCYMPE=";
+    # Should be reproducible if you do the above range cherry-picks and b4 commands manually.
+    hash = "sha256-f3YVus/YwSsttYK8Xe+mjO352KaYxzwXnvduvWLMNhM=";
   };
   version = "6.15.0";
   defconfig = "johan_defconfig";

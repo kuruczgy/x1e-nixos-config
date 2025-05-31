@@ -15,6 +15,7 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 | ----------------------- | :------------------: | :------------------------------------------------------------------------: | -------------------------------------------------------------------------------- |
 | Identifier              | `lenovo-yoga-slim7x` |                           `lenovo-thinkpad-t14s`                           |                                                                                  |
 | Battery Charging        |          ✅          |                                     ✅                                     |                                                                                  |
+| Battery Charge Limiting |          ✅          |                                     ✅                                     |                                                                                  |
 | Battery Indicator       |          ✅          |                                     ✅                                     |                                                                                  |
 | Bluetooth               |          ✅          |                                     ✅                                     |                                                                                  |
 | Camera                  |          🟨          |                                     ❔                                     | Sometimes upside-down, bit green. Does not work with Pipewire by default.        |
