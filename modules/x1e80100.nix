@@ -40,7 +40,7 @@ in
           # Definitely needed for USB:
           "usb_storage"
           "phy_qcom_qmp_combo"
-          "phy_qcom_snps_eusb2"
+          "phy_snps_eusb2"
           "phy_qcom_eusb2_repeater"
           "tcsrcc_x1e80100"
 
