@@ -77,6 +77,9 @@ linuxPackagesFor (buildLinux {
       # arm64: dts: qcom: x1e80100-lenovo-yoga-slim7x: add Bluetooth support
       b4 shazam 'https://lore.kernel.org/lkml/20250610-slim7x-bt-v2-1-0dcd9d6576e9@oldschoolsolutions.biz/'
 
+      # drm/msm/dp: Add MST support for MSM chipsets
+      b4 shazam 'https://lore.kernel.org/lkml/20250609-msm-dp-mst-v2-0-a54d8902a23d@quicinc.com/'
+
       # Collect some stats
       du -sh .git
 
@@ -84,7 +87,7 @@ linuxPackagesFor (buildLinux {
     ''}";
 
     # Should be reproducible if you do the above range cherry-picks and b4 commands manually.
-    hash = "sha256-/IM0HbJZZIOA6uUY1oBTpZ5Nougp0j93ZkrpT7W++DI=";
+    hash = "sha256-+ckBNzyCTeWuOXemcwwGLplgXqljbsOw3LOB/dP0Dkg=";
   };
   version = "6.16.0-rc3";
   defconfig = "johan_defconfig";
@@ -139,6 +142,22 @@ linuxPackagesFor (buildLinux {
       # in the kernel should not be needed.
       name = "rotation = <180>;";
       patch = ./lenovo-yoga-slim7x-camera-rotation.patch;
+    }
+
+    # DP MST fixups
+    {
+      name = "fixup! arm64: dts: qcom: Add pixel 1 stream for displayport";
+      patch = fetchpatch {
+        url = "https://git.codelinaro.org/stephan.gerhold/linux/-/commit/306b2f2fe1cfee45435c9dd393b8b54fad8c9fe3.patch";
+        hash = "sha256-aesX1u0iIez5TbcIfY9EmfX2iMmWXTDf28Aqe5d6Fls=";
+      };
+    }
+    {
+      name = "wip: drm/msm/dp: Add MST stream support for X1E80100 DP controllers";
+      patch = fetchpatch {
+        url = "https://git.codelinaro.org/stephan.gerhold/linux/-/commit/af9c88ae73c5af2c910b87f687b8b6c5ec1a878a.patch";
+        hash = "sha256-lshZLsh/AQ15NWJr75Ui0d0mF8KQVAcF6MAAJoQg8Lo=";
+      };
     }
   ];
 })
