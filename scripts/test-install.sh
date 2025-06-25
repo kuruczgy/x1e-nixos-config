@@ -20,4 +20,10 @@ flake="/tmp/x1e-nixos-config"
 cp -r "$(readlink /x1e-nixos-config)" "$flake"
 sed -i s/SYSTEM_DRV/TESTING-EFI/ "$flake"/examples/flake-based-config/configuration.nix
 
+# Query the ISO derivation, check its build system
+if [ -f /run/booted-system/build-system ] && [ "$(< /run/booted-system/build-system)" = "x86_64-linux" ]; then
+    # Patch the config to use the cross-compiled kernel from the ISO
+    sed -i '/flake-based-config/a ({ lib, ... }: { boot.kernelPackages = lib.mkForce self.nixosConfigurationsForBuildSystem.x86_64-linux.iso.config.boot.kernelPackages; })' "$flake"/flake.nix
+fi
+
 nixos-install --root /mnt --no-channel-copy --no-root-password --flake "${flake}#system"

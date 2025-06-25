@@ -67,7 +67,7 @@ If you build using WSL, you can install Nix in e.g. Ubuntu WSL by installing Nix
 
 If you would like to attempt using this on something other than the Lenovo Yoga Slim 7x, enable the appropriate `hardware.<device>.enable` option. (See the "Identifier" row of the table above for the available devices.)
 
-Run `nix build .#nixosConfigurations.iso.config.system.build.isoImage` to build the ISO. You might need to add the `--extra-experimental-features 'nix-command flakes'` flag if flakes are not enabled in your Nix config (e.g. in WSL).
+Run `nix build .#iso` to build the ISO. You might need to add the `--extra-experimental-features 'nix-command flakes'` flag if flakes are not enabled in your Nix config (e.g. in WSL).
 
 ## Setup guide
 
