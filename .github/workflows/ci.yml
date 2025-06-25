@@ -10,7 +10,7 @@ permissions: read-all
 jobs:
   nix-check:
     name: Nix Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
       - uses: cachix/install-nix-action@v30
@@ -21,6 +21,24 @@ jobs:
       - run: nix flake check
   nix-build:
     name: Nix Build
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v30
+      - uses: cachix/cachix-action@v15
+        with:
+          name: x1e-nixos-config
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      # Based on: https://carlosbecker.com/posts/github-actions-disk-space/
+      - run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          sudo docker builder prune -a
+      - run: |
+          nix build .#iso
+          sha256sum result/iso/nixos-x1e80100-lenovo-yoga-slim7x.iso
+  nix-build-x86_64-linux:
+    name: Nix Build x86_64-linux
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,5 +53,5 @@ jobs:
           sudo docker image prune --all --force
           sudo docker builder prune -a
       - run: |
-          nix build .#nixosConfigurations.iso.config.system.build.isoImage
+          nix build .#iso
           sha256sum result/iso/nixos-x1e80100-lenovo-yoga-slim7x.iso
