@@ -72,10 +72,10 @@ linuxPackagesFor (buildLinux {
       git cherry-pick 792521c59872497c6018bbc6e9f3f6cf7c56b5e1 8a3a1db7d7345bc8bfc865b147a14d4c22386d8e c975fb4c867f718ed75cb3615fccdf6872fe4786
 
       # power: supply: Add several features support in qcom-battmgr driver
-      b4 shazam 'https://lore.kernel.org/lkml/20250530-qcom_battmgr_update-v2-0-9e377193a656@oss.qualcomm.com'
+      b4 shazam --use-version 2 'https://lore.kernel.org/lkml/20250530-qcom_battmgr_update-v2-0-9e377193a656@oss.qualcomm.com'
 
       # arm64: dts: qcom: x1e80100-lenovo-yoga-slim7x: add Bluetooth support
-      b4 shazam 'https://lore.kernel.org/lkml/20250610-slim7x-bt-v2-1-0dcd9d6576e9@oldschoolsolutions.biz/'
+      b4 shazam --use-version 2 'https://lore.kernel.org/lkml/20250610-slim7x-bt-v2-1-0dcd9d6576e9@oldschoolsolutions.biz/'
 
       # Collect some stats
       du -sh .git
