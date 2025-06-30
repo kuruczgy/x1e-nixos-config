@@ -13,7 +13,7 @@ linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
     owner = "jhovold";
     repo = "linux";
-    rev = "refs/heads/wip/x1e80100-6.16-rc3";
+    rev = "refs/heads/wip/x1e80100-6.16-rc4";
     forceFetchGit = true;
     nativeBuildInputs = [ b4 ];
     preFetch = "export ${lib.toShellVar "NIX_PREFETCH_GIT_CHECKOUT_HOOK" ''
@@ -75,7 +75,7 @@ linuxPackagesFor (buildLinux {
       b4 shazam --use-version 2 'https://lore.kernel.org/lkml/20250530-qcom_battmgr_update-v2-0-9e377193a656@oss.qualcomm.com'
 
       # arm64: dts: qcom: x1e80100-lenovo-yoga-slim7x: add Bluetooth support
-      b4 shazam --use-version 2 'https://lore.kernel.org/lkml/20250610-slim7x-bt-v2-1-0dcd9d6576e9@oldschoolsolutions.biz/'
+      b4 shazam --use-version 3 'https://lore.kernel.org/lkml/20250624-slim7x-bt-v3-1-7ada18058419@oldschoolsolutions.biz/'
 
       # Collect some stats
       du -sh .git
@@ -84,9 +84,9 @@ linuxPackagesFor (buildLinux {
     ''}";
 
     # Should be reproducible if you do the above range cherry-picks and b4 commands manually.
-    hash = "sha256-/IM0HbJZZIOA6uUY1oBTpZ5Nougp0j93ZkrpT7W++DI=";
+    hash = "sha256-nsnBQgZX4vTPHxzosFPwJNbj6Igrlc4UVM5zr6ipKcQ=";
   };
-  version = "6.16.0-rc3";
+  version = "6.16.0-rc4";
   defconfig = "johan_defconfig";
 
   structuredExtraConfig = with lib.kernel; {
