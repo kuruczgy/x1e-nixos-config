@@ -89,9 +89,6 @@ linuxPackagesFor (buildLinux {
   version = "6.16.0-rc4";
 
   structuredExtraConfig = with lib.kernel; {
-    VIRTUALIZATION = yes;
-    KVM = yes;
-    MAGIC_SYSRQ = yes;
     EC_LENOVO_YOGA_SLIM7X = module;
     VIDEO_OV02C10 = module;
   };
