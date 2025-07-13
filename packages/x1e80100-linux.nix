@@ -87,18 +87,13 @@ linuxPackagesFor (buildLinux {
     hash = "sha256-nsnBQgZX4vTPHxzosFPwJNbj6Igrlc4UVM5zr6ipKcQ=";
   };
   version = "6.16.0-rc4";
-  defconfig = "johan_defconfig";
 
   structuredExtraConfig = with lib.kernel; {
-    VIRTUALIZATION = yes;
-    KVM = yes;
-    MAGIC_SYSRQ = yes;
     EC_LENOVO_YOGA_SLIM7X = module;
     VIDEO_OV02C10 = module;
-  };
 
-  # TODO: Look into the errors and remove this.
-  ignoreConfigErrors = true;
+CONFIG_ARCH_SUNXI = no;
+  };
 
   kernelPatches = [
     {

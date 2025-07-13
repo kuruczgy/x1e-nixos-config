@@ -134,10 +134,17 @@
           };
         };
 
-        packages = {
+        packages = rec {
           # Convenience aliases
           iso = self.nixosConfigurationsForBuildSystem.${buildSystem}.iso.config.system.build.isoImage;
           kernel = pkgs-cross.x1e80100-linux.kernel;
+          kernelConfig = kernel.configfile;
+          kernelPatches = pkgs-unpatched.linkFarm "kernel-patches" (
+            pkgs-unpatched.lib.imap0 (i: patch: {
+              name = "${builtins.toString i}_${pkgs-unpatched.lib.strings.sanitizeDerivationName patch.name}";
+              path = patch.patch;
+            }) kernel.kernelPatches
+          );
         };
 
         formatter = treefmtEval.config.build.wrapper;
