@@ -91,6 +91,8 @@ linuxPackagesFor (buildLinux {
   structuredExtraConfig = with lib.kernel; {
     EC_LENOVO_YOGA_SLIM7X = module;
     VIDEO_OV02C10 = module;
+
+CONFIG_ARCH_SUNXI = no;
   };
 
   kernelPatches = [
