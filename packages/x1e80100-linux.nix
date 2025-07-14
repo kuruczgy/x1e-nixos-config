@@ -13,7 +13,7 @@ linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
     owner = "jhovold";
     repo = "linux";
-    rev = "refs/heads/wip/x1e80100-6.16-rc4";
+    rev = "refs/heads/wip/x1e80100-6.16-rc6";
     forceFetchGit = true;
     nativeBuildInputs = [ b4 ];
     preFetch = "export ${lib.toShellVar "NIX_PREFETCH_GIT_CHECKOUT_HOOK" ''
@@ -84,9 +84,9 @@ linuxPackagesFor (buildLinux {
     ''}";
 
     # Should be reproducible if you do the above range cherry-picks and b4 commands manually.
-    hash = "sha256-nsnBQgZX4vTPHxzosFPwJNbj6Igrlc4UVM5zr6ipKcQ=";
+    hash = "sha256-7SidUlkSEYWlTaoDeKOLtoNyhpbAfRRcfL3OzVXPbDQ=";
   };
-  version = "6.16.0-rc4";
+  version = "6.16.0-rc6";
   defconfig = "johan_defconfig";
 
   structuredExtraConfig = with lib.kernel; {
