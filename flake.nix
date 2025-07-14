@@ -50,9 +50,6 @@
           overlays = [
             (import ./packages/overlay.nix)
             (final: prev: {
-              # Workaround for https://github.com/NixOS/nixpkgs/issues/396701
-              git = prev.git.override { withManual = final.stdenv.hostPlatform == final.stdenv.buildPlatform; };
-
               grub2 = prev.grub2.overrideAttrs (old: {
                 patches = (old.patches or [ ]) ++ [
                   # Limit grub to 4GB RAM, needed to boot T14s 64GB variant
