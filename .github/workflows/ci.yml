@@ -35,7 +35,7 @@ jobs:
           sudo docker image prune --all --force
           sudo docker builder prune -a
       - run: |
-          nix build .#iso
+          nix build .#iso .#slbounce
           sha256sum result/iso/nixos-x1e80100-lenovo-yoga-slim7x.iso
   nix-build-x86_64-linux:
     name: Nix Build x86_64-linux
@@ -53,5 +53,5 @@ jobs:
           sudo docker image prune --all --force
           sudo docker builder prune -a
       - run: |
-          nix build .#iso
+          nix build .#iso .#slbounce
           sha256sum result/iso/nixos-x1e80100-lenovo-yoga-slim7x.iso

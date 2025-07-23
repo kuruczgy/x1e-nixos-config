@@ -135,6 +135,7 @@
           # Convenience aliases
           iso = self.nixosConfigurationsForBuildSystem.${buildSystem}.iso.config.system.build.isoImage;
           kernel = pkgs-cross.x1e80100-linux.kernel;
+          inherit (pkgs-cross) slbounce;
         };
 
         formatter = treefmtEval.config.build.wrapper;

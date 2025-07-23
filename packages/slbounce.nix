@@ -4,7 +4,7 @@
   fetchgit,
   fetchFromGitHub,
   fetchpatch,
-  python3,
+  buildPackages,
   dtc,
 }:
 
@@ -24,7 +24,7 @@ let
       hash = "sha256-vUuV8eddYAdwXGQe+L7lKiAwyqHPYmiOdVFKvwCMWkQ=";
     };
     nativeBuildInputs = [
-      (python3.withPackages (ps: [ ps.beautifulsoup4 ]))
+      (buildPackages.python3.withPackages (ps: [ ps.beautifulsoup4 ]))
     ];
     buildPhase = ''
       python ./run-build.py ${aarch64-system-register-xmls}/SysReg_xml_v86A-2020-06
@@ -66,7 +66,7 @@ stdenv.mkDerivation {
     chmod -R u+w external/gnu-efi
   '';
   makeFlags = [
-    "CROSS_COMPILE="
+    "CROSS_COMPILE=${stdenv.cc.targetPrefix}"
     "all"
   ];
   installPhase = ''
