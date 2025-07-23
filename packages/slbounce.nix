@@ -53,21 +53,10 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "TravMurav";
     repo = "slbounce";
-    rev = "688ba767fbabb8feb785f4dfdfde90b6e345b0c8";
-    hash = "sha256-qrnY5Mr3arlRDWWyuZnP8ONtnsZTAeSWAu78TfMDzRM=";
+    tag = "v5";
+    hash = "sha256-w+0SKR0A/hcFU6iFEOgyG+vWwgAWF8h9D0/X7GSFm7w=";
   };
   nativeBuildInputs = [ dtc ];
-  patches = [
-    (fetchpatch {
-      url = "https://github.com/TravMurav/slbounce/commit/d930fcc584c818c2254cfdac6983af45d5935538.patch";
-      hash = "sha256-lTR3qonIId5mpAduwxzsf9qXux4FCpf5sAOEE+ZdR3Y=";
-    })
-    (fetchpatch {
-      url = "https://github.com/TravMurav/slbounce/commit/006eb5db9083530610e8323cf80b8c98c00c891e.patch";
-      hash = "sha256-T1XeLanrVEv6CNxptaOvA/ojs7YibySfUn0XRfpn/Zk=";
-    })
-    ./slbounce-Makefile.patch
-  ];
   postPatch = ''
     rmdir external/{arm64-sysreg-lib,dtc}
     ln -s ${arm64-sysreg-lib} external/arm64-sysreg-lib
@@ -79,11 +68,9 @@ stdenv.mkDerivation {
   makeFlags = [
     "CROSS_COMPILE="
     "all"
-    "dtbs"
   ];
   installPhase = ''
     mkdir -p $out
     cp out/*.efi $out/
-    cp -r out/dtbo $out/
   '';
 }

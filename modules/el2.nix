@@ -12,12 +12,7 @@
   '';
   config = lib.mkIf config.x1e.el2.enable {
     specialisation.el2.configuration = {
-      hardware.deviceTree.overlays = [
-        {
-          name = "x1e-el2";
-          dtboFile = "${pkgs.slbounce}/dtbo/x1e-el2.dtbo";
-        }
-      ];
+      hardware.deviceTree.name = lib.replaceString ".dtb" "-el2.dtb" config.hardware.deviceTree.name;
 
       boot.kernelParams = [ "id_aa64mmfr0.ecv=1" ];
     };
