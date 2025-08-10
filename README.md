@@ -109,16 +109,7 @@ Connect the USB drive to the laptop (if yours is USB-A you can use the adapter t
 
 Installation should mostly be like any [regular NixOS install](https://nixos.org/manual/nixos/stable/#sec-installation-manual).
 
-First, connect to Wi-Fi:
-
-```console
-$ sudo systemctl start wpa_supplicant
-$ wpa_cli
-> add_network
-> set_network 0 ssid "myssid"
-> set_network 0 psk "mypassword"
-> enable_network 0
-```
+First, connect to Wi-Fi, using `nmtui`.
 
 Next, enter a root shell, and format the partition you previously created:
 
