@@ -60,7 +60,7 @@ let
       patch = fetchb4 {
         url = "https://lore.kernel.org/lkml/20250624-slim7x-bt-v3-1-7ada18058419@oldschoolsolutions.biz/";
         version = 3;
-        outputHash = "sha256-6eCHHjtdooRWyfQJCsbtKDTCBnLhCb6WlvK0Sjap+Dc=";
+        outputHash = "sha256-rIxTpuRlCFTMO/Ez130wEIPveVDpG8nkEHkkA+xVTXI=";
         outputHashAlgo = "sha256";
         outputHashMode = "flat";
       };
