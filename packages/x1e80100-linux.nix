@@ -33,6 +33,7 @@ let
           --use-version ${toString version} \
           -o - \
           --no-cache \
+          --no-add-trailers \
           ${lib.strings.escapeShellArg url} > "$out"
       '';
 
@@ -43,7 +44,7 @@ let
         url = "https://lore.kernel.org/lkml/20250826-qcom_battmgr_update-v3-0-74ea410ef146@oss.qualcomm.com/";
 
         version = 3;
-        outputHash = "sha256-QK73OtbgaCnPY+cep/t8XAFQsCO96BBY0mq10Sf7QoI=";
+        outputHash = "sha256-n0Na9oyaTHR22P4KrIDUe2zf/T1CDpRx2GMoXF1FkLQ=";
         # outputHash = "sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="; # v2 really?
 
         # version = 2;
@@ -104,6 +105,7 @@ linuxPackagesFor (
 
         # Stuff to reduce compile times.
         # On my x86 machine we are at ~33min with this.
+        # ~31min on the yoga
         ACPI = no;
 
         HOTPLUG_PCI = no;
