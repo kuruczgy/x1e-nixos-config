@@ -38,8 +38,8 @@
               (pkgs-unpatched.fetchpatch {
                 # nixos/iso-image: add devicetree support
                 # https://github.com/NixOS/nixpkgs/pull/396334
-                url = "https://github.com/NixOS/nixpkgs/commit/55a8b7b27b5e55f07937cc8c874917ab24093029.patch";
-                hash = "sha256-zI4zgY4sx6fWtWTEGyqSQFor3dn1GJ1eU0mdtmH2fJs=";
+                url = "https://github.com/NixOS/nixpkgs/commit/de1fdb6310af8f70c98746ba4550dc2799a03621.patch";
+                hash = "sha256-brqJxblmqWFAk8JgxmxXeHoiaWiQtsCsOzht/WlH5eE=";
               })
               ./nixpkgs-efi-shell.patch
             ];

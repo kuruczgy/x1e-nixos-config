@@ -53,7 +53,6 @@ in
           "msm"
           "nvme"
           "phy_qcom_qmp_pcie"
-          "pcie_qcom"
 
           # Needed with the DP altmode patches
           "ps883x"
