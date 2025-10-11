@@ -49,6 +49,11 @@ linuxPackagesFor (buildLinux {
 
     # Camera fixups
     {
+      name = "arm64: dts: qcom: x1e80100-slim7x: align regulators with AeoB specification";
+      # See: https://gitlab.com/Linaro/arm64-laptops/linux/-/issues/9
+      patch = ./lenovo-yoga-slim7x-camera-regulators-fix.patch;
+    }
+    {
       # Based on:
       # https://github.com/alexVinarskis/linux-x1e80100-zenbook-a14/pull/1
       # Apparently this option should be interpreted by userspace, so rotating
