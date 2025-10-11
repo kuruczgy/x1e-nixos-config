@@ -95,10 +95,6 @@ in
 
       hardware.deviceTree.enable = true;
 
-      hardware.firmware = lib.mkMerge [
-        (lib.mkIf cfg.lenovo-yoga-slim7x.enable [ pkgs.x1e80100-lenovo-yoga-slim7x-firmware ])
-      ];
-
       # For now the kernel is same for all of the supported devices, hopefully
       # we can keep it this way so compile times stay manageable.
       boot.kernelPackages = pkgs.x1e80100-linux;
