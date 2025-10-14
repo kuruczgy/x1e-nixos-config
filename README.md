@@ -41,7 +41,7 @@ Note that I only have the Lenovo Yoga Slim 7x, so the repo will be focused aroun
 | USB-A Booting           |         N/A          |                                     ✅                                     |                                                                                  |
 | USB-C 4                 |          ❔          |                                     ❔                                     |                                                                                  |
 | USB-C Booting           |          ✅          |                                     ❌                                     |                                                                                  |
-| USB-C DP Alt Mode       |          ✅          |                                     ❌                                     |                                                                                  |
+| USB-C DP Alt Mode       |          ✅          |                                     ✅                                     |                                                                                  |
 | USB-C PCIe              |          ❌          |                                     ❌                                     |                                                                                  |
 | Wi-Fi                   |          ✅          |                                     ✅                                     |                                                                                  |
 | _Notes_                 |                      | Only 31GB of RAM works reliably. OLED version needs different device tree. |                                                                                  |
