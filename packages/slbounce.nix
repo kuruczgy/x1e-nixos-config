@@ -3,7 +3,6 @@
   fetchzip,
   fetchgit,
   fetchFromGitHub,
-  fetchpatch,
   buildPackages,
   dtc,
 }:
@@ -48,12 +47,14 @@ let
     hash = "sha256-KZCzrvdWd6zfQHppjyp4XzqNCfH2UnuRneu+BNIRVAY=";
   };
 in
-stdenv.mkDerivation {
-  name = "slbounce";
+
+stdenv.mkDerivation (finalAttrs: {
+  pname = "slbounce";
+  version = "5";
   src = fetchFromGitHub {
     owner = "TravMurav";
     repo = "slbounce";
-    tag = "v5";
+    tag = "v${finalAttrs.version}";
     hash = "sha256-w+0SKR0A/hcFU6iFEOgyG+vWwgAWF8h9D0/X7GSFm7w=";
   };
   nativeBuildInputs = [ dtc ];
@@ -73,4 +74,4 @@ stdenv.mkDerivation {
     mkdir -p $out
     cp out/*.efi $out/
   '';
-}
+})
