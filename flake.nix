@@ -15,6 +15,7 @@
             system: builtins.mapAttrs (_: nixpkgs.lib.nameValuePair system) (f system)
           ) nixpkgs.lib.systems.flakeExposed
         );
+      devices = import ./devices.nix;
     in
     # default.nix has `nixosModules` which is build system agnostic
     (import ./default.nix)
@@ -92,14 +93,9 @@
             };
           });
 
-      in
-      {
-        # This is a non-standard attribute, but the default
-        # `nixosConfigurations` attribute was not designed with cross compiled
-        # nixos configurations in mind, and `nix flake check` would complain if
-        # we used it.
-        nixosConfigurationsForBuildSystem = {
-          iso = nixpkgs.lib.nixosSystem {
+        deviceISO =
+          device:
+          nixpkgs.lib.nixosSystem {
             modules = [
               "${nixpkgs-patched}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
               ./iso.nix
@@ -107,7 +103,7 @@
               ./modules/common.nix
               {
                 nixpkgs.pkgs = pkgs-cross;
-                hardware.lenovo-yoga-slim7x.enable = true;
+                hardware.${device}.enable = true;
               }
               (
                 { lib, pkgs, ... }:
@@ -122,25 +118,43 @@
               )
             ];
           };
-          system = nixpkgs.lib.nixosSystem {
+        deviceSystem =
+          device:
+          nixpkgs.lib.nixosSystem {
             modules = [
               ./examples/flake-based-config/configuration.nix
               self.nixosModules.x1e
               ./modules/common.nix
               {
                 nixpkgs.pkgs = pkgs-cross;
-                hardware.lenovo-yoga-slim7x.enable = true;
+                hardware.${device}.enable = true;
               }
             ];
           };
-        };
+      in
+      {
+        # This is a non-standard attribute, but the default
+        # `nixosConfigurations` attribute was not designed with cross compiled
+        # nixos configurations in mind, and `nix flake check` would complain if
+        # we used it.
+        nixosConfigurationsForBuildSystem = builtins.listToAttrs (
+          builtins.concatLists (
+            nixpkgs.lib.mapAttrsToList (device: _: [
+              (nixpkgs.lib.nameValuePair device (deviceSystem device))
+              (nixpkgs.lib.nameValuePair "${device}-iso" (deviceISO device))
+            ]) devices
+          )
+        );
 
         packages = {
           # Convenience aliases
-          iso = self.nixosConfigurationsForBuildSystem.${buildSystem}.iso.config.system.build.isoImage;
+          iso = self.packages.${buildSystem}.lenovo-yoga-slim7x-iso;
           kernel = pkgs-cross.x1e80100-linux.kernel;
           inherit (pkgs-cross) slbounce;
-        };
+        }
+        // nixpkgs.lib.mapAttrs' (
+          device: _: nixpkgs.lib.nameValuePair "${device}-iso" (deviceISO device).config.system.build.isoImage
+        ) devices;
 
         formatter = treefmtEval.config.build.wrapper;
         checks = {
