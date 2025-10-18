@@ -19,9 +19,13 @@
     # default.nix has `nixosModules` which is build system agnostic
     (import ./default.nix)
 
-    # Set nixosConfigurations to the non-cross systems.
     // {
+      # Set nixosConfigurations to the non-cross systems.
       nixosConfigurations = self.nixosConfigurationsForBuildSystem.aarch64-linux;
+      overlays = rec {
+        default = x1e;
+        x1e = import ./packages/overlay.nix;
+      };
     }
 
     # Generate attributes for each build system
@@ -48,7 +52,7 @@
 
         pkgs-cross = import nixpkgs-patched {
           overlays = [
-            (import ./packages/overlay.nix)
+            self.overlays.default
             (final: prev: {
               grub2 = prev.grub2.overrideAttrs (old: {
                 patches = (old.patches or [ ]) ++ [
