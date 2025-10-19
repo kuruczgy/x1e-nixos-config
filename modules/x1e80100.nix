@@ -34,7 +34,7 @@ in
       ];
 
       boot.initrd.includeDefaultModules = false;
-      boot.initrd.systemd.tpm2.enable = false; # This also pulls in some modules our kernel is not build with.
+      boot.initrd.systemd.tpm2.enable = false; # This also pulls in some modules our kernel is not built with.
       boot.initrd.availableKernelModules = lib.mkMerge [
         [
           # Definitely needed for USB:
@@ -73,6 +73,13 @@ in
           "phy_nxp_ptn3222"
           "phy_qcom_qmp_usb"
         ])
+
+        (lib.mkIf cfg.microsoft-surface-pro-11.enable [
+          "surface-hid"
+          "surface-aggregator"
+          "surface-aggregator-registry"
+          "surface-aggregator-hub"
+        ])
       ];
 
       boot.kernelParams = lib.mkMerge [
@@ -94,6 +101,7 @@ in
       ];
 
       hardware.deviceTree.enable = true;
+      hardware.firmware = lib.optional cfg.microsoft-surface-pro-11.enable pkgs.denali-firmware;
 
       # For now the kernel is same for all of the supported devices, hopefully
       # we can keep it this way so compile times stay manageable.
