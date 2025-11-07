@@ -16,7 +16,7 @@
     emergencyAccess = true;
   };
   
-  # Remove this if you are using tpm
+  # Remove this if you are using tpm (Trusted Platform Module)
   systemd.tpm2.enable = false;
 
   hardware.enableRedistributableFirmware = true;
