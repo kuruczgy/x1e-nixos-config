@@ -129,14 +129,14 @@ Next, mount the root filesystem and the EFI partition. (By default the EFI parti
 Finally, run `nixos-install`. Note that this repository is available as `x1e-nixos-config` in the flake registry:
 
 ```console
-# nixos-install --root /mnt --no-channel-copy --no-root-password --flake x1e-nixos-config#system
+# nixos-install --root /mnt --no-channel-copy --no-root-password --flake x1e-nixos-config#lenovo-yoga-slim7x
 ```
 
 Explanation:
 
 - `--no-channel-copy` disables copying channels. If you would like to use a non-flake config with channels (which I don't recommend), you should omit this option.
 - `--no-root-password` disables setting a root password. Omit this if you don't have any other way to get into the installed system and need a root password.
-- `--flake x1e-nixos-config#system` specifies the example flake-based configuration to be used that comes with this repository. Note that if you have already [created your own NixOS configuration](#making-your-own-nixos-configuration) for the to-be-installed system, you can use that here. (Either by specifying `--flake /path/to/your/config#your-hostname` or by placing your non-flake config at `/mnt/etc/nixos/configuration.nix` and omitting this option. Importantly, `nixos-generate-config` is **not** expected to work.) Note that if you install the flake-based example configuration, you won't easily be able to switch to a non-flake-based one.
+- `--flake x1e-nixos-config#lenovo-yoga-slim7x` specifies the example flake-based configuration to be used that comes with this repository. Note that if you have already [created your own NixOS configuration](#making-your-own-nixos-configuration) for the to-be-installed system, you can use that here. (Either by specifying `--flake /path/to/your/config#your-hostname` or by placing your non-flake config at `/mnt/etc/nixos/configuration.nix` and omitting this option. Importantly, `nixos-generate-config` is **not** expected to work.) Note that if you install the flake-based example configuration, you won't easily be able to switch to a non-flake-based one.
 
 Now you should have NixOS installed, but you won't be able to boot it yet, you still have to modify the EFI boot configuration.
 
