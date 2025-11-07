@@ -15,6 +15,9 @@
     # This is not secure, but it makes diagnosing errors easier.
     emergencyAccess = true;
   };
+  
+  # Remove this if you are using tpm
+  systemd.tpm2.enable = false;
 
   hardware.enableRedistributableFirmware = true;
 
