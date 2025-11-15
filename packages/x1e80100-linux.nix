@@ -1,6 +1,6 @@
 {
   lib,
-  fetchFromGitLab,
+  fetchFromGitHub,
   buildLinux,
   linuxPackagesFor,
   fetchpatch,
@@ -10,10 +10,10 @@
 }:
 
 linuxPackagesFor (buildLinux {
-  src = fetchFromGitLab {
-    owner = "linaro/arm64-laptops";
+  src = fetchFromGitHub {
+    owner = "torvalds";
     repo = "linux";
-    rev = "4a9b759f28636aa25db450062fd9453511d530d9";
+    tag = "v6.18-rc5";
     forceFetchGit = true;
     nativeBuildInputs = [ b4 ];
     preFetch = "export ${lib.toShellVar "NIX_PREFETCH_GIT_CHECKOUT_HOOK" ''
@@ -21,13 +21,8 @@ linuxPackagesFor (buildLinux {
       git config user.name "nix"
       git config user.email "nix"
 
-      git fetch 'https://git.codelinaro.org/stephan.gerhold/linux.git' be611e02a1d79ffed11c0bd969ac4a08c0367438
-
-      # EL2 improvements by Stephan Gerhold
-      git cherry-pick 4a9b759f28636aa25db450062fd9453511d530d9..be611e02a1d79ffed11c0bd969ac4a08c0367438
-
-      # arm64: dts: qcom: x1e80100-lenovo-yoga-slim7x: add Bluetooth support
-      b4 shazam --use-version 3 'https://lore.kernel.org/lkml/20250624-slim7x-bt-v3-1-7ada18058419@oldschoolsolutions.biz/'
+      git fetch 'https://git.codelinaro.org/linaro/arm64-laptops/linux.git' 23e3d7f3fec95117642a0e84b959adb595cb1421 --depth 75
+      git cherry-pick --empty=drop 211ddde0823f1442e4ad052a2f30f050145ccada..23e3d7f3fec95117642a0e84b959adb595cb1421
 
       # Collect some stats
       du -sh .git
@@ -36,9 +31,9 @@ linuxPackagesFor (buildLinux {
     ''}";
 
     # Should be reproducible if you do the above range cherry-picks and b4 commands manually.
-    hash = "sha256-4PhRmiMcHOGOBlL+xW2lNkmSe3vgMr/+tcV8BSSzFKM=";
+    hash = "sha256-7s8GO3/4w6waYcCdA3J1rVtG5scrkD/VMi83v42meRc=";
   };
-  version = "6.17.0";
+  version = "6.18.0-rc5";
 
   kernelPatches = [
     {
