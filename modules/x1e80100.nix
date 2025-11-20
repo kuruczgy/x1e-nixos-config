@@ -33,6 +33,11 @@ in
         }
       ];
 
+      # For some reason now after a systemd update it gets hung for 1.5 minutes
+      # at boot waiting for the TPM... which we don't have a driver for. Work
+      # around this by explicitly disabling TPM.
+      systemd.tpm2.enable = false;
+
       boot.initrd.includeDefaultModules = false;
       boot.initrd.systemd.tpm2.enable = false; # This also pulls in some modules our kernel is not build with.
       boot.initrd.availableKernelModules = lib.mkMerge [
