@@ -7,4 +7,8 @@
     displayName = "Lenovo ThinkPad T14s Gen 6";
     deviceTreeName = "qcom/x1e78100-lenovo-thinkpad-t14s.dtb";
   };
+  microsoft-surface-pro-11 = {
+    displayName = "Microsoft Surface Pro 11";
+    deviceTreeName = "qcom/x1e80100-microsoft-denali.dtb";
+  };
 }
