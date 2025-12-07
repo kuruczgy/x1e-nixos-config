@@ -35,11 +35,14 @@ jobs:
         with:
           name: x1e-nixos-config
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      # Based on: https://carlosbecker.com/posts/github-actions-disk-space/
       - run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo rm -rf \
+            /usr/share/dotnet /usr/local/lib/android /{usr,var}/lib/snapd \
+            /opt/{az,containerd,hostedtoolcache,ghc,google,mssql-tools,pipx*} \
+            $HOME/.{rustup,cargo,dotnet}
           sudo docker image prune --all --force
-          sudo docker builder prune -a
+          sudo docker builder prune -a --force
+          df -h
       - run: ./scripts/ci.sh
   nix-build-x86_64-linux:
     name: Nix Build x86_64-linux
@@ -54,9 +57,12 @@ jobs:
         with:
           name: x1e-nixos-config
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      # Based on: https://carlosbecker.com/posts/github-actions-disk-space/
       - run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo rm -rf \
+            /usr/share/dotnet /usr/local/lib/android /{usr,var}/lib/snapd \
+            /opt/{az,containerd,hostedtoolcache,ghc,google,mssql-tools,pipx*} \
+            $HOME/.{rustup,cargo,dotnet}
           sudo docker image prune --all --force
-          sudo docker builder prune -a
+          sudo docker builder prune -a --force
+          df -h
       - run: ./scripts/ci.sh
