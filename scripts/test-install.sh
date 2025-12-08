@@ -26,4 +26,4 @@ if [ -f /run/booted-system/build-system ] && [ "$(< /run/booted-system/build-sys
     sed -i '/flake-based-config/a ({ lib, ... }: { boot.kernelPackages = lib.mkForce self.nixosConfigurationsForBuildSystem.x86_64-linux.lenovo-yoga-slim7x-iso.config.boot.kernelPackages; })' "$flake"/flake.nix
 fi
 
-nixos-install --root /mnt --no-channel-copy --no-root-password --flake "${flake}#system"
+nixos-install --root /mnt --no-channel-copy --no-root-password --flake "${flake}#lenovo-yoga-slim7x"
