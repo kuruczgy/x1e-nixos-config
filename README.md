@@ -201,6 +201,18 @@ To enable the `el2` specialization, which you can then select in the systemd-boo
 
 This is deliberately a separate non-default boot option, since some hardware support might not work under EL2.
 
+## Troubleshooting
+
+### Machine randomly locks up
+
+Try adding the following kernel parameter to your config:
+
+```nix
+boot.kernelParams = [ "pcie_aspm=off" ];
+```
+
+This is not added by default since it can slightly increase power consumption, and not everyone experiences this issue. It's suspected that there is some issue with SSD ASPM, but the root cause and proper fix has not yet been identified.
+
 ## Contributing
 
 ### Code formatting
