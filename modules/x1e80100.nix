@@ -90,6 +90,22 @@ in
               "reset_gpio"
               "gpio_shared_proxy"
             ])
+
+            (lib.mkIf cfg.asus-zenbook-a14.enable [
+              # Needed for UX3407QA OLED display
+              "panel_samsung_atna33xc20"
+              "gpucc_x1p42100"
+
+              # Needed for USB
+              "phy_nxp_ptn3222"
+
+              # HDMI stuff, see above
+              "simple_bridge"
+              "display_connector"
+              "mux_gpio"
+              "reset_gpio"
+              "gpio_shared_proxy"
+            ])
           ];
 
           boot.kernelParams = lib.mkMerge [
@@ -114,11 +130,41 @@ in
             (lib.mkIf cfg.lenovo-thinkpad-t14s.enable [
               "mem=31G"
             ])
+
+            (lib.mkIf cfg.asus-zenbook-a14.enable [
+              "console=tty1"
+              "cma=128M"
+              "efi=noruntime"
+              "arm64.nopauth"
+            ])
           ];
 
           hardware.deviceTree.enable = true;
 
           boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
+
+          boot.extraModulePackages =
+            let
+              asus-zenbook-a14-ec =
+                config.boot.kernelPackages.callPackage ../packages/asus-zenbook-a14-ec.nix
+                  { };
+            in
+            lib.mkMerge [
+              [ ]
+              (lib.mkIf cfg.asus-zenbook-a14.enable [
+                # This currently depends on ACPI=y for an architectural reason
+                asus-zenbook-a14-ec
+              ])
+            ];
+
+          boot.kernelModules = lib.mkMerge [
+            [ ]
+            (lib.mkIf cfg.asus-zenbook-a14.enable [
+              # Provided by asus-zenbook-a14-ec
+              "asus-zenbook-a14-ec" # Does not autoload
+              "hid-asus-ec" # Does seem to autoload, but just to be safe
+            ])
+          ];
 
           boot.initrd.extraFirmwarePaths = lib.mkMerge [
             (lib.mkIf cfg.lenovo-thinkpad-t14s.enable [
@@ -136,6 +182,24 @@ in
               "qcom/x1e80100/LENOVO/21N1/cdsp_dtbs.elf"
               "qcom/x1e80100/adsp.mbn"
               "qcom/x1e80100/adsp_dtb.mbn"
+            ])
+            (lib.mkIf cfg.asus-zenbook-a14.enable [
+              # Some of these are not in linux-firmware and need to be packaged separately
+              # Will still boot if those are missing, BAT reporting and WLAN will be dead though
+              "qcom/gen71500_gmu.bin"
+              "qcom/gen71500_sqe.fw"
+              "qcom/x1p42100/gen71500_zap.mbn"
+              "qcom/x1p42100/ASUSTeK/zenbook-a14/adsp_dtbs.elf"
+              "qcom/x1p42100/ASUSTeK/zenbook-a14/adspr.jsn"
+              "qcom/x1p42100/ASUSTeK/zenbook-a14/adsps.jsn"
+              "qcom/x1p42100/ASUSTeK/zenbook-a14/adspua.jsn"
+              "qcom/x1p42100/ASUSTeK/zenbook-a14/battmgr.jsn"
+              "qcom/x1p42100/ASUSTeK/zenbook-a14/cdsp_dtbs.elf"
+              "qcom/x1p42100/ASUSTeK/zenbook-a14/cdspr.jsn"
+              "qcom/x1p42100/ASUSTeK/zenbook-a14/qcadsp8380.mbn"
+              "qcom/x1p42100/ASUSTeK/zenbook-a14/qccdsp8380.mbn"
+              "qcom/x1p42100/ASUSTeK/zenbook-a14/qcdxmsuc8380.mbn"
+              "qcom/x1p42100/ASUSTeK/zenbook-a14/qcdxkmsucpurwa.mbn"
             ])
           ];
 
