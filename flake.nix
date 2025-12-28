@@ -151,6 +151,7 @@
           iso = self.packages.${buildSystem}.lenovo-yoga-slim7x-iso;
           kernel = pkgs-cross.x1e80100-linux.kernel;
           inherit (pkgs-cross) slbounce;
+          inherit (pkgs-cross) qebspil;
         }
         // nixpkgs.lib.mapAttrs' (
           device: _: nixpkgs.lib.nameValuePair "${device}-iso" (deviceISO device).config.system.build.isoImage

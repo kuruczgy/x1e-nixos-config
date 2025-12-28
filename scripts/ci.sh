@@ -2,7 +2,7 @@
 
 set -ex
 
-nix build .#iso .#slbounce
+nix build .#iso .#slbounce .#qebspil
 
 hash="$(sha256sum "result/iso/nixos-x1e80100-lenovo-yoga-slim7x.iso" | cut -d " " -f 1)"
 system="$(nix eval --impure --raw --expr 'builtins.replaceStrings ["_"] ["-"] builtins.currentSystem')"
