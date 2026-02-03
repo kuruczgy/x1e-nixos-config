@@ -13,10 +13,10 @@ linuxPackagesFor (buildLinux {
   src = fetchFromGitLab {
     owner = "linaro/arm64-laptops";
     repo = "linux";
-    tag = "qcom-laptops-v6.19-rc4";
-    hash = "sha256-h98w1ZO4bn+8DsESq0oA8U8jkJW/rE1y7VvqPZqs9Ec=";
+    rev = "19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb";
+    hash = "sha256-xWkxIU9AO80jPVpNi2wdvXHoY/WN8Kklt0Ioajx+IRk=";
   };
-  version = "6.19.0-rc4";
+  version = "6.19.0-rc7";
 
   kernelPatches = [
     {
