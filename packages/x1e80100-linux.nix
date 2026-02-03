@@ -13,10 +13,10 @@ linuxPackagesFor (buildLinux {
   src = fetchFromGitLab {
     owner = "linaro/arm64-laptops";
     repo = "linux";
-    rev = "5c30e27ba10669782ba2def1ae7846ff32aa422d";
-    hash = "sha256-sKH+un3mPdxWodnXF2tH+0TMywSESd8z686wQfVnW+8=";
+    rev = "19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb";
+    hash = "sha256-xWkxIU9AO80jPVpNi2wdvXHoY/WN8Kklt0Ioajx+IRk=";
   };
-  version = "6.18.0";
+  version = "6.19.0-rc7";
 
   kernelPatches = [
     {
