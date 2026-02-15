@@ -47,6 +47,7 @@
                 hash = "sha256-brqJxblmqWFAk8JgxmxXeHoiaWiQtsCsOzht/WlH5eE=";
               })
               ./nixpkgs-efi-shell.patch
+              ./test.patch
             ];
           }).overrideAttrs
             { allowSubstitutes = true; };
