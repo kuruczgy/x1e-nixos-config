@@ -6,7 +6,7 @@ index 84adb5793502..3f65e8f4ec60 100644
    stdenv,
    squashfsTools,
    closureInfo,
-+  nix,
++  buildPackages,
  
    fileName ? "squashfs",
    # The root directory of the squashfs filesystem is filled with the
@@ -16,7 +16,7 @@ index 84adb5793502..3f65e8f4ec60 100644
    + ''
 +    for f in $(cat $closureInfo/store-paths); do
 +      echo "squashfs path: $f"
-+      ${nix}/bin/nix --extra-experimental-features nix-command hash path $f
++      ${buildPackages.nix}/bin/nix --extra-experimental-features nix-command hash path $f
 +    done
  
      # Generate the squashfs image.
