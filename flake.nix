@@ -153,6 +153,10 @@
           kernel = pkgs-cross.x1e80100-linux.kernel;
           inherit (pkgs-cross) slbounce;
           inherit (pkgs-cross) qebspil;
+
+          test = pkgs-cross.runCommand "test" { } ''
+            echo $RANDOM > $out
+          '';
         }
         // nixpkgs.lib.mapAttrs' (
           device: _: nixpkgs.lib.nameValuePair "${device}-iso" (deviceISO device).config.system.build.isoImage
