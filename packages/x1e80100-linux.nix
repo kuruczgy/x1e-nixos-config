@@ -1,6 +1,6 @@
 {
   lib,
-  fetchFromGitLab,
+  fetchFromGitHub,
   buildLinux,
   linuxPackagesFor,
   fetchpatch,
@@ -10,13 +10,29 @@
 }:
 
 linuxPackagesFor (buildLinux {
-  src = fetchFromGitLab {
-    owner = "linaro/arm64-laptops";
+  src = fetchFromGitHub {
+    owner = "torvalds";
     repo = "linux";
-    rev = "5c30e27ba10669782ba2def1ae7846ff32aa422d";
-    hash = "sha256-sKH+un3mPdxWodnXF2tH+0TMywSESd8z686wQfVnW+8=";
+    tag = "v6.19";
+    forceFetchGit = true;
+    nativeBuildInputs = [ b4 ];
+    preFetch = "export ${lib.toShellVar "NIX_PREFETCH_GIT_CHECKOUT_HOOK" ''
+      pushd "$dir"
+      git config user.name "nix"
+      git config user.email "nix"
+
+      git fetch 'https://gitlab.com/Linaro/arm64-laptops/linux.git' --depth 106 19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb
+      git cherry-pick --empty=drop 63804fed149a6750ffd28610c5c1c98cce6bd377..19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb
+
+      # Collect some stats
+      du -sh .git
+
+      popd
+    ''}";
+
+    hash = "sha256-qElJ642reD/NX63qEBNDgFFVBWxO0zqQxWXDFHeqJu0=";
   };
-  version = "6.18.0";
+  version = "6.19.0";
 
   kernelPatches = [
     {
