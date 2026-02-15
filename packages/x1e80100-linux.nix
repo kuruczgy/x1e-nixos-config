@@ -28,7 +28,8 @@ linuxPackagesFor (buildLinux {
     {
       name = "drm/dpu: Add support for DSPP GC block to enable Gamma LUT capability";
       patch = fetchurl {
-        url = "https://github.com/valpackett/linux-qclaptops/commit/9ee91c5748e83772dc3660077f9f415a453eeace.patch";
+        name = "9ee91c5748e83772dc3660077f9f415a453eeace.patch";
+        url = "file://${./gamma-lut.patch}";
         hash = "sha256-tz82YWVkEShCj7HVJXi7KlyG3gmR+yjYcvS4JMch+sU=";
       };
     }
