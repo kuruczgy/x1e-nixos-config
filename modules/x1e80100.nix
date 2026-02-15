@@ -38,6 +38,11 @@ in
       # around this by explicitly disabling TPM.
       systemd.tpm2.enable = false;
 
+      boot.blacklistedKernelModules = [
+        # Too buggy right now, too many kernel crashes.
+        "qcom_iris"
+      ];
+
       boot.initrd.includeDefaultModules = false;
       boot.initrd.systemd.tpm2.enable = false; # This also pulls in some modules our kernel is not build with.
       boot.initrd.availableKernelModules = lib.mkMerge [
