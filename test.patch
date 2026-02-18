@@ -1,0 +1,23 @@
+diff --git a/nixos/lib/make-squashfs.nix b/nixos/lib/make-squashfs.nix
+index 84adb5793502..3f65e8f4ec60 100644
+--- a/nixos/lib/make-squashfs.nix
++++ b/nixos/lib/make-squashfs.nix
+@@ -3,6 +3,7 @@
+   stdenv,
+   squashfsTools,
+   closureInfo,
++  buildPackages,
+ 
+   fileName ? "squashfs",
+   # The root directory of the squashfs filesystem is filled with the
+@@ -56,6 +57,10 @@ stdenv.mkDerivation {
+     fi
+   ''
+   + ''
++    for f in $(cat $closureInfo/store-paths); do
++      echo "squashfs path: $f"
++      ${buildPackages.nix}/bin/nix --extra-experimental-features nix-command hash path $f
++    done
+ 
+     # Generate the squashfs image.
+     # We have to set SOURCE_DATE_EPOCH to 0 here for reproducibility (https://github.com/NixOS/nixpkgs/issues/390696)
