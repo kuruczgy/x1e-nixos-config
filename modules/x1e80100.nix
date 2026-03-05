@@ -127,6 +127,15 @@ in
           "qcom/x1e80100/adsp_dtb.mbn"
         ])
       ];
+
+      # Point libcamera at the ov02c10 IPA tuning file for the webcam sensor.
+      # This is mainly to remove green tint, but can be tweaked further.
+      environment.sessionVariables.LIBCAMERA_IPA_CONFIG_PATH = [
+        "${pkgs.runCommand "libcamera-ipa-configs" { } ''
+          mkdir -p $out/simple
+          cp ${./ov02c10.yaml} $out/simple/ov02c10.yaml
+        ''}"
+      ];
     }
   ];
 }
