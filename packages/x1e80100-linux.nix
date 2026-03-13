@@ -73,7 +73,6 @@ linuxPackagesFor (buildLinux {
     VIRTUALIZATION = yes;
     KVM = yes;
     MAGIC_SYSRQ = yes;
-    EC_LENOVO_YOGA_SLIM7X = module;
 
     # Stuff to reduce compile times.
     ACPI = no;
@@ -87,10 +86,6 @@ linuxPackagesFor (buildLinux {
     ARCH_APPLE = no;
     ARCH_AXIADO = no;
     ARCH_BCM = no;
-    ARCH_BCM2835 = no;
-    ARCH_BCM_IPROC = no;
-    ARCH_BCMBCA = no;
-    ARCH_BRCMSTB = no;
     ARCH_BERLIN = no;
     ARCH_BLAIZE = no;
     ARCH_CIX = no;
@@ -104,9 +99,6 @@ linuxPackagesFor (buildLinux {
     ARCH_MESON = no;
     ARCH_MVEBU = no;
     ARCH_NXP = no;
-    ARCH_LAYERSCAPE = no;
-    ARCH_MXC = no;
-    ARCH_S32 = no;
     ARCH_MA35 = no;
     ARCH_NPCM = no;
     ARCH_REALTEK = no;
@@ -118,7 +110,6 @@ linuxPackagesFor (buildLinux {
     ARCH_STM32 = no;
     ARCH_SYNQUACER = no;
     ARCH_TEGRA = no;
-    ARCH_TESLA_FSD = no;
     ARCH_SPRD = no;
     ARCH_THUNDER = no;
     ARCH_THUNDER2 = no;
