@@ -83,16 +83,19 @@ in
           "phy_nxp_ptn3222"
           "phy_qcom_qmp_usb"
         ])
+
+        (lib.mkIf cfg.asus-vivobook-s15.enable [
+          # OLED display (TODO: needed for initramfs?)
+          "panel_samsung_atna33xc20"
+
+          # Needed for USB (TODO: also latter?)
+          "phy_nxp_ptn3222"
+          "phy_qcom_qmp_usb"
+        ])
+
       ];
 
-    (lib.mkIf cfg.asus-vivobook-s15.enable [
-      # OLED display (TODO: needed for initramfs?)
-      "panel_samsung_atna33xc20"
 
-      # Needed for USB (TODO: also latter?)
-      "phy_nxp_ptn3222"
-      "phy_qcom_qmp_usb"
-    ])
 
       boot.kernelParams = lib.mkMerge [
         [
