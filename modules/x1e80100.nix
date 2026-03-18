@@ -95,14 +95,11 @@ in
 
       ];
 
-
-
       boot.kernelParams = lib.mkMerge [
         [
           "pd_ignore_unused"
           "clk_ignore_unused"
         ]
-
 
         (lib.mkIf cfg.lenovo-yoga-slim7x.enable [
           # Needed since 4c3d9c134892c4158867075c840b81a5ed28af1f ("arm64: dts: qcom:
