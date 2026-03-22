@@ -42,53 +42,53 @@ linuxPackagesFor (buildLinux {
         hash = "sha256-tz82YWVkEShCj7HVJXi7KlyG3gmR+yjYcvS4JMch+sU=";
       };
     }
-    # {
-    #   name = "Fix Compile Error";
-    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
-    #   patch = ./fix-compile-error-tools-lib-bpf-libbpf.patch;
-    # }
-    # {
-    #   name = "Sync From sm8750";
-    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
-    #   patch = ./dts-qcom-x1e80100-sync-from-sm8750.patch;
-    # }
+    {
+      name = "Fix Compile Error";
+      # From: https://github.com/x1e-laptops/linux-qcom-laptops
+      patch = ./fix-compile-error-tools-lib-bpf-libbpf.patch;
+    }
+    {
+      name = "Sync From sm8750";
+      # From: https://github.com/x1e-laptops/linux-qcom-laptops
+      patch = ./dts-qcom-x1e80100-sync-from-sm8750.patch;
+    }
 
     # Asus Vivobook S15
-    # {
-    #   name = "Asus Vivobook S15 wip EC driver";
-    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
-    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-wip-EC.patch;
-    # }
-    # {
-    #   name = "Asus Vivobook S15 Sound";
-    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
-    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-sound.patch;
-    # }
-    # {
-    #   name = "Asus Vivobook S15 Charging Thres";
-    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
-    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-qcom_battmgr-charge-thres.patch;
-    # }
-    # {
-    #   name = "Asus Vivobook S15 Privacy LED";
-    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
-    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-privacy-LED.patch;
-    # }
-    # {
-    #   name = "Asus Vivobook S15 Iris Codec Support";
-    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
-    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-Iris-codec.patch;
-    # }
-    # {
-    #   name = "Asus Vivobook hid driver";
-    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
-    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-hid.patch;
-    # }
-    # {
-    #   name = "Asus Vivobook HDMI";
-    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
-    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-hdmi.patch;
-    # }
+    {
+      name = "Asus Vivobook S15 wip EC driver";
+      # From: https://github.com/x1e-laptops/linux-qcom-laptops
+      patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-wip-EC.patch;
+    }
+    {
+      name = "Asus Vivobook S15 Sound";
+      # From: https://github.com/x1e-laptops/linux-qcom-laptops
+      patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-sound.patch;
+    }
+    {
+      name = "Asus Vivobook S15 Charging Thres";
+      # From: https://github.com/x1e-laptops/linux-qcom-laptops
+      patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-qcom_battmgr-charge-thres.patch;
+    }
+    {
+      name = "Asus Vivobook S15 Privacy LED";
+      # From: https://github.com/x1e-laptops/linux-qcom-laptops
+      patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-privacy-LED.patch;
+    }
+    {
+      name = "Asus Vivobook S15 Iris Codec Support";
+      # From: https://github.com/x1e-laptops/linux-qcom-laptops
+      patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-Iris-codec.patch;
+    }
+    {
+      name = "Asus Vivobook hid driver";
+      # From: https://github.com/x1e-laptops/linux-qcom-laptops
+      patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-hid.patch;
+    }
+    {
+      name = "Asus Vivobook HDMI";
+      # From: https://github.com/x1e-laptops/linux-qcom-laptops
+      patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-hdmi.patch;
+    }
 
     # Lenovo Yoga Slim7x
     {
