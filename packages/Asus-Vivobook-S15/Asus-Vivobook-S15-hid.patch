@@ -1,0 +1,405 @@
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 04420a713..e7386acfe 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -202,6 +202,20 @@ config HID_ASUS
+ 	- GL553V series
+ 	- GL753V series
+ 
++config HID_ASUS_VIVOBOOK_S15
++	tristate "ASUS Vivobook S15 S5507 keyboard"
++	help
++	  Say Y or M here if you have the ASUS Vivobook S15 S5507 laptop.
++
++	  This driver adds support for the special function keys on the
++	  built-in I2C keyboard, including backlight control, Fn-Lock, and
++	  remapping of brightness keys.
++
++	  Without this driver, the special keys will not work.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called hid-asus-vivobook-s15.
++
+ config HID_AUREAL
+ 	tristate "Aureal"
+ 	help
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 361a7daed..7f287d1d7 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -34,6 +34,7 @@ obj-$(CONFIG_HID_APPLETB_BL)	+= hid-appletb-bl.o
+ obj-$(CONFIG_HID_APPLETB_KBD)	+= hid-appletb-kbd.o
+ obj-$(CONFIG_HID_CREATIVE_SB0540)	+= hid-creative-sb0540.o
+ obj-$(CONFIG_HID_ASUS)		+= hid-asus.o
++obj-$(CONFIG_HID_ASUS_VIVOBOOK_S15)	+= hid-asus-vivobook-s15.o
+ obj-$(CONFIG_HID_AUREAL)	+= hid-aureal.o
+ obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
+ obj-$(CONFIG_HID_BETOP_FF)	+= hid-betopff.o
+diff --git a/drivers/hid/hid-asus-vivobook-s15.c b/drivers/hid/hid-asus-vivobook-s15.c
+new file mode 100644
+index 000000000..cab1c38c2
+--- /dev/null
++++ b/drivers/hid/hid-asus-vivobook-s15.c
+@@ -0,0 +1,360 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * HID driver for ASUS Vivobook S15 S5507 Keyboard
++ *
++ * Copyright (c) 2024 Elliot Huang (keep.it.sns@gmail.com)
++ *
++ * This driver handles special function keys for keyboard backlight control,
++ * Fn-Lock, and re-maps certain vendor-specific keys to standard consumer
++ * control usages (e.g., display brightness). It also handles suspend and
++ * resume by turning off the backlight on suspend and restoring the full
++ * device state on resume.
++ */
++
++#include <linux/hid.h>
++#include <linux/module.h>
++#include <linux/workqueue.h>
++#include <linux/atomic.h>
++#include <linux/leds.h>
++
++#define VID_ASUS 0x0B05
++#define PID_VIVOBOOK_S15_S5507_KEYBOARD 0x4543
++
++/*
++ * The device sends vendor-specific reports with ID 0x5A for special keys.
++ * We intercept these and either schedule work or remap them to standard
++ * reports.
++ */
++#define ASUS_VENDOR_REPORT_ID 0x5A
++
++/* Key codes from vendor report */
++#define VENDOR_KEY_FNLOCK 0x4E
++#define VENDOR_KEY_BACKLIGHT 0xC7
++#define VENDOR_KEY_BRIGHTNESS_DOWN 0x10
++#define VENDOR_KEY_BRIGHTNESS_UP 0x20
++#define VENDOR_KEY_RELEASE 0x00
++
++/*
++ * We remap brightness keys to a custom report with ID 0x37, which the
++ * device's report descriptor seems to handle as consumer control.
++ */
++#define CONSUMER_REPORT_ID 0x37
++#define CONSUMER_USAGE_BRIGHTNESS_DOWN 0x70
++#define CONSUMER_USAGE_BRIGHTNESS_UP 0x6F
++#define CONSUMER_USAGE_RELEASE 0x00
++
++enum work_type {
++	WORK_TYPE_INIT,
++	WORK_TYPE_BACKLIGHT,
++	WORK_TYPE_FNLOCK,
++};
++
++struct vivobook_s15_kbd {
++	struct hid_device *hdev;
++	struct work_struct work;
++
++	/* Bitmask of pending work items */
++	atomic_t pending_work;
++
++	/* Device state */
++	u8 backlight_brightness;
++	bool fn_lock_state;
++
++	/* State for remapping key-up events */
++	bool remap_next_keyup;
++
++	/* LED Class device for keyboard backlight */
++	struct led_classdev kbd_backlight;
++};
++
++/*
++ * The following functions send HID_FEATURE_REPORT commands to the device.
++ * They return 0 on success, or a negative error code on failure.
++ */
++static int set_init_unk_1(struct hid_device *hdev)
++{
++	u8 *buf;
++	int ret;
++
++	buf = kzalloc(64, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	buf[0] = 0x5A;
++	buf[1] = 0x05;
++	buf[2] = 0x20;
++	buf[3] = 0x31;
++	buf[4] = 0x00;
++	buf[5] = 0x08;
++
++	ret = hid_hw_raw_request(hdev, 0x5A, buf, 64, HID_FEATURE_REPORT,
++				 HID_REQ_SET_REPORT);
++	kfree(buf);
++	return ret < 0 ? ret : 0;
++}
++
++static int set_init_unk_2(struct hid_device *hdev)
++{
++	u8 *buf;
++	int ret;
++
++	buf = kzalloc(64, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	buf[0] = 0x5A;
++	buf[1] = 0xD0;
++	buf[2] = 0x8F;
++	buf[3] = 0x01;
++
++	ret = hid_hw_raw_request(hdev, 0x5A, buf, 64, HID_FEATURE_REPORT,
++				 HID_REQ_SET_REPORT);
++	kfree(buf);
++	return ret < 0 ? ret : 0;
++}
++
++static int set_brightness(struct hid_device *hdev, u8 brightness)
++{
++	u8 *buf;
++	int ret;
++
++	buf = kzalloc(64, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	buf[0] = 0x5A;
++	buf[1] = 0xBA;
++	buf[2] = 0xC5;
++	buf[3] = 0xC4;
++	buf[4] = brightness;
++
++	ret = hid_hw_raw_request(hdev, 0x5A, buf, 64, HID_FEATURE_REPORT,
++				 HID_REQ_SET_REPORT);
++	kfree(buf);
++	return ret < 0 ? ret : 0;
++}
++
++static int set_fn_lock(struct hid_device *hdev, bool fn_lock)
++{
++	u8 *buf;
++	int ret;
++
++	buf = kzalloc(64, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	buf[0] = 0x5A;
++	buf[1] = 0xD0;
++	buf[2] = 0x4E;
++	buf[3] = fn_lock;
++
++	ret = hid_hw_raw_request(hdev, 0x5A, buf, 64, HID_FEATURE_REPORT,
++				 HID_REQ_SET_REPORT);
++	kfree(buf);
++	return ret < 0 ? ret : 0;
++}
++
++static int vivobook_s15_kbd_bl_set(struct led_classdev *led_cdev,
++				   enum led_brightness brightness)
++{
++	struct vivobook_s15_kbd *priv =
++		container_of(led_cdev, struct vivobook_s15_kbd, kbd_backlight);
++	int ret;
++
++	ret = set_brightness(priv->hdev, brightness);
++	if (ret == 0)
++		priv->backlight_brightness = brightness;
++	return ret;
++}
++
++static enum led_brightness
++vivobook_s15_kbd_bl_get(struct led_classdev *led_cdev)
++{
++	struct vivobook_s15_kbd *priv =
++		container_of(led_cdev, struct vivobook_s15_kbd, kbd_backlight);
++	return priv->backlight_brightness;
++}
++
++static void vivobook_s15_work_handler(struct work_struct *work)
++{
++	struct vivobook_s15_kbd *priv =
++		container_of(work, struct vivobook_s15_kbd, work);
++	struct hid_device *hdev = priv->hdev;
++	int ret;
++
++	if (test_and_clear_bit(WORK_TYPE_BACKLIGHT,
++			       (void *)&priv->pending_work)) {
++		u8 new_brightness = (priv->backlight_brightness + 1);
++		if (new_brightness > 3)
++			new_brightness = 0;
++		led_set_brightness_sync(&priv->kbd_backlight, new_brightness);
++	}
++
++	if (test_and_clear_bit(WORK_TYPE_FNLOCK, (void *)&priv->pending_work)) {
++		bool new_fn_lock = !priv->fn_lock_state;
++
++		ret = set_fn_lock(hdev, new_fn_lock);
++		if (ret == 0)
++			priv->fn_lock_state = new_fn_lock;
++		else
++			dev_err(&hdev->dev, "Failed to set Fn-Lock: %d\n", ret);
++	}
++
++	if (test_and_clear_bit(WORK_TYPE_INIT, (void *)&priv->pending_work)) {
++		dev_info(&hdev->dev, "Initializing keyboard\n");
++		set_init_unk_1(hdev);
++		set_init_unk_2(hdev);
++		led_set_brightness_sync(&priv->kbd_backlight,
++					priv->backlight_brightness);
++		set_fn_lock(hdev, priv->fn_lock_state);
++	}
++}
++
++static void schedule_vivobook_work(struct vivobook_s15_kbd *priv,
++				   enum work_type type)
++{
++	set_bit(type, (void *)&priv->pending_work);
++	schedule_work(&priv->work);
++}
++
++static int remap_to_consumer_control(struct vivobook_s15_kbd *priv, u8 *data,
++				     u8 code)
++{
++	data[0] = CONSUMER_REPORT_ID;
++	data[1] = code;
++	data[2] = 0x00;
++
++	priv->remap_next_keyup = (code != CONSUMER_USAGE_RELEASE);
++	return 3; /* New report size is 3 bytes */
++}
++
++static int vivobook_s15_raw_event(struct hid_device *hdev,
++				  struct hid_report *report, u8 *data, int size)
++{
++	struct vivobook_s15_kbd *priv = hid_get_drvdata(hdev);
++
++	/* We are only interested in vendor-defined input reports */
++	if (report->type != HID_INPUT_REPORT ||
++	    data[0] != ASUS_VENDOR_REPORT_ID)
++		return 0;
++
++	/* The vendor report for special keys is 6 bytes long */
++	if (size != 6)
++		return 0;
++
++	switch (data[1]) {
++	case VENDOR_KEY_FNLOCK:
++		schedule_vivobook_work(priv, WORK_TYPE_FNLOCK);
++		break;
++	case VENDOR_KEY_BACKLIGHT:
++		schedule_vivobook_work(priv, WORK_TYPE_BACKLIGHT);
++		break;
++	case VENDOR_KEY_BRIGHTNESS_DOWN:
++		return remap_to_consumer_control(
++			priv, data, CONSUMER_USAGE_BRIGHTNESS_DOWN);
++	case VENDOR_KEY_BRIGHTNESS_UP:
++		return remap_to_consumer_control(priv, data,
++						 CONSUMER_USAGE_BRIGHTNESS_UP);
++	case VENDOR_KEY_RELEASE:
++		if (priv->remap_next_keyup)
++			return remap_to_consumer_control(
++				priv, data, CONSUMER_USAGE_RELEASE);
++		break;
++	default:
++		/* Let unhandled vendor keys pass through if needed, or drop them */
++		break;
++	}
++
++	/* Drop the original vendor report, as we have handled it. */
++	return 0;
++}
++
++static void vivobook_s15_stop_hw(void *data)
++{
++	struct hid_device *hdev = data;
++
++	hid_hw_stop(hdev);
++}
++
++static int vivobook_s15_probe(struct hid_device *hdev,
++			      const struct hid_device_id *id)
++{
++	struct vivobook_s15_kbd *priv;
++	int ret;
++
++	priv = devm_kzalloc(&hdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	priv->hdev = hdev;
++	hid_set_drvdata(hdev, priv);
++
++	/* Set initial default state */
++	priv->backlight_brightness = 1;
++	priv->fn_lock_state = false;
++	priv->remap_next_keyup = false;
++
++	atomic_set(&priv->pending_work, 0);
++	INIT_WORK(&priv->work, vivobook_s15_work_handler);
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		dev_err(&hdev->dev, "hid_parse failed: %d\n", ret);
++		return ret;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		dev_err(&hdev->dev, "hid_hw_start failed: %d\n", ret);
++		return ret;
++	}
++
++	ret = devm_add_action_or_reset(&hdev->dev, vivobook_s15_stop_hw, hdev);
++	if (ret)
++		return ret;
++
++	priv->kbd_backlight.name = "asus::kbd_backlight";
++	priv->kbd_backlight.max_brightness = 3;
++	priv->kbd_backlight.brightness_set_blocking = vivobook_s15_kbd_bl_set;
++	priv->kbd_backlight.brightness_get = vivobook_s15_kbd_bl_get;
++	priv->kbd_backlight.flags = LED_BRIGHT_HW_CHANGED;
++
++	ret = devm_led_classdev_register(&hdev->dev, &priv->kbd_backlight);
++	if (ret) {
++		dev_err(&hdev->dev,
++			"Failed to register kbd_backlight LED: %d\n", ret);
++		return ret;
++	}
++
++	/* Schedule work to perform initial setup */
++	schedule_vivobook_work(priv, WORK_TYPE_INIT);
++
++	return 0;
++}
++
++static void vivobook_s15_remove(struct hid_device *hdev)
++{
++	struct vivobook_s15_kbd *priv = hid_get_drvdata(hdev);
++
++	cancel_work_sync(&priv->work);
++	/* hid_hw_stop() is handled by devm action */
++}
++
++static const struct hid_device_id vivobook_s15_kbd_id_table[] = {
++	{ HID_I2C_DEVICE(VID_ASUS, PID_VIVOBOOK_S15_S5507_KEYBOARD) },
++	{} /* Terminating entry */
++};
++MODULE_DEVICE_TABLE(hid, vivobook_s15_kbd_id_table);
++
++static struct hid_driver vivobook_s15_kbd_driver = {
++	.name = "hid-asus-vivobook-s15",
++	.id_table = vivobook_s15_kbd_id_table,
++	.probe = vivobook_s15_probe,
++	.remove = vivobook_s15_remove,
++	.raw_event = vivobook_s15_raw_event,
++};
++module_hid_driver(vivobook_s15_kbd_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Elliot Huang <keep.it.sns@gmail.com>");
++MODULE_DESCRIPTION("HID driver for ASUS Vivobook S15 S5507 Keyboard");
+-- 
+2.53.0
