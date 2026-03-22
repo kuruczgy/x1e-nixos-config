@@ -1,5 +1,6 @@
 {
   fetchFromGitHub,
+  fetchurl,
   runCommand,
 }:
 

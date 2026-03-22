@@ -3,6 +3,7 @@
   fetchFromGitHub,
   buildLinux,
   linuxPackagesFor,
+  fetchpatch,
   fetchurl,
   b4,
   ...
