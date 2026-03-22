@@ -1,0 +1,278 @@
+diff --git a/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts b/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts
+index 238798a4d..7e5b4416d 100644
+--- a/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts
++++ b/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts
+@@ -936,7 +936,12 @@ eusb6_repeater: redriver@4f {
+ 		pinctrl-names = "default";
+ 	};
+ 
+-	/* EC @ 0x76 */
++	asus_ec: ec@76 {
++		compatible = "asus,vivobook-s15-ec";
++		reg = <0x76>;
++		/* List of thermal zone names to monitor */
++		thermal-zone-names = "cpu0-0-top-thermal", "gpuss-0-thermal";
++	};
+ };
+ 
+ &i2c7 {
+diff --git a/drivers/platform/arm64/Kconfig b/drivers/platform/arm64/Kconfig
+index 10f905d7d..fa4ceb3f3 100644
+--- a/drivers/platform/arm64/Kconfig
++++ b/drivers/platform/arm64/Kconfig
+@@ -90,4 +90,19 @@ config EC_LENOVO_THINKPAD_T14S
+ 
+ 	  Say M or Y here to include this support.
+ 
++config EC_ASUS_VIVOBOOK_S15
++	tristate "Asus Vivobook S15 Embedded Controller driver"
++	depends on ARCH_QCOM || COMPILE_TEST
++	depends on I2C
++	depends on INPUT
++	help
++	  Driver for the Embedded Controller in the Qualcomm Snapdragon-based
++	  Asus Vivobook S15, which provides access to fan control.
++
++	  This driver provides support for the mentioned laptop where this
++	  information is not properly exposed via the standard Qualcomm
++	  devices.
++
++	  Say M or Y here to include this support.
++
+ endif # ARM64_PLATFORM_DEVICES
+diff --git a/drivers/platform/arm64/Makefile b/drivers/platform/arm64/Makefile
+index 60c131cff..bd6dc3128 100644
+--- a/drivers/platform/arm64/Makefile
++++ b/drivers/platform/arm64/Makefile
+@@ -9,3 +9,4 @@ obj-$(CONFIG_EC_ACER_ASPIRE1)	+= acer-aspire1-ec.o
+ obj-$(CONFIG_EC_HUAWEI_GAOKUN)	+= huawei-gaokun-ec.o
+ obj-$(CONFIG_EC_LENOVO_YOGA_C630) += lenovo-yoga-c630.o
+ obj-$(CONFIG_EC_LENOVO_THINKPAD_T14S) += lenovo-thinkpad-t14s.o
++obj-$(CONFIG_EC_ASUS_VIVOBOOK_S15) += asus-vivobook-s15.o
+diff --git a/drivers/platform/arm64/asus-vivobook-s15.c b/drivers/platform/arm64/asus-vivobook-s15.c
+new file mode 100644
+index 000000000..d38d41a58
+--- /dev/null
++++ b/drivers/platform/arm64/asus-vivobook-s15.c
+@@ -0,0 +1,219 @@
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/thermal.h>
++#include <linux/workqueue.h>
++#include <linux/slab.h>
++#include <linux/of.h>
++#include <linux/of_device.h>
++
++#define DRIVER_NAME "asus_vivobook_ec"
++
++/* I2C Command Definitions */
++#define CMD_SET_TEMP 0x20
++#define CMD_SET_SUSPEND 0x23
++
++/* Constants */
++#define HEARTBEAT_PERIOD_MS 2000
++
++struct asus_ec_tz {
++	struct list_head list;
++	struct thermal_zone_device *tz;
++};
++
++struct asus_ec_data {
++	struct i2c_client *client;
++	struct delayed_work heartbeat_work;
++	struct list_head tz_list;
++	struct mutex lock;
++};
++
++static int asus_ec_send_temp(struct asus_ec_data *data)
++{
++	struct asus_ec_tz *node;
++	int max_temp = 0; /* milli-Celsius */
++	int ret;
++	int temp_deci;
++	u8 buf[5];
++
++	/* Find maximum temperature across all monitored zones */
++	list_for_each_entry(node, &data->tz_list, list) {
++		int temp;
++		ret = thermal_zone_get_temp(node->tz, &temp);
++		if (ret == 0) {
++			if (temp > max_temp)
++				max_temp = temp;
++		}
++	}
++
++	/* 
++	 * Convert to deci-Celsius (0.1 C) as expected by EC.
++	 * Kernel temp is milli-Celsius (1000 = 1 C).
++	 * So deci-Celsius = milli-Celsius / 100.
++	 */
++	temp_deci = max_temp / 100;
++	if (temp_deci < 0)
++		temp_deci = 0;
++	if (temp_deci > 2000)
++		temp_deci = 2000;
++
++	buf[0] = CMD_SET_TEMP;
++	buf[1] = 0x01;
++	buf[2] = 0x02;
++	buf[3] = temp_deci & 0xff;
++	buf[4] = (temp_deci >> 8) & 0xff;
++
++	ret = i2c_master_send(data->client, buf, sizeof(buf));
++	if (ret < 0)
++		dev_err_ratelimited(&data->client->dev,
++				    "Failed to send temp: %d", ret);
++
++	return ret;
++}
++
++static void asus_ec_heartbeat(struct work_struct *work)
++{
++	struct asus_ec_data *data =
++		container_of(work, struct asus_ec_data, heartbeat_work.work);
++
++	mutex_lock(&data->lock);
++	asus_ec_send_temp(data);
++	mutex_unlock(&data->lock);
++
++	schedule_delayed_work(&data->heartbeat_work,
++			      msecs_to_jiffies(HEARTBEAT_PERIOD_MS));
++}
++
++static int asus_ec_set_suspend(struct asus_ec_data *data, bool active)
++{
++	u8 buf[2];
++	int ret;
++
++	buf[0] = CMD_SET_SUSPEND;
++	buf[1] = active ? 0x01 : 0x00;
++
++	ret = i2c_master_send(data->client, buf, sizeof(buf));
++	if (ret < 0)
++		dev_err(&data->client->dev, "Failed to set suspend mode %d: %d",
++			active, ret);
++
++	return ret;
++}
++
++static int asus_ec_probe(struct i2c_client *client)
++{
++	struct asus_ec_data *data;
++	struct device_node *np = client->dev.of_node;
++	const char *name;
++	int count;
++	int j;
++
++	if (!np)
++		return -ENODEV;
++
++	data = devm_kzalloc(&client->dev, sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	data->client = client;
++	mutex_init(&data->lock);
++	INIT_LIST_HEAD(&data->tz_list);
++	INIT_DELAYED_WORK(&data->heartbeat_work, asus_ec_heartbeat);
++	i2c_set_clientdata(client, data);
++
++	/* 
++	 * This allows specifying specific thermal zones like "cpu0-0-top-thermal"
++	 * in the DTS.
++	 */
++	count = of_property_count_strings(np, "thermal-zone-names");
++	if (count < 0)
++		count = 0;
++
++	for (j = 0; j < count; j++) {
++		of_property_read_string_index(np, "thermal-zone-names", j,
++					      &name);
++
++		/* 
++		 * Note: thermal_zone_get_zone_by_name is exported in many kernels.
++		 * If not available, additional logic would be needed to iterate 
++		 * thermal zones.
++		 */
++		struct thermal_zone_device *tz =
++			thermal_zone_get_zone_by_name(name);
++		if (!IS_ERR(tz) && tz) {
++			struct asus_ec_tz *item = devm_kzalloc(
++				&client->dev, sizeof(*item), GFP_KERNEL);
++			if (item) {
++				item->tz = tz;
++				list_add_tail(&item->list, &data->tz_list);
++				dev_info(&client->dev,
++					 "Monitoring thermal zone: %s", name);
++			}
++		} else {
++			dev_warn(&client->dev,
++				 "Could not find thermal zone: %s", name);
++		}
++	}
++
++	if (list_empty(&data->tz_list))
++		dev_warn(&client->dev,
++			 "No thermal zones found. Sending 0 temp.");
++
++	dev_info(&client->dev, "Starting EC heartbeat");
++	schedule_delayed_work(&data->heartbeat_work, 0);
++
++	return 0;
++}
++
++static void asus_ec_remove(struct i2c_client *client)
++{
++	struct asus_ec_data *data = i2c_get_clientdata(client);
++
++	cancel_delayed_work_sync(&data->heartbeat_work);
++}
++
++static int __maybe_unused asus_ec_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct asus_ec_data *data = i2c_get_clientdata(client);
++
++	cancel_delayed_work_sync(&data->heartbeat_work);
++	asus_ec_set_suspend(data, true);
++
++	return 0;
++}
++
++static int __maybe_unused asus_ec_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct asus_ec_data *data = i2c_get_clientdata(client);
++
++	asus_ec_set_suspend(data, false);
++	schedule_delayed_work(&data->heartbeat_work, 0);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(asus_ec_pm_ops, asus_ec_suspend, asus_ec_resume);
++
++static const struct of_device_id asus_ec_of_match[] = {
++	{ .compatible = "asus,vivobook-s15-ec" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, asus_ec_of_match);
++
++static struct i2c_driver asus_ec_driver = {
++	.driver = {
++		.name	= DRIVER_NAME,
++		.of_match_table = asus_ec_of_match,
++		.pm	= &asus_ec_pm_ops,
++	},
++	.probe		= asus_ec_probe,
++	.remove		= asus_ec_remove,
++};
++
++module_i2c_driver(asus_ec_driver);
++
++MODULE_AUTHOR("Elliot Huang");
++MODULE_DESCRIPTION("ASUS Vivobook S 15 EC Driver");
++MODULE_LICENSE("GPL");
+-- 
+2.53.0
