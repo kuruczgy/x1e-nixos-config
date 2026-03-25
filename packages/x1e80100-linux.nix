@@ -9,6 +9,8 @@
   ...
 }:
 
+# 19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb        git cherry-pick --empty=drop 63804fed149a6750ffd28610c5c1c98cce6bd377..19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb
+# --depth 106
 linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
     owner = "torvalds";
@@ -21,8 +23,8 @@ linuxPackagesFor (buildLinux {
       git config user.name "nix"
       git config user.email "nix"
 
-      git fetch 'https://gitlab.com/Linaro/arm64-laptops/linux.git' --depth 106 19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb
-      git cherry-pick --empty=drop 63804fed149a6750ffd28610c5c1c98cce6bd377..19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb
+      git fetch 'https://gitlab.com/Linaro/arm64-laptops/linux.git'
+
 
       # Collect some stats
       du -sh .git
@@ -36,13 +38,17 @@ linuxPackagesFor (buildLinux {
 
   kernelPatches = [
     {
-      name = "drm/dpu: Add support for DSPP GC block to enable Gamma LUT capability";
-      patch = fetchurl {
-        name = "9ee91c5748e83772dc3660077f9f415a453eeace.patch";
-        url = "file://${./gamma-lut.patch}";
-        hash = "sha256-tz82YWVkEShCj7HVJXi7KlyG3gmR+yjYcvS4JMch+sU=";
-      };
+      name = "Lenovo Yoga Slim 7x + Asus Vivobook s15 Improvements (All old patches -Vivobook S15 wip EC driver)";
+      patch = ./0001-Lenovo-Yoga-Slim-7x-Asus-Vivobook-s15-Improvements.patch;
     }
+    # {
+    #   name = "drm/dpu: Add support for DSPP GC block to enable Gamma LUT capability";
+    #   patch = fetchurl {
+    #     name = "9ee91c5748e83772dc3660077f9f415a453eeace.patch";
+    #     url = "file://${./gamma-lut.patch}";
+    #     hash = "sha256-tz82YWVkEShCj7HVJXi7KlyG3gmR+yjYcvS4JMch+sU=";
+    #   };
+    # }
     # {
     #   name = "Fix Compile Error";
     #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
@@ -92,26 +98,26 @@ linuxPackagesFor (buildLinux {
     # }
 
     # Lenovo Yoga Slim7x
-    {
-      name = "Add slim7x EC driver";
-      # From: https://lore.kernel.org/lkml/20241219200821.8328-1-maccraft123mc@gmail.com/
-      patch = ./lenovo-yoga-slim7x-ec.patch;
-    }
+    # {
+    #   name = "Add slim7x EC driver";
+    #   # From: https://lore.kernel.org/lkml/20241219200821.8328-1-maccraft123mc@gmail.com/
+    #   patch = ./lenovo-yoga-slim7x-ec.patch;
+    # }
 
-    # Camera fixups
-    {
-      name = "arm64: dts: qcom: x1e80100-slim7x: align regulators with AeoB specification";
-      # See: https://gitlab.com/Linaro/arm64-laptops/linux/-/issues/9
-      patch = ./lenovo-yoga-slim7x-camera-regulators-fix.patch;
-    }
-    {
-      # Based on:
-      # https://github.com/alexVinarskis/linux-x1e80100-zenbook-a14/pull/1
-      # Apparently this option should be interpreted by userspace, so rotating
-      # in the kernel should not be needed.
-      name = "rotation = <180>;";
-      patch = ./lenovo-yoga-slim7x-camera-rotation.patch;
-    }
+    # # Camera fixups
+    # {
+    #   name = "arm64: dts: qcom: x1e80100-slim7x: align regulators with AeoB specification";
+    #   # See: https://gitlab.com/Linaro/arm64-laptops/linux/-/issues/9
+    #   patch = ./lenovo-yoga-slim7x-camera-regulators-fix.patch;
+    # }
+    # {
+    #   # Based on:
+    #   # https://github.com/alexVinarskis/linux-x1e80100-zenbook-a14/pull/1
+    #   # Apparently this option should be interpreted by userspace, so rotating
+    #   # in the kernel should not be needed.
+    #   name = "rotation = <180>;";
+    #   patch = ./lenovo-yoga-slim7x-camera-rotation.patch;
+    # }
   ];
 
   # TODO: Look into the errors and remove this.
