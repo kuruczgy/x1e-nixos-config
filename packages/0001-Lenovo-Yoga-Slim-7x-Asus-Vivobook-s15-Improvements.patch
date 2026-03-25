@@ -1,0 +1,1671 @@
+From 4c701455358def73fcb5e2ef4919481086db51a9 Mon Sep 17 00:00:00 2001
+From: UpFourAGoodTime <eakergabe9@gmail.com>
+Date: Wed, 25 Mar 2026 05:52:24 -0500
+Subject: [PATCH] Lenovo Yoga Slim 7x + Asus Vivobook s15 Improvements
+
+---
+ .../dts/qcom/x1e80100-asus-vivobook-s15.dts   | 520 +++++++++++++++++-
+ .../dts/qcom/x1e80100-lenovo-yoga-slim7x.dts  |  36 +-
+ drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c      |  83 ++-
+ .../gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c    |   6 +
+ .../gpu/drm/msm/disp/dpu1/dpu_hw_catalog.h    |   4 +
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c    |   4 +
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c   |  61 ++
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.h   |  25 +
+ drivers/hid/Kconfig                           |  14 +
+ drivers/hid/Makefile                          |   1 +
+ drivers/hid/hid-asus-vivobook-s15.c           | 360 ++++++++++++
+ drivers/platform/arm64/Kconfig                |   8 +
+ drivers/platform/arm64/Makefile               |   1 +
+ drivers/platform/arm64/qcom-x1e-it8987.c      | 158 ++++++
+ 14 files changed, 1257 insertions(+), 24 deletions(-)
+ create mode 100644 drivers/hid/hid-asus-vivobook-s15.c
+ create mode 100644 drivers/platform/arm64/qcom-x1e-it8987.c
+
+diff --git a/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts b/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts
+index d4df21de0d95..3af01710e6bf 100644
+--- a/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts
++++ b/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts
+@@ -8,6 +8,8 @@
+ 
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/input/gpio-keys.h>
++#include <dt-bindings/phy/phy.h>
++#include <dt-bindings/leds/common.h>
+ #include <dt-bindings/regulator/qcom,rpmh-regulator.h>
+ #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
+ 
+@@ -23,6 +25,71 @@ aliases {
+ 		serial1 = &uart14;
+ 	};
+ 
++	hdmi-bridge {
++		compatible = "parade,ps185hdm";
++
++		pinctrl-0 = <&hdmi_hpd_default>;
++		pinctrl-names = "default";
++
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			port@0 {
++				reg = <0>;
++
++				hdmi_bridge_dp_in: endpoint {
++					remote-endpoint = <&usb_1_ss2_qmpphy_out_dp>;
++				};
++			};
++
++			port@1 {
++				reg = <1>;
++
++				hdmi_bridge_tmds_out: endpoint {
++					remote-endpoint = <&hdmi_con>;
++				};
++			};
++		};
++	};
++
++	hdmi-connector {
++		compatible = "hdmi-connector";
++		type = "a";
++
++		port {
++			hdmi_con: endpoint {
++				remote-endpoint = <&hdmi_bridge_tmds_out>;
++			};
++		};
++	};
++
++	wcd938x: audio-codec {
++		compatible = "qcom,wcd9385-codec";
++
++		pinctrl-0 = <&wcd_default>;
++		pinctrl-names = "default";
++
++		qcom,micbias1-microvolt = <1800000>;
++		qcom,micbias2-microvolt = <1800000>;
++		qcom,micbias3-microvolt = <1800000>;
++		qcom,micbias4-microvolt = <1800000>;
++		qcom,mbhc-buttons-vthreshold-microvolt = <75000 150000 237000 500000 500000 500000 500000 500000>;
++		qcom,mbhc-headset-vthreshold-microvolt = <1700000>;
++		qcom,mbhc-headphone-vthreshold-microvolt = <50000>;
++		qcom,rx-device = <&wcd_rx>;
++		qcom,tx-device = <&wcd_tx>;
++
++		reset-gpios = <&tlmm 191 GPIO_ACTIVE_LOW>;
++
++		vdd-buck-supply = <&vreg_l15b_1p8>;
++		vdd-rxtx-supply = <&vreg_l15b_1p8>;
++		vdd-io-supply = <&vreg_l15b_1p8>;
++		vdd-mic-bias-supply = <&vreg_bob1>;
++
++		#sound-dai-cells = <1>;
++	};
++
+ 	gpio-keys {
+ 		compatible = "gpio-keys";
+ 		pinctrl-0 = <&hall_int_n_default>;
+@@ -37,6 +104,21 @@ switch-lid {
+ 		};
+ 	};
+ 
++	leds {
++		compatible = "gpio-leds";
++
++		pinctrl-0 = <&cam_indicator_en>;
++		pinctrl-names = "default";
++
++		privacy_led: privacy-led {
++			function = LED_FUNCTION_INDICATOR;
++			color = <LED_COLOR_ID_WHITE>;
++			gpios = <&tlmm 110 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++			panic-indicator;
++		};
++	};
++
+ 	pmic-glink {
+ 		compatible = "qcom,x1e80100-pmic-glink",
+ 			     "qcom,sm8550-pmic-glink",
+@@ -105,6 +187,120 @@ pmic_glink_ss1_ss_in: endpoint {
+ 		};
+ 	};
+ 
++	sound {
++		compatible = "qcom,x1e80100-sndcard";
++		model = "X1E80100-ASUS-Vivobook-S15";
++		audio-routing = "SpkrLeft IN", "WSA WSA_SPK1 OUT",
++				"SpkrRight IN", "WSA WSA_SPK2 OUT",
++				"IN1_HPHL", "HPHL_OUT",
++				"IN2_HPHR", "HPHR_OUT",
++				"AMIC2", "MIC BIAS2",
++				"VA DMIC0", "MIC BIAS3",
++				"VA DMIC1", "MIC BIAS3",
++				"VA DMIC0", "VA MIC BIAS3",
++				"VA DMIC1", "VA MIC BIAS3",
++				"TX SWR_INPUT1", "ADC2_OUTPUT";
++
++		displayport-0-dai-link {
++			link-name = "DisplayPort0 Playback";
++
++			codec {
++				sound-dai = <&mdss_dp0>;
++			};
++
++			cpu {
++				sound-dai = <&q6apmbedai DISPLAY_PORT_RX_0>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++
++		displayport-1-dai-link {
++			link-name = "DisplayPort1 Playback";
++
++			codec {
++				sound-dai = <&mdss_dp1>;
++			};
++
++			cpu {
++				sound-dai = <&q6apmbedai DISPLAY_PORT_RX_1>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++
++		va-dai-link {
++			link-name = "VA Capture";
++
++			cpu {
++				sound-dai = <&q6apmbedai VA_CODEC_DMA_TX_0>;
++			};
++
++			codec {
++				sound-dai = <&lpass_vamacro 0>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++
++		wcd-capture-dai-link {
++			link-name = "WCD Capture";
++
++			cpu {
++				sound-dai = <&q6apmbedai TX_CODEC_DMA_TX_3>;
++			};
++
++			codec {
++				sound-dai = <&wcd938x 1>, <&swr2 1>,
++					    <&lpass_txmacro 0>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++
++		wcd-playback-dai-link {
++			link-name = "WCD Playback";
++
++			cpu {
++				sound-dai = <&q6apmbedai RX_CODEC_DMA_RX_0>;
++			};
++
++			codec {
++				sound-dai = <&wcd938x 0>, <&swr1 0>,
++					    <&lpass_rxmacro 0>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++
++		wsa-dai-link {
++			link-name = "WSA Playback";
++
++			cpu {
++				sound-dai = <&q6apmbedai WSA_CODEC_DMA_RX_0>;
++			};
++
++			codec {
++				sound-dai = <&left_spkr>, <&right_spkr>,
++					    <&swr0 0>, <&lpass_wsamacro 0>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++	};
++
+ 	reserved-memory {
+ 		linux,cma {
+ 			compatible = "shared-dma-pool";
+@@ -290,6 +486,13 @@ vreg_bob2: bob2 {
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 		};
+ 
++		vreg_l1b_1p8: ldo1 {
++			regulator-name = "vreg_l1b_1p8";
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++		};
++
+ 		vreg_l2b_3p0: ldo2 {
+ 			regulator-name = "vreg_l2b_3p0";
+ 			regulator-min-microvolt = <3072000>;
+@@ -304,6 +507,21 @@ vreg_l4b_1p8: ldo4 {
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 		};
+ 
++		vreg_l7b_2p8: ldo7 {
++			regulator-name = "vreg_l7b_2p8";
++			regulator-min-microvolt = <2800000>;
++			regulator-max-microvolt = <2800000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++		};
++
++		vreg_l12b_1p2: ldo12 {
++			regulator-name = "vreg_l12b_1p2";
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <1200000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++			regulator-always-on;
++		};
++
+ 		vreg_l13b_3p0: ldo13 {
+ 			regulator-name = "vreg_l13b_3p0";
+ 			regulator-min-microvolt = <3072000>;
+@@ -335,19 +553,33 @@ regulators-1 {
+ 		vdd-l3-supply = <&vreg_s1f_0p7>;
+ 		vdd-s4-supply = <&vph_pwr>;
+ 
+-		vreg_l3c_0p8: ldo3 {
+-			regulator-name = "vreg_l3c_0p8";
+-			regulator-min-microvolt = <912000>;
+-			regulator-max-microvolt = <912000>;
+-			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+-		};
+-
+ 		vreg_s4c_1p8: smps4 {
+ 			regulator-name = "vreg_s4c_1p8";
+ 			regulator-min-microvolt = <1856000>;
+ 			regulator-max-microvolt = <2000000>;
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 		};
++
++		vreg_l1c_1p2: ldo1 {
++			regulator-name = "vreg_l1c_1p2";
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <1200000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++		};
++
++		vreg_l2c_0p8: ldo2 {
++			regulator-name = "vreg_l2c_0p8";
++			regulator-min-microvolt = <880000>;
++			regulator-max-microvolt = <880000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++		};
++
++		vreg_l3c_0p8: ldo3 {
++			regulator-name = "vreg_l3c_0p8";
++			regulator-min-microvolt = <912000>;
++			regulator-max-microvolt = <912000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++		};
+ 	};
+ 
+ 	regulators-2 {
+@@ -475,6 +707,123 @@ vreg_l3j_0p8: ldo3 {
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 		};
+ 	};
++
++	regulators-8 {
++		compatible = "qcom,pm8010-rpmh-regulators";
++		qcom,pmic-id = "m";
++
++		vdd-l1-l2-supply = <&vreg_s5j_1p2>;
++		vdd-l3-l4-supply = <&vreg_s4c_1p8>;
++		vdd-l7-supply = <&vreg_bob1>;
++
++		vreg_l1m_1p2: ldo1 {
++			regulator-name = "vreg_l1m_1p2";
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <1260000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++		};
++
++		vreg_l2m_1p2: ldo2 {
++			regulator-name = "vreg_l2m_1p2";
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <1260000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++		};
++
++		vreg_l3m_1p8: ldo3 {
++			regulator-name = "vreg_l3m_1p8";
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1900000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++		};
++
++		vreg_l4m_1p8: ldo4 {
++			regulator-name = "vreg_l4m_1p8";
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1900000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++		};
++
++		vreg_l5m_2p8: ldo5 {
++			regulator-name = "vreg_l5m_2p9";
++			regulator-min-microvolt = <2800000>;
++			regulator-max-microvolt = <3072000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++		};
++
++		vreg_l7m_2p8: ldo7 {
++			regulator-name = "vreg_l7m_2p9";
++			regulator-min-microvolt = <2800000>;
++			regulator-max-microvolt = <3072000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++		};
++	};
++};
++
++&camss {
++	status = "okay";
++
++	ports {
++		/*
++		 * port0 => csiphy0
++		 * port1 => csiphy1
++		 * port2 => csiphy2
++		 * port3 => csiphy4
++		 */
++		port@3 {
++			csiphy4_ep: endpoint@4 {
++				reg = <4>;
++				clock-lanes = <7>;
++				data-lanes = <0 1>;
++				remote-endpoint = <&ov02c10_ep>;
++			};
++		};
++	};
++};
++
++&cci1 {
++	status = "okay";
++};
++
++&cci1_i2c1 {
++	camera@36 {
++		compatible = "ovti,ov02c10";
++		reg = <0x36>;
++
++		reset-gpios = <&tlmm 237 GPIO_ACTIVE_LOW>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&cam_rgb_default>;
++
++		leds = <&privacy_led>;
++		led-names = "privacy";
++
++		clocks = <&camcc CAM_CC_MCLK4_CLK>;
++		assigned-clocks = <&camcc CAM_CC_MCLK4_CLK>;
++		assigned-clock-rates = <19200000>;
++
++		orientation = <0>; /* front facing */
++		rotation = <0>;
++
++		avdd-supply = <&vreg_l7b_2p8>;
++		dvdd-supply = <&vreg_l7b_2p8>;
++		dovdd-supply = <&vreg_l3m_1p8>;
++
++		port {
++			ov02c10_ep: endpoint {
++				data-lanes = <1 2>;
++				link-frequencies = /bits/ 64 <400000000>;
++				remote-endpoint = <&csiphy4_ep>;
++			};
++		};
++	};
++};
++
++&csiphy4 {
++	vdda-0p8-supply = <&vreg_l2c_0p8>;
++	vdda-1p2-supply = <&vreg_l1c_1p2>;
++	phy-type = <PHY_TYPE_DPHY>;
++
++	status = "okay";
+ };
+ 
+ &gpu {
+@@ -586,10 +935,51 @@ &i2c7 {
+ 	/* PS8830 USB4 Retimer? @ 0x8 */
+ };
+ 
++&iris {
++	firmware-name = "qcom/x1e80100/ASUSTeK/vivobook-s15/qcvss8380.mbn";
++	status = "okay";
++};
++
++&lpass_tlmm {
++	spkr_01_sd_n_active: spkr-01-sd-n-active-state {
++		pins = "gpio12";
++		function = "gpio";
++		drive-strength = <16>;
++		bias-disable;
++		output-low;
++	};
++};
++
++&lpass_vamacro {
++	pinctrl-0 = <&dmic01_default>;
++	pinctrl-names = "default";
++
++	vdd-micb-supply = <&vreg_l1b_1p8>;
++	qcom,dmic-sample-rate = <4800000>;
++};
++
+ &mdss {
+ 	status = "okay";
+ };
+ 
++&mdss_dp0 {
++	sound-name-prefix = "DisplayPort0";
++	status = "okay";
++};
++
++&mdss_dp0_out {
++	link-frequencies = /bits/ 64 <1620000000 2700000000 5400000000 8100000000>;
++};
++
++&mdss_dp1 {
++	sound-name-prefix = "DisplayPort1";
++	status = "okay";
++};
++
++&mdss_dp1_out {
++	link-frequencies = /bits/ 64 <1620000000 2700000000 5400000000 8100000000>;
++};
++
+ &mdss_dp3 {
+ 	/delete-property/ #sound-dai-cells;
+ 
+@@ -739,11 +1129,87 @@ &smb2360_1_eusb2_repeater {
+ 	vdd3-supply = <&vreg_l14b_3p0>;
+ };
+ 
++&swr0 {
++	status = "okay";
++
++	pinctrl-0 = <&wsa_swr_active>, <&spkr_01_sd_n_active>;
++	pinctrl-names = "default";
++
++	/* WSA8845, Left Speaker */
++	left_spkr: speaker@0,0 {
++		compatible = "sdw20217020400";
++		reg = <0 0>;
++		reset-gpios = <&lpass_tlmm 12 GPIO_ACTIVE_LOW>;
++		#sound-dai-cells = <0>;
++		sound-name-prefix = "SpkrLeft";
++		vdd-1p8-supply = <&vreg_l15b_1p8>;
++		vdd-io-supply = <&vreg_l12b_1p2>;
++		qcom,port-mapping = <1 2 3 7 10 13>;
++	};
++
++	/* WSA8845, Right Speaker */
++	right_spkr: speaker@0,1 {
++		compatible = "sdw20217020400";
++		reg = <0 1>;
++		reset-gpios = <&lpass_tlmm 12 GPIO_ACTIVE_LOW>;
++		#sound-dai-cells = <0>;
++		sound-name-prefix = "SpkrRight";
++		vdd-1p8-supply = <&vreg_l15b_1p8>;
++		vdd-io-supply = <&vreg_l12b_1p2>;
++		qcom,port-mapping = <4 5 6 7 11 13>;
++	};
++};
++
++&swr1 {
++	status = "okay";
++
++	/* WCD9385 RX */
++	wcd_rx: codec@0,4 {
++		compatible = "sdw20217010d00";
++		reg = <0 4>;
++		qcom,rx-port-mapping = <1 2 3 4 5>;
++	};
++};
++
++&swr2 {
++	status = "okay";
++
++	/* WCD9385 TX */
++	wcd_tx: codec@0,3 {
++		compatible = "sdw20217010d00";
++		reg = <0 3>;
++		qcom,tx-port-mapping = <2 2 3 4>;
++	};
++};
++
+ &tlmm {
+ 	gpio-reserved-ranges = <34 2>, /* Unused */
+ 			       <44 4>, /* SPI (TPM) */
+ 			       <238 1>; /* UFS Reset */
+ 
++	cam_indicator_en: cam-indicator-en-state {
++		pins = "gpio110";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-disable;
++	};
++
++	cam_rgb_default: cam-rgb-default-state {
++		mclk-pins {
++			pins = "gpio100";
++			function = "cam_aon";
++			drive-strength = <16>;
++			bias-disable;
++		};
++
++		reset-n-pins {
++			pins = "gpio237";
++			function = "gpio";
++			drive-strength = <2>;
++			bias-disable;
++		};
++	};
++
+ 	edp_reg_en: edp-reg-en-state {
+ 		pins = "gpio70";
+ 		function = "gpio";
+@@ -781,6 +1247,12 @@ hall_int_n_default: hall-int-n-state {
+ 		bias-disable;
+ 	};
+ 
++	hdmi_hpd_default: hdmi-hpd-default-state {
++		pins = "gpio126";
++		function = "usb2_dp";
++		bias-disable;
++	};
++
+ 	kybd_default: kybd-default-state {
+ 		pins = "gpio67";
+ 		function = "gpio";
+@@ -846,6 +1318,14 @@ tpad_default: tpad-default-state {
+ 		bias-disable;
+ 	};
+ 
++	wcd_default: wcd-reset-n-active-state {
++		pins = "gpio191";
++		function = "gpio";
++		drive-strength = <16>;
++		bias-disable;
++		output-low;
++	};
++
+ 	wcn_bt_en: wcn-bt-en-state {
+ 		pins = "gpio116";
+ 		function = "gpio";
+@@ -949,6 +1429,32 @@ &usb_1_ss1_qmpphy_out {
+ 	remote-endpoint = <&pmic_glink_ss1_ss_in>;
+ };
+ 
++&usb_1_ss2_qmpphy {
++	vdda-phy-supply = <&vreg_l2j_1p2>;
++	vdda-pll-supply = <&vreg_l2d_0p9>;
++
++	/delete-property/ mode-switch;
++	/delete-property/ orientation-switch;
++
++	status = "okay";
++
++	ports {
++		port@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			/delete-node/ endpoint;
++
++			usb_1_ss2_qmpphy_out_dp: endpoint@0 {
++				reg = <0>;
++
++				data-lanes = <3 2 1 0>;
++				remote-endpoint = <&hdmi_bridge_dp_in>;
++			};
++		};
++	};
++};
++
+ &usb_2 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts b/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts
+index 04c813f9fb87..ab60f9eca659 100644
+--- a/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts
++++ b/arch/arm64/boot/dts/qcom/x1e80100-lenovo-yoga-slim7x.dts
+@@ -553,6 +553,13 @@ vreg_l2b_3p0: ldo2 {
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 		};
+ 
++		vreg_l7b_2p8: ldo7 {
++			regulator-name = "vreg_l7b_2p8";
++			regulator-min-microvolt = <2800000>;
++			regulator-max-microvolt = <2800000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++		};
++
+ 		vreg_l8b_3p0: ldo8 {
+ 			regulator-name = "vreg_l8b_3p0";
+ 			regulator-min-microvolt = <3072000>;
+@@ -896,10 +903,11 @@ camera@36 {
+ 		assigned-clock-rates = <19200000>;
+ 
+ 		orientation = <0>; /* front facing */
++                rotation = <180>;
+ 
+-		avdd-supply = <&vreg_l7m_2p8>;
+-		dvdd-supply = <&vreg_l2m_1p2>;
+-		dovdd-supply = <&vreg_l4m_1p8>;
++		avdd-supply = <&vreg_l7b_2p8>;
++		dvdd-supply = <&vreg_l1m_1p2>;
++		dovdd-supply = <&vreg_l3m_1p8>;
+ 
+ 		port {
+ 			ov02c10_ep: endpoint {
+@@ -1065,6 +1073,22 @@ retimer_ss0_con_sbu_out: endpoint {
+ 	};
+ };
+ 
++&i2c5 {
++	clock-frequency = <400000>;
++
++	status = "okay";
++
++	embedded-controller@76 {
++		compatible = "lenovo,yoga-slim7x-ec", "qcom,x1e-it8987-ec";
++		reg = <0x76>;
++
++		interrupts-extended = <&tlmm 66 IRQ_TYPE_EDGE_FALLING>;
++
++		pinctrl-0 = <&ec_int_n_default>;
++		pinctrl-names = "default";
++	};
++};
++
+ &i2c7 {
+ 	clock-frequency = <400000>;
+ 
+@@ -1480,6 +1504,12 @@ reset-n-pins {
+ 		};
+ 	};
+ 
++	ec_int_n_default: ec-int-n-state {
++		pins = "gpio66";
++		function = "gpio";
++		bias-disable;
++	};
++
+ 	edp_reg_en: edp-reg-en-state {
+ 		pins = "gpio70";
+ 		function = "gpio";
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
+index 2d06c950e814..1713302e5f25 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
+@@ -819,12 +819,44 @@ static void _dpu_crtc_get_pcc_coeff(struct drm_crtc_state *state,
+ 	cfg->b.b = CONVERT_S3_15(ctm->matrix[8]);
+ }
+ 
++static void _dpu_crtc_get_gc_lut(struct drm_crtc_state *state,
++		struct dpu_hw_gc_lut *gc_lut)
++{
++	struct drm_color_lut *lut;
++	int i;
++	u32 val_even, val_odd;
++
++	memset(gc_lut, 0, sizeof(struct dpu_hw_gc_lut));
++
++	lut = (struct drm_color_lut *)state->gamma_lut->data;
++
++	if (!lut)
++		return;
++
++	// Hardware supports 1024 10-bit entries, packed in 512 32-bit registers
++	for (i = 0; i < PGC_TBL_LEN; i++) {
++		val_even = drm_color_lut_extract(lut[i * 2].green, 10);
++		val_odd = drm_color_lut_extract(lut[i * 2 + 1].green, 10);
++		gc_lut->c0[i] = val_even | (val_odd << 16);
++		val_even = drm_color_lut_extract(lut[i * 2].blue, 10);
++		val_odd = drm_color_lut_extract(lut[i * 2 + 1].blue, 10);
++		gc_lut->c1[i] = val_even | (val_odd << 16);
++		val_even = drm_color_lut_extract(lut[i * 2].red, 10);
++		val_odd = drm_color_lut_extract(lut[i * 2 + 1].red, 10);
++		gc_lut->c2[i] = val_even | (val_odd << 16);
++	}
++
++	// Disable 8-bit rounding mode
++	gc_lut->flags = 0;
++}
++
+ static void _dpu_crtc_setup_cp_blocks(struct drm_crtc *crtc)
+ {
+ 	struct drm_crtc_state *state = crtc->state;
+ 	struct dpu_crtc_state *cstate = to_dpu_crtc_state(crtc->state);
+ 	struct dpu_crtc_mixer *mixer = cstate->mixers;
+ 	struct dpu_hw_pcc_cfg cfg;
++	struct dpu_hw_gc_lut *gc_lut;
+ 	struct dpu_hw_ctl *ctl;
+ 	struct dpu_hw_dspp *dspp;
+ 	int i;
+@@ -837,19 +869,40 @@ static void _dpu_crtc_setup_cp_blocks(struct drm_crtc *crtc)
+ 		ctl = mixer[i].lm_ctl;
+ 		dspp = mixer[i].hw_dspp;
+ 
+-		if (!dspp || !dspp->ops.setup_pcc)
++		if (!dspp)
+ 			continue;
+ 
+-		if (!state->ctm) {
+-			dspp->ops.setup_pcc(dspp, NULL);
+-		} else {
+-			_dpu_crtc_get_pcc_coeff(state, &cfg);
+-			dspp->ops.setup_pcc(dspp, &cfg);
++		if (dspp->ops.setup_pcc) {
++			if (!state->ctm) {
++				dspp->ops.setup_pcc(dspp, NULL);
++			} else {
++				_dpu_crtc_get_pcc_coeff(state, &cfg);
++				dspp->ops.setup_pcc(dspp, &cfg);
++			}
++
++			/* stage config flush mask */
++			ctl->ops.update_pending_flush_dspp(ctl,
++				mixer[i].hw_dspp->idx, DPU_DSPP_PCC);
+ 		}
+ 
+-		/* stage config flush mask */
+-		ctl->ops.update_pending_flush_dspp(ctl,
+-			mixer[i].hw_dspp->idx, DPU_DSPP_PCC);
++		if (dspp->ops.setup_gc) {
++			if (!state->gamma_lut) {
++				dspp->ops.setup_gc(dspp, NULL);
++			} else {
++				gc_lut = kzalloc(sizeof(*gc_lut), GFP_KERNEL);
++				if (!gc_lut) {
++					DRM_ERROR("failed to allocate gc_lut\n");
++					continue;
++				}
++				_dpu_crtc_get_gc_lut(state, gc_lut);
++				dspp->ops.setup_gc(dspp, gc_lut);
++				kfree(gc_lut);
++			}
++
++			/* stage config flush mask */
++			ctl->ops.update_pending_flush_dspp(ctl,
++				mixer[i].hw_dspp->idx, DPU_DSPP_GC);
++		}
+ 	}
+ }
+ 
+@@ -1347,7 +1400,7 @@ static struct msm_display_topology dpu_crtc_get_topology(
+ 	 *
+ 	 * If DSC is enabled, use 2 LMs for 2:2:1 topology
+ 	 *
+-	 * Add dspps to the reservation requirements if ctm is requested
++	 * Add dspps to the reservation requirements if ctm or gamma_lut are requested
+ 	 *
+ 	 * Only hardcode num_lm to 2 for cases where num_intf == 2 and CWB is not
+ 	 * enabled. This is because in cases where CWB is enabled, num_intf will
+@@ -1366,7 +1419,7 @@ static struct msm_display_topology dpu_crtc_get_topology(
+ 	else
+ 		topology.num_lm = 1;
+ 
+-	if (crtc_state->ctm)
++	if (crtc_state->ctm || crtc_state->gamma_lut)
+ 		topology.num_dspp = topology.num_lm;
+ 
+ 	return topology;
+@@ -1478,7 +1531,7 @@ static int dpu_crtc_atomic_check(struct drm_crtc *crtc,
+ 	bool needs_dirtyfb = dpu_crtc_needs_dirtyfb(crtc_state);
+ 
+ 	/* don't reallocate resources if only ACTIVE has beeen changed */
+-	if (crtc_state->mode_changed || crtc_state->connectors_changed) {
++	if (crtc_state->mode_changed || crtc_state->connectors_changed || crtc_state->color_mgmt_changed) {
+ 		rc = dpu_crtc_assign_resources(crtc, crtc_state);
+ 		if (rc < 0)
+ 			return rc;
+@@ -1841,8 +1894,10 @@ struct drm_crtc *dpu_crtc_init(struct drm_device *dev, struct drm_plane *plane,
+ 
+ 	drm_crtc_helper_add(crtc, &dpu_crtc_helper_funcs);
+ 
+-	if (dpu_kms->catalog->dspp_count)
+-		drm_crtc_enable_color_mgmt(crtc, 0, true, 0);
++	if (dpu_kms->catalog->dspp_count) {
++		drm_mode_crtc_set_gamma_size(crtc, DPU_GAMMA_LUT_SIZE);
++		drm_crtc_enable_color_mgmt(crtc, 0, true, DPU_GAMMA_LUT_SIZE);
++	}
+ 
+ 	/* save user friendly CRTC name for later */
+ 	snprintf(dpu_crtc->name, DPU_CRTC_NAME_SIZE, "crtc%u", crtc->base.id);
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+index 23bb39b471b7..3aafbe04b966 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+@@ -382,16 +382,22 @@ static const struct dpu_lm_sub_blks qcm2290_lm_sblk = {
+ static const struct dpu_dspp_sub_blks msm8998_dspp_sblk = {
+ 	.pcc = {.name = "pcc", .base = 0x1700,
+ 		.len = 0x90, .version = 0x10007},
++	.gc = {.name = "gc", .base = 0x17c0,
++		.len = 0x90, .version = 0x10007},
+ };
+ 
+ static const struct dpu_dspp_sub_blks sdm845_dspp_sblk = {
+ 	.pcc = {.name = "pcc", .base = 0x1700,
+ 		.len = 0x90, .version = 0x40000},
++	.gc = {.name = "gc", .base = 0x17c0,
++		.len = 0x90, .version = 0x40000},
+ };
+ 
+ static const struct dpu_dspp_sub_blks sm8750_dspp_sblk = {
+ 	.pcc = {.name = "pcc", .base = 0x1700,
+ 		.len = 0x90, .version = 0x60000},
++	.gc = {.name = "gc", .base = 0x17c0,
++		.len = 0x90, .version = 0x60000},
+ };
+ 
+ /*************************************************************
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.h b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.h
+index 4964e70610d1..ec2ffb8a3c41 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.h
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.h
+@@ -77,9 +77,11 @@ enum {
+ /**
+  * DSPP sub-blocks
+  * @DPU_DSPP_PCC             Panel color correction block
++ * @DPU_DSPP_GC              Gamma correction block
+  */
+ enum {
+ 	DPU_DSPP_PCC = 0x1,
++	DPU_DSPP_GC,
+ 	DPU_DSPP_MAX
+ };
+ 
+@@ -314,9 +316,11 @@ struct dpu_lm_sub_blks {
+ /**
+  * struct dpu_dspp_sub_blks: Information of DSPP block
+  * @pcc: pixel color correction block
++ * @gc: gamma correction block
+  */
+ struct dpu_dspp_sub_blks {
+ 	struct dpu_pp_blk pcc;
++	struct dpu_pp_blk gc;
+ };
+ 
+ struct dpu_pingpong_sub_blks {
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c
+index ac834db2e4c1..e2268d2125d9 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c
+@@ -3,6 +3,7 @@
+  * Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc. All rights reserved.
+  */
+ 
++#include <linux/bug.h>
+ #include <linux/delay.h>
+ 
+ #include <drm/drm_managed.h>
+@@ -399,6 +400,9 @@ static void dpu_hw_ctl_update_pending_flush_dspp_sub_blocks(
+ 	case DPU_DSPP_PCC:
+ 		ctx->pending_dspp_flush_mask[dspp - DSPP_0] |= BIT(4);
+ 		break;
++	case DPU_DSPP_GC:
++		ctx->pending_dspp_flush_mask[dspp - DSPP_0] |= BIT(5);
++		break;
+ 	default:
+ 		return;
+ 	}
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c
+index 54b20faa0b69..ad9fefad93b4 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c
+@@ -3,6 +3,7 @@
+  */
+ 
+ #include <drm/drm_managed.h>
++#include <drm/drm_print.h>
+ 
+ #include "dpu_hwio.h"
+ #include "dpu_hw_catalog.h"
+@@ -24,6 +25,18 @@
+ #define PCC_BLUE_G_OFF 0x24
+ #define PCC_BLUE_B_OFF 0x30
+ 
++/* DSPP_GC */
++#define GC_EN BIT(0)
++#define GC_DIS 0
++#define GC_8B_ROUND_EN BIT(1)
++#define GC_LUT_SWAP_OFF 0x1c
++#define GC_C0_OFF 0x4
++#define GC_C1_OFF 0xC
++#define GC_C2_OFF 0x14
++#define GC_C0_INDEX_OFF 0x8
++#define GC_C1_INDEX_OFF 0x10
++#define GC_C2_INDEX_OFF 0x18
++
+ static void dpu_setup_dspp_pcc(struct dpu_hw_dspp *ctx,
+ 		struct dpu_hw_pcc_cfg *cfg)
+ {
+@@ -63,6 +76,52 @@ static void dpu_setup_dspp_pcc(struct dpu_hw_dspp *ctx,
+ 	DPU_REG_WRITE(&ctx->hw, base, PCC_EN);
+ }
+ 
++static void dpu_setup_dspp_gc(struct dpu_hw_dspp *ctx,
++		struct dpu_hw_gc_lut *gc_lut)
++{
++	int i = 0;
++	u32 base, reg;
++
++	if (!ctx) {
++		DRM_ERROR("invalid ctx %pK\n", ctx);
++		return;
++	}
++
++	base = ctx->cap->sblk->gc.base;
++
++	if (!base) {
++		DRM_ERROR("invalid ctx %pK gc base 0x%x\n", ctx, base);
++		return;
++	}
++
++	if (!gc_lut) {
++		DRM_DEBUG_DRIVER("disable gc feature\n");
++		DPU_REG_WRITE(&ctx->hw, base, GC_DIS);
++		return;
++	}
++
++	// Initialize index
++	reg = 0;
++	DPU_REG_WRITE(&ctx->hw, base + GC_C0_INDEX_OFF, reg);
++	DPU_REG_WRITE(&ctx->hw, base + GC_C1_INDEX_OFF, reg);
++	DPU_REG_WRITE(&ctx->hw, base + GC_C2_INDEX_OFF, reg);
++
++	// Write LUT data for each channel
++	for (i = 0; i < PGC_TBL_LEN; i++) {
++		DPU_REG_WRITE(&ctx->hw, base + GC_C0_OFF, gc_lut->c0[i]);
++		DPU_REG_WRITE(&ctx->hw, base + GC_C1_OFF, gc_lut->c1[i]);
++		DPU_REG_WRITE(&ctx->hw, base + GC_C2_OFF, gc_lut->c2[i]);
++	}
++
++	// Enable LUT swap
++	reg = BIT(0);
++	DPU_REG_WRITE(&ctx->hw, base + GC_LUT_SWAP_OFF, reg);
++
++	// Enable gamma correction
++	reg = GC_EN | ((gc_lut->flags & PGC_8B_ROUND) ? GC_8B_ROUND_EN : 0);
++	DPU_REG_WRITE(&ctx->hw, base, reg);
++}
++
+ /**
+  * dpu_hw_dspp_init() - Initializes the DSPP hw driver object.
+  * should be called once before accessing every DSPP.
+@@ -92,6 +151,8 @@ struct dpu_hw_dspp *dpu_hw_dspp_init(struct drm_device *dev,
+ 	c->cap = cfg;
+ 	if (c->cap->sblk->pcc.base)
+ 		c->ops.setup_pcc = dpu_setup_dspp_pcc;
++	if (c->cap->sblk->gc.base)
++		c->ops.setup_gc = dpu_setup_dspp_gc;
+ 
+ 	return c;
+ }
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.h b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.h
+index 722b0f482e9b..368d1aa5a7d6 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.h
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.h
+@@ -33,6 +33,24 @@ struct dpu_hw_pcc_cfg {
+ 	struct dpu_hw_pcc_coeff b;
+ };
+ 
++#define DPU_GAMMA_LUT_SIZE 1024
++#define PGC_TBL_LEN 512
++#define PGC_8B_ROUND (1 << 0)
++/**
++ * struct dpu_hw_gc_lut - gc lut feature structure
++ * @flags: flags for the feature values can be:
++ *         - PGC_8B_ROUND
++ * @c0: color0 component lut
++ * @c1: color1 component lut
++ * @c2: color2 component lut
++ */
++struct dpu_hw_gc_lut {
++	__u64 flags;
++	__u32 c0[PGC_TBL_LEN];
++	__u32 c1[PGC_TBL_LEN];
++	__u32 c2[PGC_TBL_LEN];
++};
++
+ /**
+  * struct dpu_hw_dspp_ops - interface to the dspp hardware driver functions
+  * Caller must call the init function to get the dspp context for each dspp
+@@ -46,6 +64,13 @@ struct dpu_hw_dspp_ops {
+ 	 */
+ 	void (*setup_pcc)(struct dpu_hw_dspp *ctx, struct dpu_hw_pcc_cfg *cfg);
+ 
++	/**
++	 * setup_gc - setup dspp gc
++	 * @ctx: Pointer to dspp context
++	 * @gc_lut: Pointer to lut content
++	 */
++	void (*setup_gc)(struct dpu_hw_dspp *ctx, struct dpu_hw_gc_lut *gc_lut);
++
+ };
+ 
+ /**
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 920a64b66b25..0fb746bfa736 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -202,6 +202,20 @@ config HID_ASUS
+ 	- GL553V series
+ 	- GL753V series
+ 
++config HID_ASUS_VIVOBOOK_S15
++	tristate "ASUS Vivobook S15 S5507 keyboard"
++	help
++	  Say Y or M here if you have the ASUS Vivobook S15 S5507 laptop.
++
++	  This driver adds support for the special function keys on the
++	  built-in I2C keyboard, including backlight control, Fn-Lock, and
++	  remapping of brightness keys.
++
++	  Without this driver, the special keys will not work.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called hid-asus-vivobook-s15.
++
+ config HID_AUREAL
+ 	tristate "Aureal"
+ 	help
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 361a7daedeb8..7f287d1d7931 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -34,6 +34,7 @@ obj-$(CONFIG_HID_APPLETB_BL)	+= hid-appletb-bl.o
+ obj-$(CONFIG_HID_APPLETB_KBD)	+= hid-appletb-kbd.o
+ obj-$(CONFIG_HID_CREATIVE_SB0540)	+= hid-creative-sb0540.o
+ obj-$(CONFIG_HID_ASUS)		+= hid-asus.o
++obj-$(CONFIG_HID_ASUS_VIVOBOOK_S15)	+= hid-asus-vivobook-s15.o
+ obj-$(CONFIG_HID_AUREAL)	+= hid-aureal.o
+ obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
+ obj-$(CONFIG_HID_BETOP_FF)	+= hid-betopff.o
+diff --git a/drivers/hid/hid-asus-vivobook-s15.c b/drivers/hid/hid-asus-vivobook-s15.c
+new file mode 100644
+index 000000000000..cab1c38c257e
+--- /dev/null
++++ b/drivers/hid/hid-asus-vivobook-s15.c
+@@ -0,0 +1,360 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * HID driver for ASUS Vivobook S15 S5507 Keyboard
++ *
++ * Copyright (c) 2024 Elliot Huang (keep.it.sns@gmail.com)
++ *
++ * This driver handles special function keys for keyboard backlight control,
++ * Fn-Lock, and re-maps certain vendor-specific keys to standard consumer
++ * control usages (e.g., display brightness). It also handles suspend and
++ * resume by turning off the backlight on suspend and restoring the full
++ * device state on resume.
++ */
++
++#include <linux/hid.h>
++#include <linux/module.h>
++#include <linux/workqueue.h>
++#include <linux/atomic.h>
++#include <linux/leds.h>
++
++#define VID_ASUS 0x0B05
++#define PID_VIVOBOOK_S15_S5507_KEYBOARD 0x4543
++
++/*
++ * The device sends vendor-specific reports with ID 0x5A for special keys.
++ * We intercept these and either schedule work or remap them to standard
++ * reports.
++ */
++#define ASUS_VENDOR_REPORT_ID 0x5A
++
++/* Key codes from vendor report */
++#define VENDOR_KEY_FNLOCK 0x4E
++#define VENDOR_KEY_BACKLIGHT 0xC7
++#define VENDOR_KEY_BRIGHTNESS_DOWN 0x10
++#define VENDOR_KEY_BRIGHTNESS_UP 0x20
++#define VENDOR_KEY_RELEASE 0x00
++
++/*
++ * We remap brightness keys to a custom report with ID 0x37, which the
++ * device's report descriptor seems to handle as consumer control.
++ */
++#define CONSUMER_REPORT_ID 0x37
++#define CONSUMER_USAGE_BRIGHTNESS_DOWN 0x70
++#define CONSUMER_USAGE_BRIGHTNESS_UP 0x6F
++#define CONSUMER_USAGE_RELEASE 0x00
++
++enum work_type {
++	WORK_TYPE_INIT,
++	WORK_TYPE_BACKLIGHT,
++	WORK_TYPE_FNLOCK,
++};
++
++struct vivobook_s15_kbd {
++	struct hid_device *hdev;
++	struct work_struct work;
++
++	/* Bitmask of pending work items */
++	atomic_t pending_work;
++
++	/* Device state */
++	u8 backlight_brightness;
++	bool fn_lock_state;
++
++	/* State for remapping key-up events */
++	bool remap_next_keyup;
++
++	/* LED Class device for keyboard backlight */
++	struct led_classdev kbd_backlight;
++};
++
++/*
++ * The following functions send HID_FEATURE_REPORT commands to the device.
++ * They return 0 on success, or a negative error code on failure.
++ */
++static int set_init_unk_1(struct hid_device *hdev)
++{
++	u8 *buf;
++	int ret;
++
++	buf = kzalloc(64, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	buf[0] = 0x5A;
++	buf[1] = 0x05;
++	buf[2] = 0x20;
++	buf[3] = 0x31;
++	buf[4] = 0x00;
++	buf[5] = 0x08;
++
++	ret = hid_hw_raw_request(hdev, 0x5A, buf, 64, HID_FEATURE_REPORT,
++				 HID_REQ_SET_REPORT);
++	kfree(buf);
++	return ret < 0 ? ret : 0;
++}
++
++static int set_init_unk_2(struct hid_device *hdev)
++{
++	u8 *buf;
++	int ret;
++
++	buf = kzalloc(64, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	buf[0] = 0x5A;
++	buf[1] = 0xD0;
++	buf[2] = 0x8F;
++	buf[3] = 0x01;
++
++	ret = hid_hw_raw_request(hdev, 0x5A, buf, 64, HID_FEATURE_REPORT,
++				 HID_REQ_SET_REPORT);
++	kfree(buf);
++	return ret < 0 ? ret : 0;
++}
++
++static int set_brightness(struct hid_device *hdev, u8 brightness)
++{
++	u8 *buf;
++	int ret;
++
++	buf = kzalloc(64, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	buf[0] = 0x5A;
++	buf[1] = 0xBA;
++	buf[2] = 0xC5;
++	buf[3] = 0xC4;
++	buf[4] = brightness;
++
++	ret = hid_hw_raw_request(hdev, 0x5A, buf, 64, HID_FEATURE_REPORT,
++				 HID_REQ_SET_REPORT);
++	kfree(buf);
++	return ret < 0 ? ret : 0;
++}
++
++static int set_fn_lock(struct hid_device *hdev, bool fn_lock)
++{
++	u8 *buf;
++	int ret;
++
++	buf = kzalloc(64, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	buf[0] = 0x5A;
++	buf[1] = 0xD0;
++	buf[2] = 0x4E;
++	buf[3] = fn_lock;
++
++	ret = hid_hw_raw_request(hdev, 0x5A, buf, 64, HID_FEATURE_REPORT,
++				 HID_REQ_SET_REPORT);
++	kfree(buf);
++	return ret < 0 ? ret : 0;
++}
++
++static int vivobook_s15_kbd_bl_set(struct led_classdev *led_cdev,
++				   enum led_brightness brightness)
++{
++	struct vivobook_s15_kbd *priv =
++		container_of(led_cdev, struct vivobook_s15_kbd, kbd_backlight);
++	int ret;
++
++	ret = set_brightness(priv->hdev, brightness);
++	if (ret == 0)
++		priv->backlight_brightness = brightness;
++	return ret;
++}
++
++static enum led_brightness
++vivobook_s15_kbd_bl_get(struct led_classdev *led_cdev)
++{
++	struct vivobook_s15_kbd *priv =
++		container_of(led_cdev, struct vivobook_s15_kbd, kbd_backlight);
++	return priv->backlight_brightness;
++}
++
++static void vivobook_s15_work_handler(struct work_struct *work)
++{
++	struct vivobook_s15_kbd *priv =
++		container_of(work, struct vivobook_s15_kbd, work);
++	struct hid_device *hdev = priv->hdev;
++	int ret;
++
++	if (test_and_clear_bit(WORK_TYPE_BACKLIGHT,
++			       (void *)&priv->pending_work)) {
++		u8 new_brightness = (priv->backlight_brightness + 1);
++		if (new_brightness > 3)
++			new_brightness = 0;
++		led_set_brightness_sync(&priv->kbd_backlight, new_brightness);
++	}
++
++	if (test_and_clear_bit(WORK_TYPE_FNLOCK, (void *)&priv->pending_work)) {
++		bool new_fn_lock = !priv->fn_lock_state;
++
++		ret = set_fn_lock(hdev, new_fn_lock);
++		if (ret == 0)
++			priv->fn_lock_state = new_fn_lock;
++		else
++			dev_err(&hdev->dev, "Failed to set Fn-Lock: %d\n", ret);
++	}
++
++	if (test_and_clear_bit(WORK_TYPE_INIT, (void *)&priv->pending_work)) {
++		dev_info(&hdev->dev, "Initializing keyboard\n");
++		set_init_unk_1(hdev);
++		set_init_unk_2(hdev);
++		led_set_brightness_sync(&priv->kbd_backlight,
++					priv->backlight_brightness);
++		set_fn_lock(hdev, priv->fn_lock_state);
++	}
++}
++
++static void schedule_vivobook_work(struct vivobook_s15_kbd *priv,
++				   enum work_type type)
++{
++	set_bit(type, (void *)&priv->pending_work);
++	schedule_work(&priv->work);
++}
++
++static int remap_to_consumer_control(struct vivobook_s15_kbd *priv, u8 *data,
++				     u8 code)
++{
++	data[0] = CONSUMER_REPORT_ID;
++	data[1] = code;
++	data[2] = 0x00;
++
++	priv->remap_next_keyup = (code != CONSUMER_USAGE_RELEASE);
++	return 3; /* New report size is 3 bytes */
++}
++
++static int vivobook_s15_raw_event(struct hid_device *hdev,
++				  struct hid_report *report, u8 *data, int size)
++{
++	struct vivobook_s15_kbd *priv = hid_get_drvdata(hdev);
++
++	/* We are only interested in vendor-defined input reports */
++	if (report->type != HID_INPUT_REPORT ||
++	    data[0] != ASUS_VENDOR_REPORT_ID)
++		return 0;
++
++	/* The vendor report for special keys is 6 bytes long */
++	if (size != 6)
++		return 0;
++
++	switch (data[1]) {
++	case VENDOR_KEY_FNLOCK:
++		schedule_vivobook_work(priv, WORK_TYPE_FNLOCK);
++		break;
++	case VENDOR_KEY_BACKLIGHT:
++		schedule_vivobook_work(priv, WORK_TYPE_BACKLIGHT);
++		break;
++	case VENDOR_KEY_BRIGHTNESS_DOWN:
++		return remap_to_consumer_control(
++			priv, data, CONSUMER_USAGE_BRIGHTNESS_DOWN);
++	case VENDOR_KEY_BRIGHTNESS_UP:
++		return remap_to_consumer_control(priv, data,
++						 CONSUMER_USAGE_BRIGHTNESS_UP);
++	case VENDOR_KEY_RELEASE:
++		if (priv->remap_next_keyup)
++			return remap_to_consumer_control(
++				priv, data, CONSUMER_USAGE_RELEASE);
++		break;
++	default:
++		/* Let unhandled vendor keys pass through if needed, or drop them */
++		break;
++	}
++
++	/* Drop the original vendor report, as we have handled it. */
++	return 0;
++}
++
++static void vivobook_s15_stop_hw(void *data)
++{
++	struct hid_device *hdev = data;
++
++	hid_hw_stop(hdev);
++}
++
++static int vivobook_s15_probe(struct hid_device *hdev,
++			      const struct hid_device_id *id)
++{
++	struct vivobook_s15_kbd *priv;
++	int ret;
++
++	priv = devm_kzalloc(&hdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	priv->hdev = hdev;
++	hid_set_drvdata(hdev, priv);
++
++	/* Set initial default state */
++	priv->backlight_brightness = 1;
++	priv->fn_lock_state = false;
++	priv->remap_next_keyup = false;
++
++	atomic_set(&priv->pending_work, 0);
++	INIT_WORK(&priv->work, vivobook_s15_work_handler);
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		dev_err(&hdev->dev, "hid_parse failed: %d\n", ret);
++		return ret;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		dev_err(&hdev->dev, "hid_hw_start failed: %d\n", ret);
++		return ret;
++	}
++
++	ret = devm_add_action_or_reset(&hdev->dev, vivobook_s15_stop_hw, hdev);
++	if (ret)
++		return ret;
++
++	priv->kbd_backlight.name = "asus::kbd_backlight";
++	priv->kbd_backlight.max_brightness = 3;
++	priv->kbd_backlight.brightness_set_blocking = vivobook_s15_kbd_bl_set;
++	priv->kbd_backlight.brightness_get = vivobook_s15_kbd_bl_get;
++	priv->kbd_backlight.flags = LED_BRIGHT_HW_CHANGED;
++
++	ret = devm_led_classdev_register(&hdev->dev, &priv->kbd_backlight);
++	if (ret) {
++		dev_err(&hdev->dev,
++			"Failed to register kbd_backlight LED: %d\n", ret);
++		return ret;
++	}
++
++	/* Schedule work to perform initial setup */
++	schedule_vivobook_work(priv, WORK_TYPE_INIT);
++
++	return 0;
++}
++
++static void vivobook_s15_remove(struct hid_device *hdev)
++{
++	struct vivobook_s15_kbd *priv = hid_get_drvdata(hdev);
++
++	cancel_work_sync(&priv->work);
++	/* hid_hw_stop() is handled by devm action */
++}
++
++static const struct hid_device_id vivobook_s15_kbd_id_table[] = {
++	{ HID_I2C_DEVICE(VID_ASUS, PID_VIVOBOOK_S15_S5507_KEYBOARD) },
++	{} /* Terminating entry */
++};
++MODULE_DEVICE_TABLE(hid, vivobook_s15_kbd_id_table);
++
++static struct hid_driver vivobook_s15_kbd_driver = {
++	.name = "hid-asus-vivobook-s15",
++	.id_table = vivobook_s15_kbd_id_table,
++	.probe = vivobook_s15_probe,
++	.remove = vivobook_s15_remove,
++	.raw_event = vivobook_s15_raw_event,
++};
++module_hid_driver(vivobook_s15_kbd_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Elliot Huang <keep.it.sns@gmail.com>");
++MODULE_DESCRIPTION("HID driver for ASUS Vivobook S15 S5507 Keyboard");
+diff --git a/drivers/platform/arm64/Kconfig b/drivers/platform/arm64/Kconfig
+index 10f905d7d6bf..e429968e2963 100644
+--- a/drivers/platform/arm64/Kconfig
++++ b/drivers/platform/arm64/Kconfig
+@@ -90,4 +90,12 @@ config EC_LENOVO_THINKPAD_T14S
+ 
+ 	  Say M or Y here to include this support.
+ 
++config EC_QCOM_X1E_IT8987
++	tristate "Embedded Controller driver for most X1E80100 laptops"
++	depends on ARCH_QCOM || COMPILE_TEST
++	depends on I2C
++	help
++	  This driver currently supports reporting device suspend to the EC so it
++	  can take appropriate actions.
++
+ endif # ARM64_PLATFORM_DEVICES
+diff --git a/drivers/platform/arm64/Makefile b/drivers/platform/arm64/Makefile
+index 60c131cff6a1..51a560c3fa61 100644
+--- a/drivers/platform/arm64/Makefile
++++ b/drivers/platform/arm64/Makefile
+@@ -9,3 +9,4 @@ obj-$(CONFIG_EC_ACER_ASPIRE1)	+= acer-aspire1-ec.o
+ obj-$(CONFIG_EC_HUAWEI_GAOKUN)	+= huawei-gaokun-ec.o
+ obj-$(CONFIG_EC_LENOVO_YOGA_C630) += lenovo-yoga-c630.o
+ obj-$(CONFIG_EC_LENOVO_THINKPAD_T14S) += lenovo-thinkpad-t14s.o
++obj-$(CONFIG_EC_QCOM_X1E_IT8987) += qcom-x1e-it8987.o
+diff --git a/drivers/platform/arm64/qcom-x1e-it8987.c b/drivers/platform/arm64/qcom-x1e-it8987.c
+new file mode 100644
+index 000000000000..d27067d6326a
+--- /dev/null
++++ b/drivers/platform/arm64/qcom-x1e-it8987.c
+@@ -0,0 +1,158 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (c) 2024 Maya Matuszczyk <maccraft123mc@gmail.com>
++ */
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/input/sparse-keymap.h>
++
++#define EC_IRQ_REASON_REG 0x05
++#define EC_SUSPEND_RESUME_REG 0x23
++#define EC_IRQ_ENABLE_REG 0x35
++
++#define EC_NOTIFY_SUSPEND_ENTER 0x01
++#define EC_NOTIFY_SUSPEND_EXIT 0x00
++#define EC_NOTIFY_SCREEN_OFF 0x03
++#define EC_NOTIFY_SCREEN_ON 0x04
++
++#define EC_IRQ_MICMUTE_BUTTON 0x04
++#define EC_IRQ_FAN1_STATUS_CHANGE 0x30
++#define EC_IRQ_FAN2_STATUS_CHANGE 0x31
++#define EC_IRQ_FAN1_SPEED_CHANGE 0x32
++#define EC_IRQ_FAN2_SPEED_CHANGE 0x33
++#define EC_IRQ_COMPLETED_LUT_UPDATE 0x34
++#define EC_IRQ_COMPLETED_FAN_PROFILE_SWITCH 0x35
++#define EC_IRQ_THERMISTOR_1_TEMP_THRESHOLD_CROSS 0x36
++#define EC_IRQ_THERMISTOR_2_TEMP_THRESHOLD_CROSS 0x37
++#define EC_IRQ_THERMISTOR_3_TEMP_THRESHOLD_CROSS 0x38
++#define EC_IRQ_THERMISTOR_4_TEMP_THRESHOLD_CROSS 0x39
++#define EC_IRQ_THERMISTOR_5_TEMP_THRESHOLD_CROSS 0x3a
++#define EC_IRQ_THERMISTOR_6_TEMP_THRESHOLD_CROSS 0x3b
++#define EC_IRQ_THERMISTOR_7_TEMP_THRESHOLD_CROSS 0x3c
++#define EC_IRQ_RECOVERED_FROM_RESET 0x3d
++
++struct qcom_x1e_it8987_ec {
++	struct i2c_client *client;
++	struct input_dev *idev;
++	struct mutex lock;
++};
++
++static irqreturn_t qcom_x1e_it8987_ec_irq(int irq, void *data)
++{
++	struct qcom_x1e_it8987_ec *ec = data;
++	struct device *dev = &ec->client->dev;
++	int val;
++
++	guard(mutex)(&ec->lock);
++
++	val = i2c_smbus_read_byte_data(ec->client, EC_IRQ_REASON_REG);
++	if (val < 0) {
++		dev_err(dev, "Failed to get EC IRQ reason: %d\n", val);
++		return IRQ_HANDLED;
++	}
++
++	dev_info(dev, "Unhandled EC IRQ reason: %d\n", val);
++
++	return IRQ_HANDLED;
++}
++
++static int qcom_x1e_it8987_ec_probe(struct i2c_client *client)
++{
++	struct device *dev = &client->dev;
++	struct qcom_x1e_it8987_ec *ec;
++	int ret;
++
++	ec = devm_kzalloc(dev, sizeof(*ec), GFP_KERNEL);
++	if (!ec)
++		return -ENOMEM;
++
++	mutex_init(&ec->lock);
++	ec->client = client;
++
++	ret = devm_request_threaded_irq(dev, client->irq,
++					NULL, qcom_x1e_it8987_ec_irq,
++					IRQF_ONESHOT, "qcom_x1e_it8987_ec", ec);
++	if (ret < 0)
++		return dev_err_probe(dev, ret, "Unable to request irq\n");
++
++	ret = i2c_smbus_write_byte_data(client, EC_IRQ_ENABLE_REG, 0x01);
++	if (ret < 0)
++		return dev_err_probe(dev, ret, "Failed to enable interrupts\n");
++
++	return 0;
++}
++
++static void qcom_x1e_it8987_ec_remove(struct i2c_client *client)
++{
++	struct device *dev = &client->dev;
++	int ret;
++
++	ret = i2c_smbus_write_byte_data(client, EC_IRQ_ENABLE_REG, 0x00);
++	if (ret < 0)
++		dev_err(dev, "Failed to disable interrupts: %d\n", ret);
++}
++
++static int qcom_x1e_it8987_ec_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int ret;
++
++	ret = i2c_smbus_write_byte_data(client, EC_SUSPEND_RESUME_REG, EC_NOTIFY_SCREEN_OFF);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, EC_SUSPEND_RESUME_REG, EC_NOTIFY_SUSPEND_ENTER);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++static int qcom_x1e_it8987_ec_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int ret;
++
++	ret = i2c_smbus_write_byte_data(client, EC_SUSPEND_RESUME_REG, EC_NOTIFY_SUSPEND_EXIT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, EC_SUSPEND_RESUME_REG, EC_NOTIFY_SCREEN_ON);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++static const struct of_device_id qcom_x1e_it8987_ec_of_match[] = {
++	{ .compatible = "lenovo,yoga-slim7x-ec" },
++	{ .compatible = "qcom,x1e-it9897-ec" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, qcom_x1e_it8987_ec_of_match);
++
++static const struct i2c_device_id qcom_x1e_it8987_ec_i2c_id_table[] = {
++	{ "qcom-x1e-it8987-ec", },
++	{}
++};
++MODULE_DEVICE_TABLE(i2c, qcom_x1e_it8987_ec_i2c_id_table);
++
++static DEFINE_SIMPLE_DEV_PM_OPS(qcom_x1e_it8987_ec_pm_ops,
++		qcom_x1e_it8987_ec_suspend,
++		qcom_x1e_it8987_ec_resume);
++
++static struct i2c_driver qcom_x1e_it8987_ec_i2c_driver = {
++	.driver = {
++		.name = "yoga-slim7x-ec",
++		.of_match_table = qcom_x1e_it8987_ec_of_match,
++		.pm = &qcom_x1e_it8987_ec_pm_ops
++	},
++	.probe = qcom_x1e_it8987_ec_probe,
++	.remove = qcom_x1e_it8987_ec_remove,
++	.id_table = qcom_x1e_it8987_ec_i2c_id_table,
++};
++module_i2c_driver(qcom_x1e_it8987_ec_i2c_driver);
++
++MODULE_DESCRIPTION("Lenovo Yoga Slim 7x Embedded Controller");
++MODULE_LICENSE("GPL");
+-- 
+2.51.2
+
