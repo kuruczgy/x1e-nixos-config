@@ -1,6 +1,6 @@
 {
   lib,
-  fetchFromGitHub,
+  fetchFromGitLab,
   buildLinux,
   linuxPackagesFor,
   fetchpatch,
@@ -9,61 +9,114 @@
   ...
 }:
 
+# 19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb        git cherry-pick --empty=drop 63804fed149a6750ffd28610c5c1c98cce6bd377..19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb
+# --depth 106
 linuxPackagesFor (buildLinux {
-  src = fetchFromGitHub {
-    owner = "torvalds";
-    repo = "linux";
-    tag = "v6.19";
+  src = fetchFromGitLab {
+    owner = "Linaro";
+    repo = "arm64-laptops/linux";
+    rev = "657f472a0385e2c2bfb7310ed11f4483f73255e2";
     forceFetchGit = true;
     nativeBuildInputs = [ b4 ];
-    preFetch = "export ${lib.toShellVar "NIX_PREFETCH_GIT_CHECKOUT_HOOK" ''
-      pushd "$dir"
-      git config user.name "nix"
-      git config user.email "nix"
+    # preFetch = "export ${lib.toShellVar "NIX_PREFETCH_GIT_CHECKOUT_HOOK" ''
+    #   pushd "$dir"
+    #   git config user.name "nix"
+    #   git config user.email "nix"
 
-      git fetch 'https://gitlab.com/Linaro/arm64-laptops/linux.git' --depth 106 19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb
-      git cherry-pick --empty=drop 63804fed149a6750ffd28610c5c1c98cce6bd377..19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb
+    #   git fetch 'https://gitlab.com/Linaro/arm64-laptops/linux.git'
 
-      # Collect some stats
-      du -sh .git
+    #   # Collect some stats
+    #   du -sh .git
 
-      popd
-    ''}";
+    #   popd
+    # ''}";
 
-    hash = "sha256-qElJ642reD/NX63qEBNDgFFVBWxO0zqQxWXDFHeqJu0=";
+    hash = "sha256-CQ+J5LFcswtmRb2Z/jIuVppKoDCWWursapNNLH/qXS8=";
   };
-  version = "6.19.0";
+  version = "6.19.0-rc7";
 
   kernelPatches = [
     {
-      name = "Add slim7x EC driver";
-      # From: https://lore.kernel.org/lkml/20241219200821.8328-1-maccraft123mc@gmail.com/
-      patch = ./lenovo-yoga-slim7x-ec.patch;
+      name = "Lenovo Yoga Slim 7x + Asus Vivobook s15 Improvements (All old patches -Vivobook S15 wip EC driver)";
+      patch = ./0001-Lenovo-Yoga-Slim-7x-Asus-Vivobook-s15-Improvements.patch;
     }
+    # {
+    #   name = "drm/dpu: Add support for DSPP GC block to enable Gamma LUT capability";
+    #   patch = fetchurl {
+    #     name = "9ee91c5748e83772dc3660077f9f415a453eeace.patch";
+    #     url = "file://${./gamma-lut.patch}";
+    #     hash = "sha256-tz82YWVkEShCj7HVJXi7KlyG3gmR+yjYcvS4JMch+sU=";
+    #   };
+    # }
+    # {
+    #   name = "Fix Compile Error";
+    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
+    #   patch = ./fix-compile-error-tools-lib-bpf-libbpf.patch;
+    # }
+    # {
+    #   name = "Sync From sm8750";
+    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
+    #   patch = ./dts-qcom-x1e80100-sync-from-sm8750.patch;
+    # }
 
-    {
-      name = "drm/dpu: Add support for DSPP GC block to enable Gamma LUT capability";
-      patch = fetchurl {
-        name = "9ee91c5748e83772dc3660077f9f415a453eeace.patch";
-        url = "file://${./gamma-lut.patch}";
-        hash = "sha256-tz82YWVkEShCj7HVJXi7KlyG3gmR+yjYcvS4JMch+sU=";
-      };
-    }
+    # # Asus Vivobook S15
+    # {
+    #   name = "Asus Vivobook S15 wip EC driver";
+    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
+    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-wip-EC.patch;
+    # }
+    # {
+    #   name = "Asus Vivobook S15 Sound";
+    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
+    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-sound.patch;
+    # }
+    # {
+    #   name = "Asus Vivobook S15 Charging Thres";
+    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
+    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-qcom_battmgr-charge-thres.patch;
+    # }
+    # {
+    #   name = "Asus Vivobook S15 Privacy LED";
+    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
+    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-privacy-LED.patch;
+    # }
+    # {
+    #   name = "Asus Vivobook S15 Iris Codec Support";
+    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
+    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-Iris-codec.patch;
+    # }
+    # {
+    #   name = "Asus Vivobook hid driver";
+    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
+    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-hid.patch;
+    # }
+    # {
+    #   name = "Asus Vivobook HDMI";
+    #   # From: https://github.com/x1e-laptops/linux-qcom-laptops
+    #   patch = ./Asus-Vivobook-S15/Asus-Vivobook-S15-hdmi.patch;
+    # }
 
-    # Camera fixups
-    {
-      name = "arm64: dts: qcom: x1e80100-slim7x: align regulators with AeoB specification";
-      # See: https://gitlab.com/Linaro/arm64-laptops/linux/-/issues/9
-      patch = ./lenovo-yoga-slim7x-camera-regulators-fix.patch;
-    }
-    {
-      # Based on:
-      # https://github.com/alexVinarskis/linux-x1e80100-zenbook-a14/pull/1
-      # Apparently this option should be interpreted by userspace, so rotating
-      # in the kernel should not be needed.
-      name = "rotation = <180>;";
-      patch = ./lenovo-yoga-slim7x-camera-rotation.patch;
-    }
+    # Lenovo Yoga Slim7x
+    # {
+    #   name = "Add slim7x EC driver";
+    #   # From: https://lore.kernel.org/lkml/20241219200821.8328-1-maccraft123mc@gmail.com/
+    #   patch = ./lenovo-yoga-slim7x-ec.patch;
+    # }
+
+    # # Camera fixups
+    # {
+    #   name = "arm64: dts: qcom: x1e80100-slim7x: align regulators with AeoB specification";
+    #   # See: https://gitlab.com/Linaro/arm64-laptops/linux/-/issues/9
+    #   patch = ./lenovo-yoga-slim7x-camera-regulators-fix.patch;
+    # }
+    # {
+    #   # Based on:
+    #   # https://github.com/alexVinarskis/linux-x1e80100-zenbook-a14/pull/1
+    #   # Apparently this option should be interpreted by userspace, so rotating
+    #   # in the kernel should not be needed.
+    #   name = "rotation = <180>;";
+    #   patch = ./lenovo-yoga-slim7x-camera-rotation.patch;
+    # }
   ];
 
   # TODO: Look into the errors and remove this.
