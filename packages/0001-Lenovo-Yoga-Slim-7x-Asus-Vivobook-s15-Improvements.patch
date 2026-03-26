@@ -1,7 +1,7 @@
-From 4c701455358def73fcb5e2ef4919481086db51a9 Mon Sep 17 00:00:00 2001
+From 3634939ddac6bef9788eda1d8e17cfd2eee89cd3 Mon Sep 17 00:00:00 2001
 From: UpFourAGoodTime <eakergabe9@gmail.com>
-Date: Wed, 25 Mar 2026 05:52:24 -0500
-Subject: [PATCH] Lenovo Yoga Slim 7x + Asus Vivobook s15 Improvements
+Date: Thu, 26 Mar 2026 03:04:59 -0500
+Subject: [PATCH] Lenovo-Yoga-Slim-7x-Asus-Vivobook-s15-Improvements
 
 ---
  .../dts/qcom/x1e80100-asus-vivobook-s15.dts   | 520 +++++++++++++++++-
@@ -23,7 +23,7 @@ Subject: [PATCH] Lenovo Yoga Slim 7x + Asus Vivobook s15 Improvements
  create mode 100644 drivers/platform/arm64/qcom-x1e-it8987.c
 
 diff --git a/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts b/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts
-index d4df21de0d95..3af01710e6bf 100644
+index d4df21de0d95..fa35c1910811 100644
 --- a/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts
 +++ b/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts
 @@ -8,6 +8,8 @@
@@ -426,7 +426,7 @@ index d4df21de0d95..3af01710e6bf 100644
 +		assigned-clock-rates = <19200000>;
 +
 +		orientation = <0>; /* front facing */
-+		rotation = <0>;
++		rotation = <180>;
 +
 +		avdd-supply = <&vreg_l7b_2p8>;
 +		dvdd-supply = <&vreg_l7b_2p8>;

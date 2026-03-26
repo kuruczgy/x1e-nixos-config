@@ -1,6 +1,6 @@
 {
   lib,
-  fetchFromGitHub,
+  fetchFromGitLab,
   buildLinux,
   linuxPackagesFor,
   fetchpatch,
@@ -12,27 +12,26 @@
 # 19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb        git cherry-pick --empty=drop 63804fed149a6750ffd28610c5c1c98cce6bd377..19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb
 # --depth 106
 linuxPackagesFor (buildLinux {
-  src = fetchFromGitHub {
-    owner = "torvalds";
-    repo = "linux";
-    tag = "v6.19";
+  src = fetchFromGitLab {
+    owner = "Linaro";
+    repo = "arm64-laptops/linux";
+    rev = "657f472a0385e2c2bfb7310ed11f4483f73255e2";
     forceFetchGit = true;
     nativeBuildInputs = [ b4 ];
-    preFetch = "export ${lib.toShellVar "NIX_PREFETCH_GIT_CHECKOUT_HOOK" ''
-      pushd "$dir"
-      git config user.name "nix"
-      git config user.email "nix"
+    # preFetch = "export ${lib.toShellVar "NIX_PREFETCH_GIT_CHECKOUT_HOOK" ''
+    #   pushd "$dir"
+    #   git config user.name "nix"
+    #   git config user.email "nix"
 
-      git fetch 'https://gitlab.com/Linaro/arm64-laptops/linux.git'
+    #   git fetch 'https://gitlab.com/Linaro/arm64-laptops/linux.git'
 
+    #   # Collect some stats
+    #   du -sh .git
 
-      # Collect some stats
-      du -sh .git
+    #   popd
+    # ''}";
 
-      popd
-    ''}";
-
-    hash = "sha256-qElJ642reD/NX63qEBNDgFFVBWxO0zqQxWXDFHeqJu0=";
+    hash = "sha256-Mq1NVGL7Y7NtEEPdVvskGhG6CeIscTA6YYXdwtEqFG0=";
   };
   version = "6.19.0";
 
