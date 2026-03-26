@@ -33,7 +33,7 @@ linuxPackagesFor (buildLinux {
 
     hash = "sha256-CQ+J5LFcswtmRb2Z/jIuVppKoDCWWursapNNLH/qXS8=";
   };
-  version = "6.19.0";
+  version = "6.19.0-rc7";
 
   kernelPatches = [
     {
