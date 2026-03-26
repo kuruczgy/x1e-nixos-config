@@ -32,14 +32,14 @@ linuxPackagesFor (buildLinux {
       popd
     ''}";
 
-    hash = "sha256-Mq1NVGL7Y7NtEEPdVvskGhG6CeIscTA6YYXdwtEqFG0=";
+    hash = "sha256-qElJ642reD/NX63qEBNDgFFVBWxO0zqQxWXDFHeqJu0=";
   };
   version = "6.19.0";
 
   kernelPatches = [
     {
-      name = "Lenovo Yoga Slim 7x + Asus Vivobook s15 Improvements (All old patches -Vivobook S15 wip EC driver, 180 rotation on Vivobook)";
-      patch = ./Lenovo-Yoga-Slim-7x-Asus-Vivobook-S15-Improvments.patch;
+      name = "Lenovo Yoga Slim 7x + Asus Vivobook s15 Improvements (All old patches -Vivobook S15 wip EC driver)";
+      patch = ./0001-Lenovo-Yoga-Slim-7x-Asus-Vivobook-s15-Improvements.patch;
     }
     # {
     #   name = "drm/dpu: Add support for DSPP GC block to enable Gamma LUT capability";
