@@ -31,7 +31,7 @@ linuxPackagesFor (buildLinux {
     #   popd
     # ''}";
 
-    hash = "sha256-Mq1NVGL7Y7NtEEPdVvskGhG6CeIscTA6YYXdwtEqFG0=";
+    hash = "sha256-CQ+J5LFcswtmRb2Z/jIuVppKoDCWWursapNNLH/qXS8=";
   };
   version = "6.19.0";
 
