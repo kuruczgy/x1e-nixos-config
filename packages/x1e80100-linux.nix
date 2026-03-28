@@ -6,6 +6,7 @@
   fetchpatch,
   fetchurl,
   b4,
+  pkgs,
   ...
 }:
 
@@ -33,6 +34,7 @@ linuxPackagesFor (buildLinux {
     hash = "sha256-qElJ642reD/NX63qEBNDgFFVBWxO0zqQxWXDFHeqJu0=";
   };
   version = "6.19.0";
+  stdenv = pkgs.ccacheStdenv;
 
   kernelPatches = [
     {
