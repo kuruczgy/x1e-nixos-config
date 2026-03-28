@@ -6,6 +6,7 @@
   fetchpatch,
   fetchurl,
   b4,
+  pkgs,
   ...
 }:
 
@@ -33,8 +34,34 @@ linuxPackagesFor (buildLinux {
     hash = "sha256-qElJ642reD/NX63qEBNDgFFVBWxO0zqQxWXDFHeqJu0=";
   };
   version = "6.19.0";
+  stdenv = pkgs.ccacheStdenv;
 
   kernelPatches = [
+    {
+      name = "asus-vivobook-s15: add wip EC driver";
+      patch = ./asus-vivobook-s15-ec.patch;
+    }
+
+    # {
+    #   name = "asus-vivobook-s15: add camera support";
+    #   patch = ./asus-vivobook-s15-camera-support.patch;
+    # }
+
+    # {
+    #   name = "asus-vivobook-s15: add iris support";
+    #   patch = ./asus-vivobook-s15-iris-support.patch;
+    # }
+
+    # {
+    #   name = "asus-vivobook-s15: add hdmi support";
+    #   patch = ./asus-vivobook-s15-hdmi-support.patch;
+    # }
+
+    {
+      name = "asus-vivobook-s15: add sound support";
+      patch = ./asus-vivobook-s15-sound-support.patch;
+    }
+
     {
       name = "Add slim7x EC driver";
       # From: https://lore.kernel.org/lkml/20241219200821.8328-1-maccraft123mc@gmail.com/
@@ -74,6 +101,7 @@ linuxPackagesFor (buildLinux {
     KVM = yes;
     MAGIC_SYSRQ = yes;
     EC_LENOVO_YOGA_SLIM7X = module;
+    EC_ASUS_VIVOBOOK_S15 = module;
 
     # Stuff to reduce compile times.
     ACPI = no;

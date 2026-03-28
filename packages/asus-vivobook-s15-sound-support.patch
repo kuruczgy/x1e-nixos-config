@@ -1,0 +1,321 @@
+From 50144e857160731e55b55c24cf43e6e4be19008a Mon Sep 17 00:00:00 2001
+From: binarycraft007 <elliot.huang.signed@gmail.com>
+Date: Mon, 2 Jun 2025 13:27:03 +0800
+Subject: [PATCH 1/9] arm64: dts: qcom: support sound on Asus Vivobook S15
+
+---
+ .../dts/qcom/x1e80100-asus-vivobook-s15.dts   | 252 ++++++++++++++++++
+ 1 file changed, 252 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts b/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts
+index 0113d856b..879f4482a 100644
+--- a/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts
++++ b/arch/arm64/boot/dts/qcom/x1e80100-asus-vivobook-s15.dts
+@@ -23,6 +23,32 @@ aliases {
+ 		serial1 = &uart14;
+ 	};
+ 
++	wcd938x: audio-codec {
++		compatible = "qcom,wcd9385-codec";
++
++		pinctrl-0 = <&wcd_default>;
++		pinctrl-names = "default";
++
++		qcom,micbias1-microvolt = <1800000>;
++		qcom,micbias2-microvolt = <1800000>;
++		qcom,micbias3-microvolt = <1800000>;
++		qcom,micbias4-microvolt = <1800000>;
++		qcom,mbhc-buttons-vthreshold-microvolt = <75000 150000 237000 500000 500000 500000 500000 500000>;
++		qcom,mbhc-headset-vthreshold-microvolt = <1700000>;
++		qcom,mbhc-headphone-vthreshold-microvolt = <50000>;
++		qcom,rx-device = <&wcd_rx>;
++		qcom,tx-device = <&wcd_tx>;
++
++		reset-gpios = <&tlmm 191 GPIO_ACTIVE_LOW>;
++
++		vdd-buck-supply = <&vreg_l15b_1p8>;
++		vdd-rxtx-supply = <&vreg_l15b_1p8>;
++		vdd-io-supply = <&vreg_l15b_1p8>;
++		vdd-mic-bias-supply = <&vreg_bob1>;
++
++		#sound-dai-cells = <1>;
++	};
++
+ 	gpio-keys {
+ 		compatible = "gpio-keys";
+ 		pinctrl-0 = <&hall_int_n_default>;
+@@ -105,6 +131,120 @@ pmic_glink_ss1_ss_in: endpoint {
+ 		};
+ 	};
+ 
++	sound {
++		compatible = "qcom,x1e80100-sndcard";
++		model = "X1E80100-ASUS-Vivobook-S15";
++		audio-routing = "SpkrLeft IN", "WSA WSA_SPK1 OUT",
++				"SpkrRight IN", "WSA WSA_SPK2 OUT",
++				"IN1_HPHL", "HPHL_OUT",
++				"IN2_HPHR", "HPHR_OUT",
++				"AMIC2", "MIC BIAS2",
++				"VA DMIC0", "MIC BIAS3",
++				"VA DMIC1", "MIC BIAS3",
++				"VA DMIC0", "VA MIC BIAS3",
++				"VA DMIC1", "VA MIC BIAS3",
++				"TX SWR_INPUT1", "ADC2_OUTPUT";
++
++		displayport-0-dai-link {
++			link-name = "DisplayPort0 Playback";
++
++			codec {
++				sound-dai = <&mdss_dp0>;
++			};
++
++			cpu {
++				sound-dai = <&q6apmbedai DISPLAY_PORT_RX_0>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++
++		displayport-1-dai-link {
++			link-name = "DisplayPort1 Playback";
++
++			codec {
++				sound-dai = <&mdss_dp1>;
++			};
++
++			cpu {
++				sound-dai = <&q6apmbedai DISPLAY_PORT_RX_1>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++
++		va-dai-link {
++			link-name = "VA Capture";
++
++			cpu {
++				sound-dai = <&q6apmbedai VA_CODEC_DMA_TX_0>;
++			};
++
++			codec {
++				sound-dai = <&lpass_vamacro 0>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++
++		wcd-capture-dai-link {
++			link-name = "WCD Capture";
++
++			cpu {
++				sound-dai = <&q6apmbedai TX_CODEC_DMA_TX_3>;
++			};
++
++			codec {
++				sound-dai = <&wcd938x 1>, <&swr2 1>,
++					    <&lpass_txmacro 0>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++
++		wcd-playback-dai-link {
++			link-name = "WCD Playback";
++
++			cpu {
++				sound-dai = <&q6apmbedai RX_CODEC_DMA_RX_0>;
++			};
++
++			codec {
++				sound-dai = <&wcd938x 0>, <&swr1 0>,
++					    <&lpass_rxmacro 0>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++
++		wsa-dai-link {
++			link-name = "WSA Playback";
++
++			cpu {
++				sound-dai = <&q6apmbedai WSA_CODEC_DMA_RX_0>;
++			};
++
++			codec {
++				sound-dai = <&left_spkr>, <&right_spkr>,
++					    <&swr0 0>, <&lpass_wsamacro 0>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++	};
++
+ 	reserved-memory {
+ 		linux,cma {
+ 			compatible = "shared-dma-pool";
+@@ -290,6 +430,13 @@ vreg_bob2: bob2 {
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 		};
+ 
++		vreg_l1b_1p8: ldo1 {
++			regulator-name = "vreg_l1b_1p8";
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++		};
++
+ 		vreg_l2b_3p0: ldo2 {
+ 			regulator-name = "vreg_l2b_3p0";
+ 			regulator-min-microvolt = <3072000>;
+@@ -304,6 +451,14 @@ vreg_l4b_1p8: ldo4 {
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 		};
+ 
++		vreg_l12b_1p2: ldo12 {
++			regulator-name = "vreg_l12b_1p2";
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <1200000>;
++			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
++			regulator-always-on;
++		};
++
+ 		vreg_l13b_3p0: ldo13 {
+ 			regulator-name = "vreg_l13b_3p0";
+ 			regulator-min-microvolt = <3072000>;
+@@ -586,10 +741,46 @@ &i2c7 {
+ 	/* PS8830 USB4 Retimer? @ 0x8 */
+ };
+ 
++&lpass_tlmm {
++	spkr_01_sd_n_active: spkr-01-sd-n-active-state {
++		pins = "gpio12";
++		function = "gpio";
++		drive-strength = <16>;
++		bias-disable;
++		output-low;
++	};
++};
++
++&lpass_vamacro {
++	pinctrl-0 = <&dmic01_default>;
++	pinctrl-names = "default";
++
++	vdd-micb-supply = <&vreg_l1b_1p8>;
++	qcom,dmic-sample-rate = <4800000>;
++};
++
+ &mdss {
+ 	status = "okay";
+ };
+ 
++&mdss_dp0 {
++	sound-name-prefix = "DisplayPort0";
++	status = "okay";
++};
++
++&mdss_dp0_out {
++	link-frequencies = /bits/ 64 <1620000000 2700000000 5400000000 8100000000>;
++};
++
++&mdss_dp1 {
++	sound-name-prefix = "DisplayPort1";
++	status = "okay";
++};
++
++&mdss_dp1_out {
++	link-frequencies = /bits/ 64 <1620000000 2700000000 5400000000 8100000000>;
++};
++
+ &mdss_dp3 {
+ 	/delete-property/ #sound-dai-cells;
+ 
+@@ -739,6 +930,59 @@ &smb2360_1_eusb2_repeater {
+ 	vdd3-supply = <&vreg_l14b_3p0>;
+ };
+ 
++&swr0 {
++	status = "okay";
++
++	pinctrl-0 = <&wsa_swr_active>, <&spkr_01_sd_n_active>;
++	pinctrl-names = "default";
++
++	/* WSA8845, Left Speaker */
++	left_spkr: speaker@0,0 {
++		compatible = "sdw20217020400";
++		reg = <0 0>;
++		reset-gpios = <&lpass_tlmm 12 GPIO_ACTIVE_LOW>;
++		#sound-dai-cells = <0>;
++		sound-name-prefix = "SpkrLeft";
++		vdd-1p8-supply = <&vreg_l15b_1p8>;
++		vdd-io-supply = <&vreg_l12b_1p2>;
++		qcom,port-mapping = <1 2 3 7 10 13>;
++	};
++
++	/* WSA8845, Right Speaker */
++	right_spkr: speaker@0,1 {
++		compatible = "sdw20217020400";
++		reg = <0 1>;
++		reset-gpios = <&lpass_tlmm 12 GPIO_ACTIVE_LOW>;
++		#sound-dai-cells = <0>;
++		sound-name-prefix = "SpkrRight";
++		vdd-1p8-supply = <&vreg_l15b_1p8>;
++		vdd-io-supply = <&vreg_l12b_1p2>;
++		qcom,port-mapping = <4 5 6 7 11 13>;
++	};
++};
++
++&swr1 {
++	status = "okay";
++
++	/* WCD9385 RX */
++	wcd_rx: codec@0,4 {
++		compatible = "sdw20217010d00";
++		reg = <0 4>;
++		qcom,rx-port-mapping = <1 2 3 4 5>;
++	};
++};
++
++&swr2 {
++	status = "okay";
++
++	/* WCD9385 TX */
++	wcd_tx: codec@0,3 {
++		compatible = "sdw20217010d00";
++		reg = <0 3>;
++		qcom,tx-port-mapping = <2 2 3 4>;
++	};
++};
++
+ &tlmm {
+ 	gpio-reserved-ranges = <34 2>, /* Unused */
+ 			       <44 4>, /* SPI (TPM) */
+@@ -846,6 +1090,14 @@ tpad_default: tpad-default-state {
+ 		bias-disable;
+ 	};
+ 
++	wcd_default: wcd-reset-n-active-state {
++		pins = "gpio191";
++		function = "gpio";
++		drive-strength = <16>;
++		bias-disable;
++		output-low;
++	};
++
+ 	wcn_bt_en: wcn-bt-en-state {
+ 		pins = "gpio116";
+ 		function = "gpio";
+-- 
+2.53.0
+
