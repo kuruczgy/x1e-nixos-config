@@ -8,7 +8,7 @@
 let
   cfg = config.hardware;
 
-  tcblaunch_exe = pkgs.fetchurl {
+  tcblaunchExe = pkgs.fetchurl {
     # Download link obtained from https://winbindex.m417z.com/?arch=arm64&file=tcblaunch.exe
     # I don't know how trustworthy that site is, but this is a microsoft.com
     # download link, and the expected hash for this tcblaunch.exe has been in
@@ -31,18 +31,28 @@ in
       type = with lib.types; listOf str;
       description = "List of firmware files to be loaded during boot, before switching to EL2";
     };
-    tcblaunch = lib.mkOption {
+    enableDefaultTcblaunchExe = lib.mkEnableOption ''
+      Whether to download and use a default tcblaunch.exe from Microsoft's
+      website that has a decent chance of working.
+    '';
+    tcblaunchExe = lib.mkOption {
       type = with lib.types; nullOr pathInStore;
       description = ''
-        The tcblaunch.exe used by slbounce to boot into EL2. Defaults to
-        downloading one from Microsoft that's know to work with the Lenovo Yoga
-        Slim 7x.
+        The tcblaunch.exe used by slbounce to boot into EL2. Set to `null` to
+        disable. Set `config.x1e.el2.enableDefaultTcblaunchExe = true;` to
+        download a default one from Microsoft's website. Note that this will
+        overwrite any existing tcblaunch.exe in your EFI partition, if you
+        manually copied one there in the past you might want to back it up
+        first.
       '';
-      default = tcblaunch_exe;
     };
   };
 
   config = lib.mkIf config.x1e.el2.enable {
+    x1e.el2.tcblaunchExe = lib.mkIf config.x1e.el2.enableDefaultTcblaunchExe (
+      lib.mkOptionDefault tcblaunchExe
+    );
+
     specialisation.el2.configuration = {
       hardware.deviceTree.name = lib.replaceString ".dtb" "-el2.dtb" config.hardware.deviceTree.name;
 
@@ -74,7 +84,7 @@ in
 
     boot.loader.systemd-boot.extraFiles = {
       "EFI/systemd/drivers/slbounceaa64.efi" = "${pkgs.slbounce}/slbounce.efi";
-      "tcblaunch.exe" = lib.mkIf (config.x1e.el2.tcblaunch != null) config.x1e.el2.tcblaunch;
+      "tcblaunch.exe" = lib.mkIf (config.x1e.el2.tcblaunchExe != null) config.x1e.el2.tcblaunchExe;
       "EFI/systemd/drivers/qebspilaa64.efi" = lib.mkIf (
         config.x1e.el2.qebspilFirmwareFiles != [ ]
       ) "${pkgs.qebspil}/qebspilaa64.efi";
