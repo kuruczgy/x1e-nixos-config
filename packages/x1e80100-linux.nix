@@ -11,9 +11,10 @@
 
 linuxPackagesFor (buildLinux {
   src = fetchFromGitHub {
-    owner = "torvalds";
+    # Stable point release lives in the stable tree, not torvalds/linux.
+    owner = "gregkh";
     repo = "linux";
-    tag = "v6.19";
+    tag = "v7.1.3";
     forceFetchGit = true;
     nativeBuildInputs = [ b4 ];
     preFetch = "export ${lib.toShellVar "NIX_PREFETCH_GIT_CHECKOUT_HOOK" ''
@@ -21,8 +22,8 @@ linuxPackagesFor (buildLinux {
       git config user.name "nix"
       git config user.email "nix"
 
-      git fetch 'https://gitlab.com/Linaro/arm64-laptops/linux.git' --depth 106 19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb
-      git cherry-pick --empty=drop 63804fed149a6750ffd28610c5c1c98cce6bd377..19e59e1b39ad789a5bf90b0b9850bb11ca9f7ebb
+      git fetch 'https://gitlab.com/Linaro/arm64-laptops/linux.git' --depth 90 4236b9933aa13cb7a3572bc943ad7e3b42f5de5d
+      git cherry-pick --empty=drop 028ef9c96e96197026887c0f092424679298aae8..4236b9933aa13cb7a3572bc943ad7e3b42f5de5d
 
       # Collect some stats
       du -sh .git
@@ -30,32 +31,15 @@ linuxPackagesFor (buildLinux {
       popd
     ''}";
 
-    hash = "sha256-qElJ642reD/NX63qEBNDgFFVBWxO0zqQxWXDFHeqJu0=";
+    hash = "sha256-2VnExjCsN+St6UDJOhsKcUVvp6WS0H3SPyWa5U6yqQg=";
   };
-  version = "6.19.0";
+  version = "7.1.3";
 
   kernelPatches = [
-    {
-      name = "rust: irq: add `'static` bounds to irq callbacks";
-      patch = fetchpatch {
-        url = "https://github.com/torvalds/linux/commit/621609f1e5ca43a75edd497dd1c28bd84aa66433.patch";
-        hash = "sha256-78Nv3P2sWjGwpmHdUPbo6EAmcI6wthMRsmLpOKM8oCM=";
-      };
-    }
-
     {
       name = "Add slim7x EC driver";
       # From: https://lore.kernel.org/lkml/20241219200821.8328-1-maccraft123mc@gmail.com/
       patch = ./lenovo-yoga-slim7x-ec.patch;
-    }
-
-    {
-      name = "drm/dpu: Add support for DSPP GC block to enable Gamma LUT capability";
-      patch = fetchurl {
-        name = "9ee91c5748e83772dc3660077f9f415a453eeace.patch";
-        url = "file://${./gamma-lut.patch}";
-        hash = "sha256-tz82YWVkEShCj7HVJXi7KlyG3gmR+yjYcvS4JMch+sU=";
-      };
     }
 
     # Camera fixups
