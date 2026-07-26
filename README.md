@@ -203,11 +203,9 @@ You should be able to import [`default.nix`](/default.nix) and reference the mod
 
 ## Running virtual machines with KVM
 
-By default the firmware runs Linux in the EL1 privilege level, but EL2 is needed for KVM. Coaxing the firmware into running Linux in EL2 is rather involved, see the [slbounce](https://github.com/TravMurav/slbounce) README for more information about the process.
+By default the firmware runs Linux in the EL1 privilege level, but EL2 is needed for KVM.
 
-`slbounce` uses `tcblaunch.exe` (this is a signed binary, and there are currently no known alternatives), which you will need to manually copy from your Windows installation from `C:\Windows\System32\tcblaunch.exe` into the root of the ESP. The SHA256 hash of my `tcblaunch.exe` is `5dfcd0253b6ee99499ab33cac221e8a9cea47f3fdf6d4e11de9a9f3c4770d03d`, I am not sure whether other versions also exist out there. If yours is different, please report its hash and whether it worked for you.
-
-To enable the `el2` specialization, which you can then select in the systemd-boot menu, set `x1e.el2.enable = true;` in your config.
+To enable the `el2` specialization, which you can then select in the systemd-boot menu, set `x1e.el2.enable = true;` in your config. (This will download `tcblaunch.exe` from Microsoft's website (a signed binary needed boot into EL2), and use [slbounce](https://github.com/TravMurav/slbounce) to boot into EL2.)
 
 This is deliberately a separate non-default boot option, since some hardware support might not work under EL2.
 

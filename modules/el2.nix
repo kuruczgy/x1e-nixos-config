@@ -7,19 +7,52 @@
 
 let
   cfg = config.hardware;
+
+  tcblaunchExe = pkgs.fetchurl {
+    # Download link obtained from https://winbindex.m417z.com/?arch=arm64&file=tcblaunch.exe
+    # I don't know how trustworthy that site is, but this is a microsoft.com
+    # download link, and the expected hash for this tcblaunch.exe has been in
+    # the README of this repo for over a year prior.
+    url = "https://msdl.microsoft.com/download/symbols/tcblaunch.exe/EC74C165f6000/tcblaunch.exe";
+    # This is the hash of a tcblaunch.exe from a Windows 11 install on a Lenovo
+    # Yoga Slim 7x, has been working well with slbounce on this laptop for a
+    # while.
+    outputHash = "5dfcd0253b6ee99499ab33cac221e8a9cea47f3fdf6d4e11de9a9f3c4770d03d";
+    outputHashAlgo = "sha256";
+  };
 in
 {
-  options.x1e.el2.enable = lib.mkEnableOption ''
-    Enable the `el2` specialization and slbounce EFI driver. Needed to run
-    virtual machines using KVM.
-  '';
-
-  options.x1e.el2.qebspilFirmwareFiles = lib.mkOption {
-    type = with lib.types; listOf str;
-    description = "List of firmware files to be loaded during boot, before switching to EL2";
+  options.x1e.el2 = {
+    enable = lib.mkEnableOption ''
+      Enable the `el2` specialization and slbounce EFI driver. Needed to run
+      virtual machines using KVM.
+    '';
+    qebspilFirmwareFiles = lib.mkOption {
+      type = with lib.types; listOf str;
+      description = "List of firmware files to be loaded during boot, before switching to EL2";
+    };
+    enableDefaultTcblaunchExe = lib.mkEnableOption ''
+      Whether to download and use a default tcblaunch.exe from Microsoft's
+      website that has a decent chance of working.
+    '';
+    tcblaunchExe = lib.mkOption {
+      type = with lib.types; nullOr pathInStore;
+      description = ''
+        The tcblaunch.exe used by slbounce to boot into EL2. Set to `null` to
+        disable. Set `config.x1e.el2.enableDefaultTcblaunchExe = true;` to
+        download a default one from Microsoft's website. Note that this will
+        overwrite any existing tcblaunch.exe in your EFI partition, if you
+        manually copied one there in the past you might want to back it up
+        first.
+      '';
+    };
   };
 
   config = lib.mkIf config.x1e.el2.enable {
+    x1e.el2.tcblaunchExe = lib.mkIf config.x1e.el2.enableDefaultTcblaunchExe (
+      lib.mkOptionDefault tcblaunchExe
+    );
+
     specialisation.el2.configuration = {
       hardware.deviceTree.name = lib.replaceString ".dtb" "-el2.dtb" config.hardware.deviceTree.name;
 
@@ -51,6 +84,7 @@ in
 
     boot.loader.systemd-boot.extraFiles = {
       "EFI/systemd/drivers/slbounceaa64.efi" = "${pkgs.slbounce}/slbounce.efi";
+      "tcblaunch.exe" = lib.mkIf (config.x1e.el2.tcblaunchExe != null) config.x1e.el2.tcblaunchExe;
       "EFI/systemd/drivers/qebspilaa64.efi" = lib.mkIf (
         config.x1e.el2.qebspilFirmwareFiles != [ ]
       ) "${pkgs.qebspil}/qebspilaa64.efi";
