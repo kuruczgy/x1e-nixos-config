@@ -90,6 +90,15 @@ in
               "reset_gpio"
               "gpio_shared_proxy"
             ])
+
+            (lib.mkIf cfg.asus-vivobook-s15.enable [
+              # OLED display (TODO: needed for initramfs?)
+              "panel_samsung_atna33xc20"
+
+              # Needed for USB (TODO: also latter?)
+              "phy_nxp_ptn3222"
+              "phy_qcom_qmp_usb"
+            ])
           ];
 
           boot.kernelParams = lib.mkMerge [
@@ -120,6 +129,10 @@ in
 
           boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
 
+          hardware.firmware = lib.mkMerge [
+            (lib.mkIf cfg.asus-vivobook-s15.enable [ pkgs.x1e80100-asus-vivobook-s15-firmware ])
+          ];
+
           boot.initrd.extraFirmwarePaths = lib.mkMerge [
             (lib.mkIf cfg.lenovo-thinkpad-t14s.enable [
               # Basically all of the x1e80100 modules. Avoids fw_load errors in initrd.
@@ -136,6 +149,23 @@ in
               "qcom/x1e80100/LENOVO/21N1/cdsp_dtbs.elf"
               "qcom/x1e80100/adsp.mbn"
               "qcom/x1e80100/adsp_dtb.mbn"
+            ])
+
+            (lib.mkIf cfg.asus-vivobook-s15.enable [
+              # Ditto for vivobook, TODO need GPU for displays? think so based on previous testing.. easier to try on chimera ig. arch only has gen70500_gmu.bin/gen70500_sqe.fw/qcdxkmsuc8380.mbn
+              "qcom/x1e80100/gen70500_gmu.bin"
+              "qcom/x1e80100/gen70500_sqe.fw"
+              "qcom/x1e80100/ASUSTeK/vivobook-s15/adsp_dtbs.elf"
+              "qcom/x1e80100/ASUSTeK/vivobook-s15/cdsp_dtbs.elf"
+              "qcom/x1e80100/ASUSTeK/vivobook-s15/qcadsp8380.mbn"
+              "qcom/x1e80100/ASUSTeK/vivobook-s15/qccdsp8380.mbn"
+              "qcom/x1e80100/ASUSTeK/vivobook-s15/qcdxkmsuc8380.mbn"
+              #"qcom/x1e80100/ASUSTeK/vivobook-s15/qcdxkmsucpurwa.mbn"
+              "qcom/x1e80100/ASUSTeK/vivobook-s15/adspr.jsn"
+              "qcom/x1e80100/ASUSTeK/vivobook-s15/adsps.jsn"
+              "qcom/x1e80100/ASUSTeK/vivobook-s15/adspua.jsn"
+              "qcom/x1e80100/ASUSTeK/vivobook-s15/battmgr.jsn"
+              "qcom/x1e80100/ASUSTeK/vivobook-s15/cdspr.jsn"
             ])
           ];
 

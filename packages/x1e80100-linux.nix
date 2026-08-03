@@ -40,7 +40,32 @@ linuxPackagesFor (buildLinux {
       patch = fetchpatch {
         url = "https://github.com/torvalds/linux/commit/621609f1e5ca43a75edd497dd1c28bd84aa66433.patch";
         hash = "sha256-78Nv3P2sWjGwpmHdUPbo6EAmcI6wthMRsmLpOKM8oCM=";
-      };
+        };
+      }
+
+      {
+      name = "asus-vivobook-s15: add wip EC driver";
+      patch = ./asus-vivobook-s15-ec.patch;
+      }
+
+    # {
+    #   name = "asus-vivobook-s15: add camera support";
+    #   patch = ./asus-vivobook-s15-camera-support.patch;
+    # }
+
+    # {
+    #   name = "asus-vivobook-s15: add iris support";
+    #   patch = ./asus-vivobook-s15-iris-support.patch;
+    # }
+
+    # {
+    #   name = "asus-vivobook-s15: add hdmi support";
+    #   patch = ./asus-vivobook-s15-hdmi-support.patch;
+    # }
+
+    {
+      name = "asus-vivobook-s15: add sound support";
+      patch = ./asus-vivobook-s15-sound-support.patch;
     }
 
     {
@@ -82,6 +107,7 @@ linuxPackagesFor (buildLinux {
     KVM = yes;
     MAGIC_SYSRQ = yes;
     EC_LENOVO_YOGA_SLIM7X = module;
+    EC_ASUS_VIVOBOOK_S15 = module;
 
     # Stuff to reduce compile times.
     ACPI = no;
