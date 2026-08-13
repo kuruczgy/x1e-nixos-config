@@ -130,13 +130,6 @@ in
             (lib.mkIf cfg.lenovo-thinkpad-t14s.enable [
               "mem=31G"
             ])
-
-            (lib.mkIf cfg.asus-zenbook-a14.enable [
-              "console=tty1"
-              "cma=128M"
-              "efi=noruntime"
-              "arm64.nopauth"
-            ])
           ];
 
           hardware.deviceTree.enable = true;
